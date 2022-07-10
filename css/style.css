@@ -1,0 +1,21 @@
+body {
+    pointer-events: none
+}
+
+* {
+    pointer-events: all;
+}
+
+.draggable {
+    -webkit-app-region: drag;
+}
+
+.red {
+    background-color: red;
+    width: 5rem;
+    height: 5rem;
+}
+
+.hidden {
+    display: none;
+}
