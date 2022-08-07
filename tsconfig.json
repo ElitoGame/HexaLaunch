@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
     "noImplicitAny": true,
     "sourceMap": true,
     "outDir": "dist",
@@ -12,7 +11,20 @@
     },
     "typeRoots": [
       "./src/types"
-    ]
+    ],
+    "types": [
+      "vite/client"
+    ],
+    "strict": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "noEmit": true,
+    "isolatedModules": true
   },
   "include": [
     "src/**/*"

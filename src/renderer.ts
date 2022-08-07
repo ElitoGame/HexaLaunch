@@ -21,7 +21,7 @@ window.addEventListener('mousemove', event => {
 
 window.onload = function () {
     window.electronAPI.toggleWindow((event, value) => {
-        const body = document.querySelector('body');
+        const body = document.querySelector('body') as HTMLElement;
         if (!value) {
             body.classList.remove('hidden');
             // setTimeout(function () {
@@ -33,3 +33,5 @@ window.onload = function () {
         console.log(value + ", " + body.classList);
     });
 }
+
+export default {};
