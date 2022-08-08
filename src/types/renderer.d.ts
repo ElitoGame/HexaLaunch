@@ -1,12 +1,13 @@
 import { IpcRendererEvent } from "electron";
 
 export interface IElectronAPI {
-    setIgnoreMouseEvents: (yes: boolean, forward: { forward: boolean }) => Promise<void>,
-    toggleWindow: (callback: (event: IpcRendererEvent, value: boolean) => void) => void,
+	setIgnoreMouseEvents: (yes: boolean, forward: { forward: boolean }) => Promise<void>;
+	toggleWindow: (callback: (event: IpcRendererEvent, value: boolean) => void) => void;
+	getMousePosition: (callback: (event: IpcRendererEvent, value: { x: number; y: number }) => void) => void;
 }
 
 declare global {
-    interface Window {
-        electronAPI: IElectronAPI
-    }
+	interface Window {
+		electronAPI: IElectronAPI;
+	}
 }
