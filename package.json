@@ -21,14 +21,14 @@
 	],
 	"author": "GitHub",
 	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^4.33.0",
-		"@typescript-eslint/parser": "^4.33.0",
+		"@typescript-eslint/eslint-plugin": "^5.33.0",
+		"@typescript-eslint/parser": "^5.33.0",
 		"electron": "^20.0.1",
 		"eslint": "^8.21.0",
 		"typescript": "^4.7.4",
 		"vite": "^3.0.5",
-		"vite-plugin-electron": "^0.8.4",
-		"vite-plugin-solid": "^2.2.6"
+		"vite-plugin-electron": "^0.8.7",
+		"vite-plugin-solid": "^2.3.0"
 	},
 	"dependencies": {
 		"solid-js": "^1.4.8"
