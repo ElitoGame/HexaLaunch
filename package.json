@@ -1,37 +1,46 @@
 {
-	"name": "electron-quick-start-typescript",
-	"version": "1.0.0",
-	"description": "A minimal Electron application written with Typescript",
-	"main": "dist/electron/main.js",
-	"scripts": {
-		"dev": "vite",
-		"build": "vite build",
-		"watch": "tsc -w",
-		"lint": "eslint -c .eslintrc --ext .ts ./src",
-		"start": "npm run build && electron ./dist/electron/main.js --trace-warnings"
-	},
-	"repository": "https://github.com/electron/electron-quick-start-typescript",
-	"keywords": [
-		"Electron",
-		"quick",
-		"start",
-		"tutorial",
-		"demo",
-		"typescript"
-	],
-	"author": "GitHub",
-	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^5.33.0",
-		"@typescript-eslint/parser": "^5.33.0",
-		"electron": "^20.0.1",
-		"eslint": "^8.21.0",
-		"typescript": "^4.7.4",
-		"vite": "^3.0.5",
-		"vite-plugin-electron": "^0.8.7",
-		"vite-plugin-solid": "^2.3.0"
-	},
-	"dependencies": {
-		"solid-js": "^1.4.8"
-	},
-	"typings": "renderer.d.ts"
+  "name": "radialhexui",
+  "version": "1.0.0",
+  "description": "A Desktop App Launcher built with Electron",
+  "main": "./out/main/index.js",
+  "author": "ElitoGame",
+  "homepage": "https://github.com/ElitoGame/RadialHexUI",
+  "scripts": {
+    "format": "prettier --write .",
+    "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "typecheck": "tsc --noEmit",
+    "start": "electron-vite preview",
+    "dev": "electron-vite dev",
+    "build": "tsc --noEmit && electron-vite build",
+    "postinstall": "electron-builder install-app-deps",
+    "build:win": "npm run build && electron-builder --win --config",
+    "build:mac": "npm run build && electron-builder --mac --config",
+    "build:linux": "npm run build && electron-builder --linux --config"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^1.0.2",
+    "@electron-toolkit/utils": "^1.0.2",
+    "electron-updater": "^4.6.5",
+    "solid-js": "^1.5.6"
+  },
+  "devDependencies": {
+    "@electron-toolkit/tsconfig": "^1.0.1",
+    "@types/node": "16.11.22",
+    "@typescript-eslint/eslint-plugin": "^5.35.1",
+    "@typescript-eslint/parser": "^5.35.1",
+    "autoprefixer": "^10.4.12",
+    "electron": "^19.0.14",
+    "electron-builder": "^22.14.13",
+    "electron-notarize": "^1.2.1",
+    "electron-vite": "^1.0.8",
+    "eslint": "^8.22.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "postcss": "^8.4.16",
+    "prettier": "^2.7.1",
+    "tailwindcss": "^3.1.8",
+    "typescript": "^4.7.4",
+    "vite": "^3.0.9",
+    "vite-plugin-solid": "^2.2.6"
+  }
 }

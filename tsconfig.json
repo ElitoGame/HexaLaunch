@@ -1,24 +1,23 @@
 {
-	"compilerOptions": {
-		"noImplicitAny": true,
-		"sourceMap": true,
-		"outDir": "dist",
-		"baseUrl": ".",
-		"paths": {
-			"*": ["node_modules/*"]
-		},
-		"typeRoots": ["./src/types"],
-		"types": ["vite/client"],
-		"strict": true,
-		"target": "ESNext",
-		"module": "ESNext",
-		"moduleResolution": "node",
-		"allowSyntheticDefaultImports": true,
-		"esModuleInterop": true,
-		"jsx": "preserve",
-		"jsxImportSource": "solid-js",
-		"noEmit": true,
-		"isolatedModules": true
-	},
-	"include": ["src/**/*", "src/preload.ts", "src/main.ts"]
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "noEmit": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "types": [],
+    "baseUrl": "."
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "out", "build"],
+  "files": [],
+  "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" }]
 }
