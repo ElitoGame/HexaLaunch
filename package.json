@@ -20,6 +20,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^1.0.2",
     "@electron-toolkit/utils": "^1.0.2",
+    "easy-auto-launch": "^6.0.2",
     "electron-updater": "^4.6.5",
     "solid-js": "^1.5.6"
   },

@@ -14,6 +14,10 @@ export default defineConfig({
     build: {
       rollupOptions: {
         external: ['@electron-toolkit/preload'],
+        input: {
+          index: resolve(__dirname, 'src/preload/index.ts'),
+          settings: resolve(__dirname, 'src/preload/settings.ts'),
+        },
       },
     },
   },
@@ -25,9 +29,12 @@ export default defineConfig({
     },
     plugins: [solidPlugin()],
     build: {
-      target: 'chrome',
       rollupOptions: {
         external: 'css',
+        input: {
+          index: resolve(__dirname, 'src/renderer/index.html'),
+          settings: resolve(__dirname, 'src/renderer/settings.html'),
+        },
       },
     },
   },

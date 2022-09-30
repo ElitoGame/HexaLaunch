@@ -15,7 +15,7 @@ window.addEventListener('mousemove', (event) => {
 });
 
 window.onload = function (): void {
-  window.electronAPI.toggleWindow((event, value) => {
+  window.electronAPI.toggleWindow((_event, value) => {
     const body = document.querySelector('body') as HTMLElement;
     if (!value) {
       setTimeout(() => {
@@ -25,7 +25,7 @@ window.onload = function (): void {
       body.classList.add('hidden');
     }
   });
-  window.electronAPI.getMousePosition((event, value) => {
+  window.electronAPI.getMousePosition((_event, value) => {
     console.log(value);
     setShowPosition(value);
   });
