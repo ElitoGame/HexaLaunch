@@ -142,6 +142,7 @@ app.on('ready', () => {
       label: 'Toggle AutoLaunch',
       type: 'checkbox',
       checked: settings.getAutoLaunch(),
+      enabled: !is.dev,
       click: () => {
         settings.setAutoLaunch(!settings.getAutoLaunch()).save();
         electronApp.setAutoLaunch(settings.getAutoLaunch());

@@ -1,5 +1,5 @@
 // import fs
-import { electronApp } from '@electron-toolkit/utils';
+import { electronApp, is } from '@electron-toolkit/utils';
 import { app } from 'electron';
 import * as fs from 'fs';
 import path from 'path';
@@ -8,12 +8,10 @@ export class UserSettings implements UserSettings {
   public static settings: UserSettings; // Using a Singleton here to ensure that the settings are only loaded once.
   private autoLaunch: boolean;
   public setAutoLaunch(autoLaunchVal: boolean) {
-    console.log('setAutoLaunch', autoLaunchVal);
     this.autoLaunch = autoLaunchVal;
     return this;
   }
   public getAutoLaunch() {
-    console.log('getAutoLaunch', this.autoLaunch);
     return this.autoLaunch;
   }
   private language: string;
@@ -32,7 +30,6 @@ export class UserSettings implements UserSettings {
       path.join(app.getPath('userData'), 'user-settings.json'),
       JSON.stringify(data)
     );
-    console.log('Saved user settings: ' + path.join(app.getPath('userData'), 'user-settings.json'));
   }
 
   public static load() {
@@ -47,6 +44,10 @@ export class UserSettings implements UserSettings {
       } catch (e) {
         UserSettings.settings.save();
         // No data has been setup yet, so set default values here:
+      }
+      // Make sure to set the auto-launch value. This needs to happen regardless of if data is present or not,
+      // because the settings file can be generated in dev mode too, but the autolaunch will never be activated in dev mode.
+      if (!is.dev) {
         electronApp.setAutoLaunch(UserSettings.settings.getAutoLaunch());
       }
     }
