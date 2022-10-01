@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, globalShortcut, screen, Tray, Menu } from 'electron';
 import * as path from 'path';
-import { is } from '@electron-toolkit/utils';
+import { is, electronApp } from '@electron-toolkit/utils';
+import { UserSettings } from './datastore';
 
 let appVisible = true;
 let tray: Tray | null = null;
@@ -15,7 +16,7 @@ function createWindow(): void {
     autoHideMenuBar: true,
     ...(process.platform === 'linux'
       ? {
-          icon: path.join(__dirname, '../../build/icon.png'),
+          icon: path.join(__dirname, '../../public/icon.png'),
         }
       : {}),
     webPreferences: {
@@ -63,7 +64,7 @@ function createSettingsWindow(): void {
     autoHideMenuBar: true,
     ...(process.platform === 'linux'
       ? {
-          icon: path.join(__dirname, '../../build/icon.png'),
+          icon: path.join(__dirname, '../../public/icon.png'),
         }
       : {}),
     webPreferences: {
@@ -72,7 +73,7 @@ function createSettingsWindow(): void {
     },
     width: 800,
     title: 'RadialHexUI Settings',
-    icon: path.join(__dirname, '../../build/icon.png'),
+    icon: path.join(__dirname, '../../public/icon.png'),
   });
 
   // and load the settings.html of the app.
@@ -129,12 +130,22 @@ app.on('ready', () => {
   });
 
   // Create the tray menu
-  tray = new Tray(path.join(__dirname, '../../build/icon.ico'));
+  const settings: UserSettings = UserSettings.load();
+  tray = new Tray(path.join(__dirname, '../../public/icon.ico'));
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Open Settings',
       type: 'normal',
       click: () => (settingsWindow === null ? createSettingsWindow() : settingsWindow.focus()),
+    },
+    {
+      label: 'Toggle AutoLaunch',
+      type: 'checkbox',
+      checked: settings.getAutoLaunch(),
+      click: () => {
+        settings.setAutoLaunch(!settings.getAutoLaunch()).save();
+        electronApp.setAutoLaunch(settings.getAutoLaunch());
+      },
     },
     { label: 'Close UI', type: 'normal', click: () => app.quit() },
   ]);
@@ -161,23 +172,3 @@ app.on('will-quit', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
-
-// Autolaunch:
-const AutoLaunch = require('easy-auto-launch');
-
-const hexAutoLauncher = new AutoLaunch({
-  name: 'RadialHexUI',
-  path: app.getPath('exe'),
-});
-
-hexAutoLauncher
-  .isEnabled()
-  .then(function (isEnabled: boolean) {
-    if (isEnabled) {
-      return;
-    }
-    hexAutoLauncher.enable();
-  })
-  .catch(function () {
-    // handle error
-  });
