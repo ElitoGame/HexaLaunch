@@ -1,6 +1,6 @@
-# radialhexui
+# RadialHexUI
 
-A minimal Electron application with TypeScript
+A radial hexagon menu to boost productivity 
 
 ## Recommended IDE Setup
 
@@ -9,6 +9,8 @@ A minimal Electron application with TypeScript
 ## Project Setup
 
 ### Install
+
+Requires at least Node v14.18+
 
 ```bash
 $ npm install
