@@ -2,7 +2,7 @@ import { render } from 'solid-js/web';
 
 import '../assets/index.css';
 
-const HelloWorld = () => {
+const Settings = () => {
   return (
     <div
       class="bg-red-500 p-2"
@@ -21,4 +21,4 @@ const HelloWorld = () => {
   );
 };
 
-render(() => <HelloWorld />, document.getElementById('root') as HTMLElement);
+render(() => <Settings />, document.getElementById('root') as HTMLElement);
