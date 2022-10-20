@@ -1,27 +1,52 @@
 import { render } from 'solid-js/web';
 import { getShowPosition } from './renderer';
+// const { execFile } = require('node:child_process');
+import * as child from 'child_process';
 
 import '../assets/index.css';
+import HexTile from './HexUI/Components/HexTile';
 
-const HelloWorld = () => {
+const HexUI = () => {
   return (
     <div
-      class="bg-red-500 p-2"
+      class=""
       style={{
         position: 'absolute',
         top: `${getShowPosition()?.y}px`,
         left: `${getShowPosition()?.x}px`,
+        'font-size': '0',
       }}
     >
-      <button
+      <HexTile
+        x={0}
+        y={0}
         onClick={() => {
-          console.log('test');
+          // execFile(
+          //   'C:/Users/ElitoGame/AppData/Local/Discord/app-0.0.309/Discord.exe',
+          //   ['--version'],
+          //   (error: any, stdout: any, stderr: any) => {
+          //     if (error) {
+          //       throw error;
+          //     }
+          //     console.log(stdout);
+          //   }
+          // );
+          console.log(child.exec);
+          child.exec('node', (error, stdout, stderr) => {
+            if (error) {
+              throw error;
+            }
+            console.log(stdout);
+          });
         }}
-      >
-        Tests
-      </button>
+      ></HexTile>
+      <HexTile x={0} y={1}></HexTile>
+      <HexTile x={-1} y={1}></HexTile>
+      <HexTile x={-2} y={0}></HexTile>
+      <HexTile x={-1} y={-1}></HexTile>
+      <HexTile x={0} y={-1}></HexTile>
     </div>
   );
 };
 
-render(() => <HelloWorld />, document.getElementById('root') as HTMLElement);
+render(() => <HexUI />, document.getElementById('root') as HTMLElement);

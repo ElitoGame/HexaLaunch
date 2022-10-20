@@ -3,7 +3,7 @@ import * as path from 'path';
 import { is, electronApp } from '@electron-toolkit/utils';
 import { UserSettings } from './datastore';
 
-let appVisible = true;
+let appVisible = false;
 let tray: Tray | null = null;
 
 let mainWindow: BrowserWindow | null = null;
@@ -12,7 +12,8 @@ let settingsWindow: BrowserWindow | null = null;
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    height: 600,
+    height: 0,
+    width: 0,
     autoHideMenuBar: true,
     ...(process.platform === 'linux'
       ? {
@@ -23,15 +24,18 @@ function createWindow(): void {
       preload: path.join(__dirname, '../preload/index.js'),
       nodeIntegration: true,
     },
-    width: 800,
     show: false,
     frame: false,
     transparent: true,
     thickFrame: false,
     skipTaskbar: true,
     alwaysOnTop: true,
-    fullscreen: true,
+    fullscreen: false,
   });
+  // The window is fullscreen anyway when in use.
+  // So this reduces some issues with scrolling or clicking when the window is still overlaying everything, just invisibly.
+  // We can't use hide() and show() since they play an animation with the window sliding in from the bottom.
+  mainWindow.setSize(0, 0);
 
   // and load the index.html of the app.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
@@ -111,12 +115,13 @@ app.on('ready', () => {
 
   // Register a 'CommandOrControl+Shift+Space' shortcut listener.
   globalShortcut.register('CommandOrControl+Shift+Space', () => {
-    // TODO test if this even works lol
-    // Make sure the application is displayed on the currently active screen. Only move the window if it's being activated to avoid visual glitches.
+    // If called and appVisible is currently false, then the window will be shown.
     // Set it to fullscreen so that the window is maximized and the menu can be moved via CSS later.
     if (!appVisible) {
       mainWindow?.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y);
       mainWindow?.setFullScreen(true);
+    } else {
+      mainWindow?.setFullScreen(false); // Set the window to it's default size of 0,0 so it won't interfere with any user interaction.
     }
     mainWindow?.webContents.send('toggle-window', appVisible);
     const pos = {
@@ -171,5 +176,5 @@ app.on('will-quit', () => {
   globalShortcut.unregisterAll();
 });
 
-// In this file you can include the rest of your app"s specific main process
+// In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
