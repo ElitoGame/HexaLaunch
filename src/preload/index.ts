@@ -21,6 +21,9 @@ if (process.contextIsolated) {
       getMousePosition: (callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
         ipcRenderer.on('set-mouse-position', callback);
       },
+      openApp: (app: string) => {
+        ipcRenderer.invoke('hexUI:openApp', app);
+      },
     });
   } catch (error) {
     console.error(error);

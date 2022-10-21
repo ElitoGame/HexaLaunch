@@ -2,6 +2,7 @@ import { ElectronAPI } from '@electron-toolkit/preload';
 import { IpcRendererEvent } from 'electron';
 
 export interface IElectronAPI {
+  openApp(url: string): unknown;
   setIgnoreMouseEvents: (yes: boolean, forward: { forward: boolean }) => Promise<void>;
   toggleWindow: (callback: (event: IpcRendererEvent, value: boolean) => void) => void;
   getMousePosition: (

@@ -31,6 +31,10 @@ window.onload = function (): void {
   });
 };
 
+export const openApp = (url: string) => {
+  window.electronAPI.openApp(url);
+};
+
 export const [getShowPosition, setShowPosition] = createSignal({ x: 0, y: 0 });
 
 export default {};
