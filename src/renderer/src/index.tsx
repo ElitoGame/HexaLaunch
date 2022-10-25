@@ -33,7 +33,6 @@ const HexUI = () => {
         <For each={getHexUiData()?.getRadiantTiles(getCurrentRadiant())}>
           {(tile: HexTileData) => (
             <HexTile
-              color="red-400"
               zIndex={10}
               x={tile.getX()}
               y={tile.getY()}

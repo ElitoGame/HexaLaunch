@@ -10,12 +10,7 @@ const HexTile = (props: {
 }) => {
   return (
     <div
-      class={
-        'absolute bg-' +
-        (props.color ?? 'indigo-400') +
-        ' cursor-pointer inline-block z-' +
-        (props.zIndex ?? 0)
-      }
+      class={'absolute bg-indigo-400 cursor-pointer inline-block z-' + (props.zIndex ?? 0)}
       style={{
         left: `${
           props.x * (getHexSize() + getHexMargin()) -
