@@ -30,11 +30,40 @@ export class UserSettings implements UserSettings {
     this.language = 'en';
     this.hexUI = new HexUiData([
       new HexTileData(0, 0, 0, 'Unset', ''),
+      new HexTileData(1, 0, 1, 'Unset', ''),
+      new HexTileData(2, 1, 1, 'Unset', ''),
+      new HexTileData(2, 0, 1, 'Unset', ''),
+      new HexTileData(2, -1, 1, 'Unset', ''),
+
       new HexTileData(0, 1, 0, 'Unset', ''),
+      new HexTileData(0, 2, 2, 'Unset', ''),
+      new HexTileData(1, 2, 2, 'Unset', ''),
+      new HexTileData(1, 3, 2, 'Unset', ''),
+      new HexTileData(0, 3, 2, 'Unset', ''),
+
       new HexTileData(-1, 1, 0, 'Unset', ''),
+      new HexTileData(-2, 2, 3, 'Unset', ''),
+      new HexTileData(-3, 2, 3, 'Unset', ''),
+      new HexTileData(-1, 3, 3, 'Unset', ''),
+      new HexTileData(-2, 3, 3, 'Unset', ''),
+
       new HexTileData(-2, 0, 0, 'Unset', ''),
+      new HexTileData(-3, 0, 4, 'Unset', ''),
+      new HexTileData(-3, 1, 4, 'Unset', ''),
+      new HexTileData(-4, 0, 4, 'Unset', ''),
+      new HexTileData(-3, -1, 4, 'Unset', ''),
+
       new HexTileData(-1, -1, 0, 'Unset', ''),
+      new HexTileData(-2, -2, 5, 'Unset', ''),
+      new HexTileData(-3, -2, 5, 'Unset', ''),
+      new HexTileData(-2, -3, 5, 'Unset', ''),
+      new HexTileData(-1, -3, 5, 'Unset', ''),
+
       new HexTileData(0, -1, 0, 'Unset', ''),
+      new HexTileData(0, -2, 6, 'Unset', ''),
+      new HexTileData(0, -3, 6, 'Unset', ''),
+      new HexTileData(1, -3, 6, 'Unset', ''),
+      new HexTileData(1, -2, 6, 'Unset', ''),
     ]);
   }
 
@@ -51,8 +80,8 @@ export class UserSettings implements UserSettings {
     getHexUiWindow()?.webContents.send('hexUI:getHexUiData', this.hexUI);
   }
 
-  public static load() {
-    if (UserSettings.settings === undefined) {
+  public static load(force = false) {
+    if (UserSettings.settings === undefined || force) {
       UserSettings.settings = new UserSettings();
       try {
         const data = JSON.parse(
@@ -62,6 +91,7 @@ export class UserSettings implements UserSettings {
         UserSettings.settings.language = data.language;
         UserSettings.settings.hexUI = HexUiData.fromJSON(data.hexUI);
       } catch (e) {
+        console.log('No user-settings.json found. Using default settings.');
         UserSettings.settings.save();
         // No data has been setup yet, so set default values here:
       }
@@ -72,7 +102,7 @@ export class UserSettings implements UserSettings {
       }
     }
     getHexUiWindow()?.webContents.send('hexUI:getHexUiData', UserSettings.settings.hexUI);
-    console.log(UserSettings.settings.hexUI.getCoreTiles());
+    // console.log(UserSettings.settings.hexUI.getCoreTiles());
     return UserSettings.settings;
   }
 }

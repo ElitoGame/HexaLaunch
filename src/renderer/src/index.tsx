@@ -1,8 +1,9 @@
-import { render } from 'solid-js/web';
-import { getShowPosition, openApp } from './renderer';
+import { For, render, Show } from 'solid-js/web';
+import { getCurrentRadiant, getHexUiData, getShowPosition, openApp } from './renderer';
 
 import '../assets/index.css';
 import HexTile from './HexUI/Components/HexTile';
+import HexTileData from './DataModel/HexTileData';
 
 const HexUI = () => {
   return (
@@ -15,18 +16,36 @@ const HexUI = () => {
         'font-size': '0',
       }}
     >
-      <HexTile
-        x={0}
-        y={0}
-        onClick={() => {
-          openApp('C:/Users/ElitoGame/AppData/Local/Discord/app-0.0.309/Discord.exe');
-        }}
-      ></HexTile>
-      <HexTile x={0} y={1}></HexTile>
-      <HexTile x={-1} y={1}></HexTile>
-      <HexTile x={-2} y={0}></HexTile>
-      <HexTile x={-1} y={-1}></HexTile>
-      <HexTile x={0} y={-1}></HexTile>
+      <For each={getHexUiData()?.getCoreTiles()}>
+        {(tile: HexTileData) => (
+          <HexTile
+            x={tile.getX()}
+            y={tile.getY()}
+            onClick={() => {
+              if (tile.getAction() === 'App') {
+                openApp(tile.getUrl());
+              }
+            }}
+          ></HexTile>
+        )}
+      </For>
+      <Show when={getCurrentRadiant() !== -1}>
+        <For each={getHexUiData()?.getRadiantTiles(getCurrentRadiant())}>
+          {(tile: HexTileData) => (
+            <HexTile
+              color="red-400"
+              zIndex={10}
+              x={tile.getX()}
+              y={tile.getY()}
+              onClick={() => {
+                if (tile.getAction() === 'App') {
+                  openApp(tile.getUrl());
+                }
+              }}
+            ></HexTile>
+          )}
+        </For>
+      </Show>
     </div>
   );
 };

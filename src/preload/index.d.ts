@@ -1,6 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload';
 import { IpcRendererEvent } from 'electron';
-import HexUiData from '../renderer/DataModel/HexUiData';
+import HexUiData from '../renderer/src/DataModel/HexUiData';
 
 export interface IElectronAPI {
   openApp(url: string): unknown;

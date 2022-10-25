@@ -61,6 +61,7 @@ function createWindow(): void {
 
   mainWindow.once('ready-to-show', () => {
     mainWindow?.show();
+    mainWindow?.webContents.send('hexUI:getHexUiData', UserSettings.settings.getHexUI());
   });
 
   ipcMain.on('set-ignore-mouse-events', (_event, yes: boolean, forward: { forward: boolean }) => {
@@ -157,13 +158,17 @@ app.on('ready', () => {
   globalShortcut.register('CommandOrControl+Shift+Space', () => {
     toggleUI();
   });
+  //TODO Remove the reload shortcut in production!
+  globalShortcut.register('CommandOrControl+R', () => {
+    UserSettings.load(true);
+  });
 
   /*
     ___ ____ ____ _   _ ____ 
      |  |__/ |__|  \_/  [__  
      |  |  \ |  |   |   ___] 
   */
-  const settings: UserSettings = UserSettings.load();
+  const settings: UserSettings = UserSettings.load(); // Load the user settings
   tray = new Tray(path.join(__dirname, '../../public/icon.ico'));
   const contextMenu = Menu.buildFromTemplate([
     {
