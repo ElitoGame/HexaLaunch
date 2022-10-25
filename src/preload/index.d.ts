@@ -1,5 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload';
 import { IpcRendererEvent } from 'electron';
+import HexUiData from '../renderer/DataModel/HexUiData';
 
 export interface IElectronAPI {
   openApp(url: string): unknown;
@@ -8,6 +9,7 @@ export interface IElectronAPI {
   getMousePosition: (
     callback: (event: IpcRendererEvent, value: { x: number; y: number }) => void
   ) => void;
+  getHexUiData: (callback: (event: IpcRendererEvent, value: HexUiData) => void) => void;
 }
 
 declare global {

@@ -1,4 +1,5 @@
 import { createSignal } from 'solid-js';
+import HexUiData from '../DataModel/HexUiData';
 
 let t: NodeJS.Timeout;
 
@@ -29,6 +30,10 @@ window.onload = function (): void {
     console.log(value);
     setShowPosition(value);
   });
+  window.electronAPI.getHexUiData((_event, value) => {
+    console.log(value);
+    setHexUiData(value);
+  });
 };
 
 export const openApp = (url: string) => {
@@ -36,5 +41,7 @@ export const openApp = (url: string) => {
 };
 
 export const [getShowPosition, setShowPosition] = createSignal({ x: 0, y: 0 });
+
+export const [getHexUiData, setHexUiData] = createSignal<HexUiData>();
 
 export default {};

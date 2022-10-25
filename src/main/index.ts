@@ -155,23 +155,7 @@ app.on('ready', () => {
   */
   // Register a 'CommandOrControl+Shift+Space' shortcut listener.
   globalShortcut.register('CommandOrControl+Shift+Space', () => {
-    // If called and appVisible is currently false, then the window will be shown.
-    // Set it to fullscreen so that the window is maximized and the menu can be moved via CSS later.
-    if (!appVisible) {
-      mainWindow?.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y);
-      mainWindow?.setFullScreen(true);
-    } else {
-      mainWindow?.setFullScreen(false); // Set the window to it's default size of 0,0 so it won't interfere with any user interaction.
-    }
-    mainWindow?.webContents.send('toggle-window', appVisible);
-    const pos = {
-      x: screen.getCursorScreenPoint().x - (mainWindow?.getPosition()[0] ?? 0),
-      y: screen.getCursorScreenPoint().y - (mainWindow?.getPosition()[1] ?? 0),
-    };
-    mainWindow?.webContents.send('set-mouse-position', pos);
-    console.log('CommandOrControl+Shift+Space is pressed, now: ' + appVisible);
-    appVisible = !appVisible;
-    // mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
+    toggleUI();
   });
 
   /*
@@ -268,4 +252,39 @@ function openApp(_event: Electron.IpcMainInvokeEvent, url: string) {
     }
   );
   return success;
+}
+
+/*
+ █████  █████  █████     ███  ████   ███   █████     ███                  
+░░███  ░░███  ░░███     ░░░  ░░███  ░░░   ░░███     ░░░                   
+ ░███   ░███  ███████   ████  ░███  ████  ███████   ████   ██████   █████ 
+ ░███   ░███ ░░░███░   ░░███  ░███ ░░███ ░░░███░   ░░███  ███░░███ ███░░  
+ ░███   ░███   ░███     ░███  ░███  ░███   ░███     ░███ ░███████ ░░█████ 
+ ░███   ░███   ░███ ███ ░███  ░███  ░███   ░███ ███ ░███ ░███░░░   ░░░░███
+ ░░████████    ░░█████  █████ █████ █████  ░░█████  █████░░██████  ██████ 
+  ░░░░░░░░      ░░░░░  ░░░░░ ░░░░░ ░░░░░    ░░░░░  ░░░░░  ░░░░░░  ░░░░░░  
+*/
+//TODO find a way to toggle the UI when the user clicks outside the Hexagons.
+function toggleUI() {
+  // If called and appVisible is currently false, then the window will be shown.
+  // Set it to fullscreen so that the window is maximized and the menu can be moved via CSS later.
+  if (!appVisible) {
+    mainWindow?.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y);
+    mainWindow?.setFullScreen(true);
+  } else {
+    mainWindow?.setFullScreen(false); // Set the window to it's default size of 0,0 so it won't interfere with any user interaction.
+  }
+  mainWindow?.webContents.send('toggle-window', appVisible);
+  const pos = {
+    x: screen.getCursorScreenPoint().x - (mainWindow?.getPosition()[0] ?? 0),
+    y: screen.getCursorScreenPoint().y - (mainWindow?.getPosition()[1] ?? 0),
+  };
+  mainWindow?.webContents.send('set-mouse-position', pos);
+  console.log('CommandOrControl+Shift+Space is pressed, now: ' + appVisible);
+  appVisible = !appVisible;
+  // mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
+}
+
+export function getHexUiWindow() {
+  return mainWindow;
 }

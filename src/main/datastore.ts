@@ -3,6 +3,9 @@ import { electronApp, is } from '@electron-toolkit/utils';
 import { app } from 'electron';
 import * as fs from 'fs';
 import path from 'path';
+import { getHexUiWindow } from '.';
+import HexTileData from './DataModel/HexTileData';
+import HexUiData from './DataModel/HexUiData';
 
 export class UserSettings implements UserSettings {
   public static settings: UserSettings; // Using a Singleton here to ensure that the settings are only loaded once.
@@ -16,20 +19,36 @@ export class UserSettings implements UserSettings {
   }
   private language: string;
 
+  private hexUI: HexUiData;
+
+  public getHexUI(): HexUiData {
+    return this.hexUI;
+  }
+
   constructor() {
     this.autoLaunch = true;
     this.language = 'en';
+    this.hexUI = new HexUiData([
+      new HexTileData(0, 0, 0, 'Unset', ''),
+      new HexTileData(0, 1, 0, 'Unset', ''),
+      new HexTileData(-1, 1, 0, 'Unset', ''),
+      new HexTileData(-2, 0, 0, 'Unset', ''),
+      new HexTileData(-1, -1, 0, 'Unset', ''),
+      new HexTileData(0, -1, 0, 'Unset', ''),
+    ]);
   }
 
   public save() {
     const data = {
       autoLaunch: this.autoLaunch,
       language: this.language,
+      hexUI: this.hexUI.toJSON(),
     };
     fs.writeFileSync(
       path.join(app.getPath('userData'), 'user-settings.json'),
       JSON.stringify(data)
     );
+    getHexUiWindow()?.webContents.send('hexUI:getHexUiData', this.hexUI);
   }
 
   public static load() {
@@ -41,6 +60,7 @@ export class UserSettings implements UserSettings {
         );
         UserSettings.settings.autoLaunch = data.autoLaunch;
         UserSettings.settings.language = data.language;
+        UserSettings.settings.hexUI = HexUiData.fromJSON(data.hexUI);
       } catch (e) {
         UserSettings.settings.save();
         // No data has been setup yet, so set default values here:
@@ -51,6 +71,8 @@ export class UserSettings implements UserSettings {
         electronApp.setAutoLaunch(UserSettings.settings.getAutoLaunch());
       }
     }
+    getHexUiWindow()?.webContents.send('hexUI:getHexUiData', UserSettings.settings.hexUI);
+    console.log(UserSettings.settings.hexUI.getCoreTiles());
     return UserSettings.settings;
   }
 }

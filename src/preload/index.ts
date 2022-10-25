@@ -24,6 +24,9 @@ if (process.contextIsolated) {
       openApp: (app: string) => {
         ipcRenderer.invoke('hexUI:openApp', app);
       },
+      getHexUiData: (callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
+        ipcRenderer.on('hexUI:getHexUiData', callback);
+      },
     });
   } catch (error) {
     console.error(error);
