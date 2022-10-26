@@ -41,6 +41,7 @@ const HexUI = () => {
                   openApp(tile.getUrl());
                 }
               }}
+              color={'bg-green-400'}
             ></HexTile>
           )}
         </For>

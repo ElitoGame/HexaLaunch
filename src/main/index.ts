@@ -71,6 +71,10 @@ function createWindow(): void {
   mainWindow.on('close', () => {
     mainWindow = null;
   });
+
+  mainWindow.on('blur', () => {
+    toggleUI(true);
+  });
 }
 /*
    █████████                                █████                 █████████            █████     █████     ███                                                  ███                 █████                         
@@ -269,24 +273,28 @@ function openApp(_event: Electron.IpcMainInvokeEvent, url: string) {
  ░░████████    ░░█████  █████ █████ █████  ░░█████  █████░░██████  ██████ 
   ░░░░░░░░      ░░░░░  ░░░░░ ░░░░░ ░░░░░    ░░░░░  ░░░░░  ░░░░░░  ░░░░░░  
 */
-//TODO find a way to toggle the UI when the user clicks outside the Hexagons.
-function toggleUI() {
+/**
+ * Toggle/set the visibility of the main hex UI window
+ * @param visible If true, will hide the window. If false, will show the window. Defaults to a toggle based on the current visibility (appVisible)
+ */
+function toggleUI(visible = appVisible) {
   // If called and appVisible is currently false, then the window will be shown.
   // Set it to fullscreen so that the window is maximized and the menu can be moved via CSS later.
-  if (!appVisible) {
+  if (!visible) {
     mainWindow?.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y);
     mainWindow?.setFullScreen(true);
+    mainWindow?.focus();
   } else {
     mainWindow?.setFullScreen(false); // Set the window to it's default size of 0,0 so it won't interfere with any user interaction.
   }
-  mainWindow?.webContents.send('toggle-window', appVisible);
+  mainWindow?.webContents.send('toggle-window', visible);
   const pos = {
     x: screen.getCursorScreenPoint().x - (mainWindow?.getPosition()[0] ?? 0),
     y: screen.getCursorScreenPoint().y - (mainWindow?.getPosition()[1] ?? 0),
   };
   mainWindow?.webContents.send('set-mouse-position', pos);
-  console.log('CommandOrControl+Shift+Space is pressed, now: ' + appVisible);
-  appVisible = !appVisible;
+  console.log('CommandOrControl+Shift+Space is pressed, now: ' + visible);
+  appVisible = !visible;
   // mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
 }
 

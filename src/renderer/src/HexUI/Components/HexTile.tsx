@@ -10,7 +10,7 @@ const HexTile = (props: {
 }) => {
   return (
     <div
-      class={'absolute bg-indigo-400 cursor-pointer inline-block z-' + (props.zIndex ?? 0)}
+      class={'absolute bg-transparent cursor-pointer inline-block'}
       style={{
         left: `${
           props.x * (getHexSize() + getHexMargin()) -
@@ -18,13 +18,29 @@ const HexTile = (props: {
           getHexSize() / 2
         }px`,
         bottom: `${props.y * (getHexSize() * 0.86 + getHexMargin()) - (getHexSize() / 13) * 8}px`,
-        width: `${getHexSize()}px`,
+        width: `${getHexSize() + getHexMargin()}px`,
         margin: `${getHexMargin()}px`,
-        height: `${getHexSize() * 1.1547}px`,
+        height: `${(getHexSize() + getHexMargin()) * 1.169}px`,
         'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
+        'z-index': props.zIndex ?? 0,
       }}
-      onClick={props.onClick}
-    ></div>
+    >
+      <div
+        class={'absolute ' + (props.color ?? 'bg-red-400') + ' cursor-pointer inline-block'}
+        style={{
+          left: `${(getHexMargin() / 2) * -1}px`,
+          bottom: `${(getHexMargin() / 2) * -1}px`,
+          width: `${getHexSize()}px`,
+          margin: `${getHexMargin()}px`,
+          height: `${getHexSize() * 1.169}px`,
+          'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
+          'z-index': (props.zIndex ?? 0) + 1,
+        }}
+        onClick={props.onClick}
+      >
+        <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">Hex</span>
+      </div>
+    </div>
   );
 };
 
