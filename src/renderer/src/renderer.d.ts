@@ -1,11 +1,18 @@
-export declare const getShowPosition: import('solid-js').Accessor<{
+import { Accessor, Setter } from 'solid-js';
+import HexUiData from './DataModel/HexUiData';
+
+export declare const getShowPosition: Accessor<{
     x: number;
     y: number;
   }>,
-  setShowPosition: import('solid-js').Setter<{
+  setShowPosition: Setter<{
     x: number;
     y: number;
   }>,
-  openApp: (url: string) => void;
+  openApp: (url: string) => void,
+  getHexSize: Accessor<number>,
+  getHexMargin: Accessor<number>,
+  getHexUiData: Accessor<HexUiData>,
+  getCurrentRadiant: Accessor<number>;
 declare const _default: unknown;
 export default _default;

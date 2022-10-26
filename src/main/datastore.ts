@@ -7,7 +7,7 @@ import { getHexUiWindow } from '.';
 import HexTileData from './DataModel/HexTileData';
 import HexUiData from './DataModel/HexUiData';
 
-export class UserSettings implements UserSettings {
+export class UserSettings {
   public static settings: UserSettings; // Using a Singleton here to ensure that the settings are only loaded once.
   private autoLaunch: boolean;
   public setAutoLaunch(autoLaunchVal: boolean) {
