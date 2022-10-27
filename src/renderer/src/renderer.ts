@@ -67,11 +67,65 @@ window.onload = function (): void {
       }, 1);
     } else {
       body.classList.add('hidden');
+      setCurrentRadiant(-1);
     }
   });
   window.electronAPI.getMousePosition((_event, value) => {
+    // find the max x and y values in the grid coordinates. X values in uneven rows are offset by half a hex size (0.5)
+    const maxX =
+      getHexUiData()
+        ?.getTiles()
+        .reduce(
+          (max, p) =>
+            p.getX() > (max ?? 0) ? (p.getY() % 2 == 0 ? p.getX() : p.getX() - 0.5) : max,
+          getHexUiData()?.getTiles()[0].getX()
+        ) ?? 0;
+    const maxY =
+      getHexUiData()
+        ?.getTiles()
+        .reduce(
+          (max, p) => (p.getY() > (max ?? 0) ? p.getY() : max),
+          getHexUiData()?.getTiles()[0].getY()
+        ) ?? 0;
+    const minX =
+      getHexUiData()
+        ?.getTiles()
+        .reduce(
+          (min, p) =>
+            p.getX() < (min ?? 0) ? (p.getY() % 2 == 0 ? p.getX() : p.getX() + 0.5) : min,
+          getHexUiData()?.getTiles()[0].getX()
+        ) ?? 0;
+    const minY =
+      getHexUiData()
+        ?.getTiles()
+        .reduce(
+          (min, p) => (p.getY() < (min ?? 0) ? p.getY() : min),
+          getHexUiData()?.getTiles()[0].getY()
+        ) ?? 0;
+    // modify the x and y values so they won't cause the hex grid to be cut off
+    value.x = Math.min(
+      Math.max(value.x, 0 + getHexSize() / 2 + (minX + 1) * -1 * (getHexSize() + getHexMargin())),
+      window.innerWidth -
+        getHexSize() / 2 -
+        (maxX + 1) * (getHexSize() + getHexMargin()) -
+        getHexMargin()
+    );
+    value.y = Math.min(
+      Math.max(
+        value.y,
+        0 +
+          minY * -1 * (getHexSize() * 0.86 + getHexMargin()) +
+          ((getHexSize() + getHexMargin()) / 13) * 8 +
+          getHexMargin()
+      ),
+      window.innerHeight -
+        maxY * (getHexSize() * 0.86 + getHexMargin()) -
+        (getHexSize() / 13) * 8 +
+        getHexMargin()
+    );
     setShowPosition(value);
   });
+
   window.electronAPI.getHexUiData((_event, value) => {
     value = HexUiData.fromJSON(value as any); // for some reason, the type is not recognized, so I am doing some casting magic and it works - wooooow
     setHexUiData(value);

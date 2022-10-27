@@ -17,6 +17,7 @@ export default class HexUiData {
   }) => HexUiData;
   getCoreTiles: () => Array<HexTileData>;
   getRadiantTiles: (radiant: number) => Array<HexTileData>;
+  getTiles: () => Array<HexTileData>;
 
   constructor(tiles: Array<HexTileData>);
 }

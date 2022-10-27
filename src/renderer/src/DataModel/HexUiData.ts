@@ -76,4 +76,8 @@ export default class HexUiData {
       }
     }
   }
+
+  public getTiles() {
+    return this.tiles;
+  }
 }
