@@ -13,7 +13,6 @@ A radial hexagon menu to boost productivity
   - [ ] Hotkey
   - [ ] App layout customization
 - [ ] Essential Extensions
-  - [ ] Bluetooth Connector
   - [ ] Browser Launcher
   - [ ] Empty Paper bin
 - [ ] Auto Updating (Windows 100%, Mac potentially harder due to notarizing)
@@ -29,6 +28,7 @@ A radial hexagon menu to boost productivity
 - [ ] Non-Essential Settings
   - [ ] Icon Picker for the App layout customization
 - [ ] Non-Essential Extensions
+  - [ ] ~~Bluetooth Connector~~
   - [ ] Windows Media Player Extension (or Spotify alternatively)
   - [ ] System Stats (RAM, CPU, Storage, GPU)
   - [ ] Searchbar (Depends highly on App detection)
