@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*
+{
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    text-decoration: 0;
+    list-style: none;
+    box-sizing: border-box
+  
+}
+
+:root{
+    --color-primary: black;
+    height:100%;
+
+}
+h1{
+    font-size:25px;
+    color:black
+}
+
+#settings{
+    height:100%;
+}
+.hope-c-ciZsPQ-bviWWx-size-md{
+    padding-top:0;
+    padding-bottom:0;
+}
+
+#hope-tabs{
+    --tw-ring-color:none;
+}
+
+.hope-c-ciZsPQ:focus{
+    box-shadow: none;
+}
+
