@@ -1,8 +1,7 @@
-import { app, BrowserWindow, ipcMain, globalShortcut, screen, Tray, Menu } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut, screen, Tray, Menu, shell } from 'electron';
 import * as path from 'path';
 import { is, electronApp } from '@electron-toolkit/utils';
 import { UserSettings } from './datastore';
-import * as child from 'child_process';
 
 let appVisible = false;
 let tray: Tray | null = null;
@@ -248,19 +247,7 @@ app.on('will-quit', () => {
 */
 
 function openApp(_event: Electron.IpcMainInvokeEvent, url: string) {
-  let success = false;
-  child.execFile(
-    url,
-    ['--version'],
-    (error: child.ExecFileException | null, stdout: string, _stderr: string) => {
-      if (!error) {
-        success = true;
-      } else {
-        console.log(stdout);
-      }
-    }
-  );
-  return success;
+  shell.openExternal(url.split('#,#')[0], { workingDirectory: url.split('#,#')[1] });
 }
 
 /*
