@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, globalShortcut, screen, Tray, Menu, shell 
 import * as path from 'path';
 import { is, electronApp } from '@electron-toolkit/utils';
 import { UserSettings } from './datastore';
+import open from 'open';
 
 let appVisible = false;
 let tray: Tray | null = null;
@@ -247,7 +248,7 @@ app.on('will-quit', () => {
 */
 
 function openApp(_event: Electron.IpcMainInvokeEvent, url: string) {
-  shell.openExternal(url.split('#,#')[0], { workingDirectory: url.split('#,#')[1] });
+  open(url);
 }
 
 /*

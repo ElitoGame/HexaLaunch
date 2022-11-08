@@ -23,27 +23,28 @@
     "@hope-ui/solid": "^0.6.7",
     "@stitches/core": "^1.2.8",
     "electron-updater": "^5.3.0",
-    "solid-js": "^1.6.0",
-    "solid-transition-group": "^0.0.10"
+    "open": "^8.4.0",
+    "solid-js": "^1.6.1",
+    "solid-transition-group": "^0.0.12"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
-    "@types/node": "18.11.3",
-    "@typescript-eslint/eslint-plugin": "^5.40.1",
-    "@typescript-eslint/parser": "^5.40.1",
-    "autoprefixer": "^10.4.12",
-    "electron": "^21.2.0",
+    "@types/node": "18.11.9",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
+    "autoprefixer": "^10.4.13",
+    "electron": "^21.2.2",
     "electron-builder": "^23.6.0",
     "electron-notarize": "^1.2.1",
-    "electron-vite": "^1.0.11",
-    "eslint": "^8.25.0",
+    "electron-vite": "^1.0.12",
+    "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "postcss": "^8.4.18",
     "prettier": "^2.7.1",
-    "tailwindcss": "^3.2.0",
+    "tailwindcss": "^3.2.2",
     "typescript": "^4.8.4",
-    "vite": "^3.1.8",
-    "vite-plugin-solid": "^2.3.9"
+    "vite": "^3.2.3",
+    "vite-plugin-solid": "^2.4.0"
   }
 }
