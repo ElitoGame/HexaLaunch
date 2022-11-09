@@ -23,7 +23,7 @@ const HexUI = () => {
             y={tile.getY()}
             onClick={() => {
               if (tile.getAction() === 'App') {
-                openApp(tile.getUrl());
+                openApp(tile.getApp(), tile.getUrl());
               }
             }}
           ></HexTile>
@@ -38,7 +38,7 @@ const HexUI = () => {
               y={tile.getY()}
               onClick={() => {
                 if (tile.getAction() === 'App') {
-                  openApp(tile.getUrl());
+                  openApp(tile.getApp(), tile.getUrl());
                 }
               }}
               color={'bg-green-400'}

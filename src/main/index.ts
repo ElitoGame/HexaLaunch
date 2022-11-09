@@ -247,8 +247,15 @@ app.on('will-quit', () => {
       ░░░░░                                                                                                                                 
 */
 
-function openApp(_event: Electron.IpcMainInvokeEvent, url: string) {
-  open(url);
+function openApp(_event: Electron.IpcMainInvokeEvent, app: string, url: string) {
+  if (app !== undefined && url !== undefined) {
+    open(url, { app: { name: app } });
+  } else if (app !== undefined) {
+    open(app);
+  } else if (url !== undefined) {
+    open(url);
+  }
+  // otherwise do nothing
 }
 
 /*

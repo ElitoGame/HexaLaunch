@@ -1,7 +1,6 @@
 export type actionType =
   | 'App'
   | 'Web'
-  | 'Bluetooth'
   | 'PaperBin'
   | 'MediaPlayer'
   | 'SysStats'
@@ -14,13 +13,15 @@ export default class HexTileData {
   private y: number;
   private radiant: number;
   private action: actionType;
+  private app: string;
   private url: string;
 
-  constructor(x: number, y: number, radiant: number, action: actionType, url: string) {
+  constructor(x: number, y: number, radiant: number, action: actionType, app: string, url: string) {
     this.x = x;
     this.y = y;
     this.radiant = radiant;
     this.action = action;
+    this.app = app;
     this.url = url;
   }
 
@@ -52,6 +53,13 @@ export default class HexTileData {
     this.action = action;
   }
 
+  public getApp(): string {
+    return this.app;
+  }
+  public setApp(app: string) {
+    this.app = app;
+  }
+
   public getUrl(): string {
     return this.url;
   }
@@ -59,12 +67,20 @@ export default class HexTileData {
     this.url = url;
   }
 
-  public toJSON(): { x: number; y: number; radiant: number; action: string; url: string } {
+  public toJSON(): {
+    x: number;
+    y: number;
+    radiant: number;
+    action: string;
+    app: string;
+    url: string;
+  } {
     return {
       x: this.x,
       y: this.y,
       radiant: this.radiant,
       action: this.action,
+      app: this.app,
       url: this.url,
     };
   }
@@ -74,8 +90,9 @@ export default class HexTileData {
     y: number;
     radiant: number;
     action: actionType;
+    app: string;
     url: string;
   }) {
-    return new HexTileData(data.x, data.y, data.radiant, data.action, data.url);
+    return new HexTileData(data.x, data.y, data.radiant, data.action, data.app, data.url);
   }
 }

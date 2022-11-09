@@ -132,8 +132,8 @@ window.onload = function (): void {
   });
 };
 
-export const openApp = (url: string) => {
-  window.electronAPI.openApp(url);
+export const openApp = (app: string, url: string) => {
+  window.electronAPI.openApp(app, url);
 };
 
 export default {};

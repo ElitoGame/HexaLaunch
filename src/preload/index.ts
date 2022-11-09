@@ -21,8 +21,8 @@ if (process.contextIsolated) {
       getMousePosition: (callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
         ipcRenderer.on('set-mouse-position', callback);
       },
-      openApp: (app: string) => {
-        ipcRenderer.invoke('hexUI:openApp', app);
+      openApp: (app: string, url: string) => {
+        ipcRenderer.invoke('hexUI:openApp', app, url);
       },
       getHexUiData: (callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
         ipcRenderer.on('hexUI:getHexUiData', callback);

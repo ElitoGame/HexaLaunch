@@ -1,7 +1,6 @@
 export type actionType =
   | 'App'
   | 'Web'
-  | 'Bluetooth'
   | 'PaperBin'
   | 'MediaPlayer'
   | 'SysStats'
@@ -14,6 +13,7 @@ export default class HexTileData {
   y: number;
   radiant: number;
   action: actionType;
+  app: string;
   url: string;
 
   getX(): number;
@@ -24,16 +24,19 @@ export default class HexTileData {
   setRadiant(radiant: number): void;
   getAction(): string;
   setAction(action: actionType): void;
+  getApp(): string;
+  setApp(app: string): void;
   getUrl(): string;
   setUrl(url: string): void;
-  toJSON(): { x: number; y: number; radiant: number; action: string; url: string };
+  toJSON(): { x: number; y: number; radiant: number; action: string; app: string; url: string };
   fromJSON(data: {
     x: number;
     y: number;
     radiant: number;
     action: string;
+    app: string;
     url: string;
   }): HexTileData;
 
-  constructor(x: number, y: number, radiant: number, action: actionType, url: string);
+  constructor(x: number, y: number, radiant: number, action: actionType, app: string, url: string);
 }

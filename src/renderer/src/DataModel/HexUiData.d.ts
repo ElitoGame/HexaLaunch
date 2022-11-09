@@ -3,7 +3,14 @@ import HexTileData, { actionType } from './HexTileData';
 export default class HexUiData {
   toJSON: () => {
     hexTiles: {
-      tiles: Array<{ x: number; y: number; radiant: number; action: string; url: string }>;
+      tiles: Array<{
+        x: number;
+        y: number;
+        radiant: number;
+        action: string;
+        app: string;
+        url: string;
+      }>;
     };
   };
   static fromJSON: (data: {
@@ -12,6 +19,7 @@ export default class HexUiData {
       y: number;
       radiant: number;
       action: actionType;
+      app: string;
       url: string;
     }>;
   }) => HexUiData;

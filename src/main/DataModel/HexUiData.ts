@@ -23,7 +23,14 @@ export default class HexUiData {
 
   // Convert the Object to a JSON string
   public toJSON(): {
-    tiles: Array<{ x: number; y: number; radiant: number; action: string; url: string }>;
+    tiles: Array<{
+      x: number;
+      y: number;
+      radiant: number;
+      action: string;
+      app: string;
+      url: string;
+    }>;
   } {
     return {
       tiles: this.tiles.map((x) => x.toJSON()),
@@ -36,13 +43,20 @@ export default class HexUiData {
       y: number;
       radiant: number;
       action: actionType;
+      app: string;
       url: string;
     }>;
   }): HexUiData {
     return new HexUiData(
       data.tiles.map(
-        (x: { x: number; y: number; radiant: number; action: actionType; url: string }) =>
-          HexTileData.fromJSON(x)
+        (x: {
+          x: number;
+          y: number;
+          radiant: number;
+          action: actionType;
+          app: string;
+          url: string;
+        }) => HexTileData.fromJSON(x)
       )
     );
   }
