@@ -6,7 +6,7 @@ A radial hexagon menu to boost productivity
 
 ### Essentials
 
-- [ ] Launching Apps
+- [X] Launching Apps
 - [x] Auto Start with Windows(/Mac)
 - [ ] Settings Menu for essential settings like:
   - [ ] Themes
