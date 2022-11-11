@@ -26,6 +26,18 @@ const HexUI = () => {
                 openApp(tile.getApp(), tile.getUrl());
               }
             }}
+            title={
+              tile
+                .getApp()
+                ?.split('.')[0]
+                ?.split('/')
+                [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
+              tile
+                .getUrl()
+                ?.split('.')[0]
+                ?.split('/')
+                [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
+            }
           ></HexTile>
         )}
       </For>
@@ -41,6 +53,18 @@ const HexUI = () => {
                   openApp(tile.getApp(), tile.getUrl());
                 }
               }}
+              title={
+                tile
+                  .getApp()
+                  ?.split('.')[0]
+                  ?.split('/')
+                  [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
+                tile
+                  .getUrl()
+                  ?.split('.')[0]
+                  ?.split('/')
+                  [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
+              }
               color={'bg-green-400'}
             ></HexTile>
           )}

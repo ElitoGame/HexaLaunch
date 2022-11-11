@@ -23,6 +23,7 @@
     "@hope-ui/solid": "^0.6.7",
     "@stitches/core": "^1.2.8",
     "electron-updater": "^5.3.0",
+    "fetch-installed-software": "^0.0.7",
     "open": "^8.4.0",
     "solid-js": "^1.6.1",
     "solid-transition-group": "^0.0.12"

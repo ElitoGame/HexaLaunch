@@ -3,6 +3,8 @@ import * as path from 'path';
 import { is, electronApp } from '@electron-toolkit/utils';
 import { UserSettings } from './datastore';
 import open from 'open';
+import getAllInstalledSoftware from 'fetch-installed-software';
+import { exec } from 'node:child_process';
 
 let appVisible = false;
 let tray: Tray | null = null;
@@ -165,6 +167,67 @@ app.on('ready', () => {
   //TODO Remove the reload shortcut in production!
   globalShortcut.register('CommandOrControl+R', () => {
     UserSettings.load(true);
+  });
+  globalShortcut.register('CommandOrControl+1', () => {
+    console.log('CommandOrControl+1 is pressed');
+    getAllInstalledSoftware.getAllInstalledSoftware().then((data) => {
+      const files = (data as Array<any>)
+        .filter(
+          (x) =>
+            x.DisplayName !== undefined &&
+            ((x.InstallLocation !== undefined && x.InstallLocation !== '') ||
+              (x.DisplayIcon !== undefined &&
+                x.DisplayIcon !== '' &&
+                ((x.InstallLocation !== undefined && x.InstallLocation !== '') ||
+                  (x.DisplayIcon as string).includes('.exe')))) &&
+            !(x.DisplayName as string).includes('Win') &&
+            !(x.DisplayName as string).includes('Microsoft') &&
+            !(x.DisplayName as string).toLowerCase().includes('uninstall') &&
+            (!(x.InstallLocation as string)?.toLowerCase().includes('uninstall') ?? true) &&
+            (!(x.DisplayIcon as string)?.toLowerCase().includes('uninstall') ?? true)
+        )
+        .map((x) => {
+          return { name: x.DisplayName, path: x.InstallLocation, icon: x.DisplayIcon };
+        });
+      // // use this to write the results to a file
+      // writeFileSync(
+      //   'C:\\Users\\ElitoGame\\Documents\\GitHub\\RadialHexUI\\installedSoftware.json',
+      //   JSON.stringify(files)
+      // );
+      console.log(files);
+    });
+  });
+
+  globalShortcut.register('CommandOrControl+2', async () => {
+    console.log('CommandOrControl+2 is pressed');
+    //TODO test if this works for all users!
+    exec(
+      // use something like this to write the below command to disk > C:\\Users\\ElitoGame\\Documents\\GitHub\\RadialHexUI\\test.txt
+      'Get-Process | Where-Object {$_.MainWindowTitle -ne ""} | Select-Object -Expand MainModule | Select-Object -Property ModuleName, FileName',
+      { shell: 'powershell.exe' },
+      (_error, stdout, _stderr) => {
+        console.log(`stdout: ${stdout}`);
+      }
+    );
+  });
+
+  globalShortcut.register('CommandOrControl+3', async () => {
+    console.log('CommandOrControl+3 is pressed');
+    // Exec sadly only has a callback, so we need to use a promise to get the result
+    const result: Array<string> = [];
+    exec(
+      'where /r "C:\\ProgramData\\Microsoft\\Windows\\Start Menu" *.lnk',
+      (_error, stdout, _stderr) => {
+        stdout.split(/(\r\n|\n|\r)/gm).map((x) => {
+          try {
+            result.push(shell.readShortcutLink(x).target);
+          } catch (error) {
+            return x;
+          }
+        });
+        console.log('Result: ' + result.join(',\n'));
+      }
+    );
   });
 
   /*
