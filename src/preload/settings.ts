@@ -1,5 +1,6 @@
 import { electronAPI } from '@electron-toolkit/preload';
 const { contextBridge } = require('electron');
+const ipcRenderer = require('electron').ipcRenderer;
 
 // Custom APIs for renderer
 const api = {};
@@ -11,6 +12,12 @@ if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI);
     contextBridge.exposeInMainWorld('api', api);
+    contextBridge.exposeInMainWorld('electronAPI', {
+      sendData: (dataToSubmit: any[]) => {
+        console.log(JSON.stringify(dataToSubmit) + 'from preload');
+        ipcRenderer.send('settings', dataToSubmit);
+      },
+    });
   } catch (error) {
     console.error(error);
   }

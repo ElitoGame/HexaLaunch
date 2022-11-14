@@ -1,3 +1,4 @@
+import { updateFormField, toggleSwitch, change, value, setValue } from '../settings';
 import {
   Box,
   Grid,
@@ -27,11 +28,12 @@ import {
   ModalOverlay,
   Button,
   Switch,
-  Text,
+  createDisclosure,
 } from '@hope-ui/solid';
 
 import { HStack, Tabs, TabList, Tab, TabPanel, VStack } from '@hope-ui/solid';
-import { For } from 'solid-js';
+import { For, createSignal } from 'solid-js';
+import { createStore } from 'solid-js/store';
 
 import '../../assets/settings.css';
 
@@ -61,7 +63,8 @@ const SettingsMenu = () => {
       color: '#414141 !important',
     },
   });
-  //const { isOpen, onOpen, onClose } = createDisclosure();
+
+  const { isOpen, onOpen, onClose } = createDisclosure();
 
   return (
     <>
@@ -70,16 +73,12 @@ const SettingsMenu = () => {
           <VStack alignItems="left" spacing="$4">
             <Tabs keepAlive variant="pills" defaultIndex={1}>
               <TabList borderWidth="1px" borderColor="$neutral6">
-                <Tab disabled>
-                  <h1>Settings</h1>
-                </Tab>
-
+                <h1 class="pl-3">Settings</h1>
                 <Tab class={tabStyles()}>Appearance</Tab>
                 <Tab class={tabStyles()}>Layout</Tab>
                 <Tab class={tabStyles()}>Preferences</Tab>
               </TabList>
               <Divider class="pb-2" />
-              <TabPanel id="tp_settings"></TabPanel>
 
               <TabPanel id="tp_appearance">
                 <p>Theme Selection</p>
@@ -108,19 +107,19 @@ const SettingsMenu = () => {
                     colStart={2}
                     colEnd={2}
                   >
-                    <Button color="gray" background-color="gray" colorScheme="neutral">
+                    <Button bg="lightgray !important" onClick={onOpen}>
                       +
                     </Button>
-                    <Modal blockScrollOnMount={false} opened={false} onClose={() => {}}>
+                    <Modal opened={isOpen()} onClose={onClose}>
                       <ModalOverlay />
                       <ModalContent>
                         <ModalCloseButton />
                         <ModalHeader>Modal Title</ModalHeader>
                         <ModalBody>
-                          <Text as="em">You can scroll the content behind the modal</Text>
+                          <p>Some contents...</p>
                         </ModalBody>
                         <ModalFooter>
-                          <Button>Close</Button>
+                          <Button onClick={onClose}>Close</Button>
                         </ModalFooter>
                       </ModalContent>
                     </Modal>
@@ -134,11 +133,16 @@ const SettingsMenu = () => {
                   >
                     <p>Border Width</p>
                     <InputGroup size="xs">
-                      <Input placeholder="0" />
+                      <Input
+                        onInput={(e: Event) => {
+                          updateFormField('borderWidth')(e);
+                        }}
+                        placeholder="0"
+                      />
                       <InputRightElement pointerEvents="none">px</InputRightElement>
                     </InputGroup>
-                    <p>Border Style</p>
-                    <Select size="xs">
+                    <p>{value()}</p>
+                    <Select value={value()} onChange={setValue} size="xs">
                       <SelectTrigger>
                         <SelectPlaceholder>None</SelectPlaceholder>
                         <SelectValue />
@@ -146,14 +150,14 @@ const SettingsMenu = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectListbox>
-                          <For each={['solid', 'double']}>
-                            {(item) => (
-                              <SelectOption value={item}>
-                                <SelectOptionText>{item}</SelectOptionText>
-                                <SelectOptionIndicator />
-                              </SelectOption>
-                            )}
-                          </For>
+                          <SelectOption value="solid">
+                            <SelectOptionText>solid</SelectOptionText>
+                            <SelectOptionIndicator />
+                          </SelectOption>
+                          <SelectOption value="double">
+                            <SelectOptionText>double</SelectOptionText>
+                            <SelectOptionIndicator />
+                          </SelectOption>
                         </SelectListbox>
                       </SelectContent>
                     </Select>
@@ -162,12 +166,25 @@ const SettingsMenu = () => {
                     <p>Hexagon</p>
                     <p>Width</p>
                     <InputGroup size="xs">
-                      <Input placeholder="0" />
+                      <Input
+                        type="number"
+                        max="50"
+                        onInput={(e: Event) => {
+                          updateFormField('width')(e);
+                        }}
+                        placeholder="0"
+                      />
                       <InputRightElement pointerEvents="none">px</InputRightElement>
                     </InputGroup>
                     <p>Border Radius</p>
                     <InputGroup size="xs">
-                      <Input placeholder="0" />
+                      <Input
+                        type="number"
+                        onInput={(e: Event) => {
+                          updateFormField('borderRadius')(e);
+                        }}
+                        placeholder="0"
+                      />
                       <InputRightElement pointerEvents="none">px</InputRightElement>
                     </InputGroup>
                   </GridItem>
@@ -204,7 +221,15 @@ const SettingsMenu = () => {
                 >
                   <p>Navigation via keyboard</p>{' '}
                   <GridItem class="flex justify-end">
-                    <Switch class="flex-end" defaultChecked></Switch>
+                    <Switch
+                      onChange={(e: Event) => {
+                        toggleSwitch(!change());
+                        updateFormField('keyboardNavigation')(e);
+                      }}
+                      value={change() ? 'on' : 'off'}
+                      class="flex-end"
+                      defaultChecked
+                    ></Switch>
                   </GridItem>
                 </Grid>
                 <p>Navigation through the Application with your Keyboard</p>
@@ -217,7 +242,15 @@ const SettingsMenu = () => {
                 >
                   <p>Full Layout</p>
                   <GridItem class="flex justify-end">
-                    <Switch class="flex-end" defaultChecked></Switch>
+                    <Switch
+                      onChange={(e: Event) => {
+                        toggleSwitch(!change());
+                        updateFormField('fullLayout')(e);
+                      }}
+                      value={change() ? 'on' : 'off'}
+                      class="flex-end"
+                      defaultChecked
+                    ></Switch>
                   </GridItem>
                 </Grid>
                 <p>
@@ -233,7 +266,15 @@ const SettingsMenu = () => {
                 >
                   <h2>Move to Cursor</h2>
                   <GridItem class="flex justify-end">
-                    <Switch class="flex-end" defaultChecked></Switch>
+                    <Switch
+                      onChange={(e: Event) => {
+                        toggleSwitch(!change());
+                        updateFormField('moveToCursor')(e);
+                      }}
+                      value={change() ? 'on' : 'off'}
+                      class="flex-end"
+                      defaultChecked
+                    ></Switch>
                   </GridItem>
                 </Grid>
                 <p>

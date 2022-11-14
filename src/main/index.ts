@@ -127,6 +127,14 @@ function createSettingsWindow(): void {
   settingsWindow.on('close', () => {
     settingsWindow = null;
   });
+
+  ipcMain.on('settings', (event, arg) => {
+    const settingsObj = JSON.parse(JSON.stringify(arg));
+    UserSettings.settings.setSetting(settingsObj);
+    UserSettings.settings.save();
+    //console.log(JSON.stringify(arg) + 'from Main');
+    //console.log(UserSettings.settings.getSetting());
+  });
 }
 
 app.disableHardwareAcceleration();

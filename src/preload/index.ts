@@ -12,6 +12,10 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI);
     contextBridge.exposeInMainWorld('api', api);
     contextBridge.exposeInMainWorld('electronAPI', {
+      sendData: (dataToSubmit: any[]) => {
+        console.log(JSON.stringify(dataToSubmit) + 'from preload');
+        ipcRenderer.send('settings', dataToSubmit);
+      },
       setIgnoreMouseEvents: (yes: boolean, forward: { forward: boolean } = { forward: false }) => {
         ipcRenderer.send('set-ignore-mouse-events', yes, forward);
       },

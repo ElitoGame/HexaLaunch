@@ -6,6 +6,7 @@ import path from 'path';
 import { getHexUiWindow } from '.';
 import HexTileData from './DataModel/HexTileData';
 import HexUiData from './DataModel/HexUiData';
+import SettingsData from './DataModel/SettingsData';
 
 export class UserSettings {
   public static settings: UserSettings; // Using a Singleton here to ensure that the settings are only loaded once.
@@ -19,15 +20,25 @@ export class UserSettings {
   }
   private language: string;
 
+  private settingsData: SettingsData;
+
   private hexUI: HexUiData;
 
   public getHexUI(): HexUiData {
     return this.hexUI;
   }
+  public getSetting(): SettingsData {
+    return this.settingsData;
+  }
+
+  public setSetting(settingsData: SettingsData) {
+    this.settingsData.setDataFromObject(settingsData);
+  }
 
   constructor() {
     this.autoLaunch = true;
     this.language = 'en';
+    this.settingsData = new SettingsData(0, 0, 'solid', 0, true, true, true);
     this.hexUI = new HexUiData([
       new HexTileData(0, 0, 0, 'Unset', '', ''),
       new HexTileData(1, 0, 1, 'Unset', '', ''),
@@ -71,6 +82,7 @@ export class UserSettings {
     const data = {
       autoLaunch: this.autoLaunch,
       language: this.language,
+      settingsData: this.settingsData.toJSON(),
       hexUI: this.hexUI.toJSON(),
     };
     fs.writeFileSync(
@@ -90,6 +102,7 @@ export class UserSettings {
         UserSettings.settings.autoLaunch = data.autoLaunch;
         UserSettings.settings.language = data.language;
         UserSettings.settings.hexUI = HexUiData.fromJSON(data.hexUI);
+        UserSettings.settings.settingsData = SettingsData.fromJSON(data.settingsData);
       } catch (e) {
         console.log('No user-settings.json found. Using default settings.');
         UserSettings.settings.save();
