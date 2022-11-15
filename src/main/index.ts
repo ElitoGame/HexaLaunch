@@ -5,6 +5,12 @@ import { UserSettings } from './datastore';
 import open from 'open';
 import getAllInstalledSoftware from 'fetch-installed-software';
 import { exec } from 'node:child_process';
+import fs from 'fs';
+import fse from 'fs-extra';
+import { readAppInfo } from 'binary-vdf';
+import * as VDF from '@node-steam/vdf';
+import util from 'util';
+import { iconStyles } from '@hope-ui/solid';
 
 let appVisible = false;
 let tray: Tray | null = null;
@@ -176,66 +182,63 @@ app.on('ready', () => {
   globalShortcut.register('CommandOrControl+R', () => {
     UserSettings.load(true);
   });
+
+  // Get Apps from the uninstall registry
   globalShortcut.register('CommandOrControl+1', () => {
     console.log('CommandOrControl+1 is pressed');
-    getAllInstalledSoftware.getAllInstalledSoftware().then((data) => {
-      const files = (data as Array<any>)
-        .filter(
-          (x) =>
-            x.DisplayName !== undefined &&
-            ((x.InstallLocation !== undefined && x.InstallLocation !== '') ||
-              (x.DisplayIcon !== undefined &&
-                x.DisplayIcon !== '' &&
-                ((x.InstallLocation !== undefined && x.InstallLocation !== '') ||
-                  (x.DisplayIcon as string).includes('.exe')))) &&
-            !(x.DisplayName as string).includes('Win') &&
-            !(x.DisplayName as string).includes('Microsoft') &&
-            !(x.DisplayName as string).toLowerCase().includes('uninstall') &&
-            (!(x.InstallLocation as string)?.toLowerCase().includes('uninstall') ?? true) &&
-            (!(x.DisplayIcon as string)?.toLowerCase().includes('uninstall') ?? true)
-        )
-        .map((x) => {
-          return { name: x.DisplayName, path: x.InstallLocation, icon: x.DisplayIcon };
-        });
-      // // use this to write the results to a file
-      // writeFileSync(
-      //   'C:\\Users\\ElitoGame\\Documents\\GitHub\\RadialHexUI\\installedSoftware.json',
-      //   JSON.stringify(files)
-      // );
-      console.log(files);
-    });
+    console.log(queryUninstallApps());
   });
 
+  // Get currently running apps.
   globalShortcut.register('CommandOrControl+2', async () => {
     console.log('CommandOrControl+2 is pressed');
     //TODO test if this works for all users!
-    exec(
-      // use something like this to write the below command to disk > C:\\Users\\ElitoGame\\Documents\\GitHub\\RadialHexUI\\test.txt
-      'Get-Process | Where-Object {$_.MainWindowTitle -ne ""} | Select-Object -Expand MainModule | Select-Object -Property ModuleName, FileName',
-      { shell: 'powershell.exe' },
-      (_error, stdout, _stderr) => {
-        console.log(`stdout: ${stdout}`);
-      }
-    );
+    console.log(queryRunningApps());
   });
 
+  // Get Apps based on the start menu links.
   globalShortcut.register('CommandOrControl+3', async () => {
     console.log('CommandOrControl+3 is pressed');
-    // Exec sadly only has a callback, so we need to use a promise to get the result
-    const result: Array<string> = [];
-    exec(
-      'where /r "C:\\ProgramData\\Microsoft\\Windows\\Start Menu" *.lnk',
-      (_error, stdout, _stderr) => {
-        stdout.split(/(\r\n|\n|\r)/gm).map((x) => {
-          try {
-            result.push(shell.readShortcutLink(x).target);
-          } catch (error) {
-            return x;
-          }
-        });
-        console.log('Result: ' + result.join(',\n'));
-      }
-    );
+    console.log(queryStartMenuLinkedApps());
+  });
+
+  // Get Apps from the Epic Games Launcher and Steam
+  globalShortcut.register('CommandOrControl+4', async () => {
+    console.log('CommandOrControl+4 is pressed');
+    console.log(queryEpicGames());
+    console.log(querySteamGames());
+  });
+
+  // Get Apps from the Epic Games Launcher and Steam
+  globalShortcut.register('CommandOrControl+5', async () => {
+    console.log('CommandOrControl+5 is pressed');
+    const total: Set<string> = new Set<string>();
+    console.time('Total');
+
+    const uninstall = await queryUninstallApps();
+    console.log('Uninstall');
+    console.timeLog('Total');
+    const running = await queryRunningApps();
+    console.log('Running');
+    console.timeLog('Total');
+    const startMenu = await queryStartMenuLinkedApps();
+    console.log('StartMenu');
+    console.timeLog('Total');
+    const epic = await queryEpicGames();
+    console.log('Epic');
+    console.timeLog('Total');
+    const steam = await querySteamGames();
+    console.log('Steam');
+    console.timeLog('Total');
+
+    uninstall.forEach((value) => total.add(value));
+    running.forEach((value) => total.add(value));
+    startMenu.forEach((value) => total.add(value));
+    epic.forEach((value) => total.add(value));
+    steam.forEach((value) => total.add(value));
+
+    console.log(total.size);
+    console.timeEnd('Total');
   });
 
   /*
@@ -366,4 +369,154 @@ function toggleUI(visible = appVisible) {
 
 export function getHexUiWindow() {
   return mainWindow;
+}
+
+async function queryUninstallApps() {
+  const data = await getAllInstalledSoftware.getAllInstalledSoftware();
+  const collectedApps = (data as Array<any>)
+    .filter(
+      (x) =>
+        x.DisplayName !== undefined &&
+        x.DisplayIcon !== undefined &&
+        x.DisplayIcon !== '' &&
+        x.InstallLocation !== undefined &&
+        x.InstallLocation !== '' &&
+        (x.DisplayIcon as string).includes('.exe') &&
+        !(x.DisplayIcon as string).includes('%SYSTEMROOT%') &&
+        !(x.DisplayName as string).includes('Win') &&
+        !(x.DisplayName as string).includes('Microsoft') &&
+        !(x.DisplayName as string).toLowerCase().includes('uninstall') &&
+        (!(x.InstallLocation as string)?.toLowerCase().includes('uninstall') ?? true) &&
+        (!(x.DisplayIcon as string)?.toLowerCase().includes('uninstall') ?? true)
+    )
+    .map((x) => {
+      return (x.DisplayIcon.split('.exe')[0] + '.exe').replace(/"/g, '');
+      // return { name: x.DisplayName, path: x.InstallLocation, icon: x.DisplayIcon };
+    });
+  // // use this to write the results to a file
+  // writeFileSync(
+  //   'C:\\Users\\ElitoGame\\Documents\\GitHub\\RadialHexUI\\installedSoftware.json',
+  //   JSON.stringify(files)
+  // );
+  return collectedApps;
+}
+
+async function queryRunningApps() {
+  //TODO: Find a way to promisify this without "Access is denied" errors. The callback is difficult to handle as I can't await it.
+  const collectedApps: Array<string> = await new Promise((resolve) => {
+    exec(
+      'Get-Process | Where-Object {$_.MainWindowTitle -ne ""} | Select-Object -Expand MainModule | Select-Object -Property FileName',
+      { shell: 'powershell.exe' },
+      (_err, stout) => {
+        resolve(
+          stout
+            .split('\n')
+            .slice(3, -1)
+            .map((x) => x.trim())
+            .filter((x) => x !== '')
+        );
+      }
+    );
+  });
+  return collectedApps;
+}
+
+async function queryStartMenuLinkedApps() {
+  const execProm = util.promisify(exec);
+  let collectedApps: Array<string> = [];
+  const { stdout } = await execProm(
+    'where /r "C:\\ProgramData\\Microsoft\\Windows\\Start Menu" *.lnk'
+  );
+  stdout.split(/(\r\n|\n|\r)/gm).map((x) => {
+    try {
+      collectedApps.push(shell.readShortcutLink(x).target);
+    } catch (error) {
+      return x;
+    }
+  });
+  // Filter our unlikely results. (.urls, installers, uninstallers, etc.)
+  collectedApps = collectedApps.filter(
+    (x) =>
+      x !== undefined &&
+      x.endsWith('.exe') &&
+      !x.includes('uninstall') &&
+      !x.includes('setup') &&
+      !x.includes('install') &&
+      !x.includes('repair') &&
+      !x.includes('update') &&
+      !x.includes('upgrade') &&
+      !x.includes('unins001') &&
+      !x.includes('unins000')
+  );
+  return collectedApps;
+}
+
+async function querySteamGames() {
+  const inBuffer = await fse.createReadStream(
+    'C:\\Program Files (x86)\\Steam\\appcache\\appinfo.vdf'
+  );
+  const appInfo = await readAppInfo(inBuffer);
+  const collectedApps: Array<string> = await new Promise((resolve) => {
+    const collectedSteamGames: Array<string> = [];
+    fs.readFile(
+      'C:\\Program Files (x86)\\Steam\\steamapps\\libraryfolders.vdf',
+      'utf8',
+      (err, data) => {
+        try {
+          if (err) return;
+          const parsed = VDF.parse(data);
+          // console.log(parsed);
+          for (const key in parsed.libraryfolders) {
+            // console.log(parsed.libraryfolders[key].apps);
+            for (const app in parsed.libraryfolders[key].apps) {
+              const gameData = appInfo.filter((x) => x.id === Number.parseInt(app))[0];
+              if (gameData.entries.common.name === 'Steamworks Common Redistributables') continue;
+              const firstLaunchEntry = Object.keys(gameData.entries.config.launch)[0];
+              collectedSteamGames.push(
+                parsed.libraryfolders[key].path +
+                  '\\steamapps\\common\\' +
+                  gameData.entries.config.installdir +
+                  '\\' +
+                  gameData.entries.config.launch[firstLaunchEntry]?.executable
+              );
+            }
+          }
+          resolve(collectedSteamGames);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    );
+  });
+  return collectedApps;
+}
+
+async function queryEpicGames() {
+  const collectedApps: Array<string> = await new Promise((resolve) => {
+    const collectedEpicGames: Array<string> = [];
+    fs.readdir('C:\\ProgramData\\Epic\\EpicGamesLauncher\\Data\\Manifests', async (err, data) => {
+      if (err) return;
+      for (const file of data) {
+        await new Promise<void>((resolve) => {
+          fs.readFile(
+            `C:\\ProgramData\\Epic\\EpicGamesLauncher\\Data\\Manifests\\${file}`,
+            'utf8',
+            (err, data) => {
+              if (err) {
+                resolve();
+                return;
+              }
+              const parsed = JSON.parse(data);
+              if (fs.existsSync(parsed.InstallLocation + '\\' + parsed.LaunchExecutable)) {
+                collectedEpicGames.push(parsed.InstallLocation + '\\' + parsed.LaunchExecutable);
+              }
+              resolve();
+            }
+          );
+        });
+      }
+      resolve(collectedEpicGames);
+    });
+  });
+  return collectedApps;
 }
