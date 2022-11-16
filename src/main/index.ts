@@ -631,6 +631,7 @@ async function querySteamGames() {
       }
     );
   });
+  if (!steamPath) return [];
   const inBuffer = await fse.createReadStream(steamPath + '\\appcache\\appinfo.vdf');
   const appInfo = await readAppInfo(inBuffer);
   const collectedApps: Array<{ executable: string; name: string }> = await new Promise(
@@ -684,6 +685,7 @@ async function queryEpicGames() {
       }
     );
   });
+  if (!epicPath) return [];
   const collectedApps: Array<{ executable: string; name: string }> = await new Promise(
     (resolve) => {
       const collectedEpicGames: Array<{ executable: string; name: string }> = [];
