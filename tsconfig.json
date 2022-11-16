@@ -14,7 +14,8 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "types": [],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "typeRoots": ["src/preload", "node_modules/@types"],
   },
   "include": ["src"],
   "exclude": ["node_modules", "out", "build"],

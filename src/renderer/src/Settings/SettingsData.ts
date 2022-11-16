@@ -68,7 +68,7 @@ export default class SettingsData {
   public getMoveToCursor() {
     return this.moveToCursor;
   }
-  public setMoveToCursorn(x: boolean) {
+  public setMoveToCursor(x: boolean) {
     this.moveToCursor = x;
   }
   // Convert the Object to a JSON string

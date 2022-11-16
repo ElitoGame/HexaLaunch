@@ -136,4 +136,8 @@ export const openApp = (app: string, url: string) => {
   window.electronAPI.openApp(app, url);
 };
 
+export const runAction = (action: string, option?: string) => {
+  window.electronAPI.runAction(action, option);
+};
+
 export default {};

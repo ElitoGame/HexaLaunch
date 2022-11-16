@@ -43,7 +43,7 @@ export const updateFormField = (fieldName: string) => (event: Event) => {
   getSettingsData()?.setBorderStyle(value());
   getSettingsData()?.setKeyboardNavigation(form.keyboardNavigation);
   getSettingsData()?.setFullLayout(form.fullLayout);
-  getSettingsData()?.setMoveToCursorn(form.moveToCursor);
+  getSettingsData()?.setMoveToCursor(form.moveToCursor);
   //console.log(JSON.stringify(getSettingsData()?.toJSON()) + ' ipc');
   const temp = JSON.parse(JSON.stringify(getSettingsData()?.toJSON()));
   console.log(temp + 'from renderer');

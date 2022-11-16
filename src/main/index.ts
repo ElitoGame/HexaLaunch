@@ -11,6 +11,7 @@ import { readAppInfo } from 'binary-vdf';
 import * as VDF from '@node-steam/vdf';
 import util from 'util';
 import os from 'os';
+
 let appVisible = false;
 let tray: Tray | null = null;
 
@@ -428,6 +429,7 @@ app.on('ready', () => {
     | |    |___ |  | |  | | | \|    |  | |  | | \| |__/ |___ |___ ___] 
   */
   ipcMain.handle('hexUI:openApp', openApp);
+  ipcMain.handle('hexUI:runAction', runAction);
 });
 
 /*
@@ -481,6 +483,15 @@ function openApp(_event: Electron.IpcMainInvokeEvent, app: string, url: string) 
     open(app);
   } else if (url !== undefined) {
     open(url);
+  }
+  // otherwise do nothing
+}
+
+async function runAction(_event: Electron.IpcMainInvokeEvent, action: string, option: string) {
+  if (action === 'PaperBin') {
+    exec(`Clear-RecycleBin -Force`, { shell: 'powershell.exe' }, () => {
+      console.log('Cleared the paper bin!' + option);
+    });
   }
   // otherwise do nothing
 }

@@ -10,6 +10,7 @@ export declare const getShowPosition: Accessor<{
     y: number;
   }>,
   openApp: (app: string, url: string) => void,
+  runAction: (action: string, option?: string) => void,
   getHexSize: Accessor<number>,
   getHexMargin: Accessor<number>,
   getHexUiData: Accessor<HexUiData>,

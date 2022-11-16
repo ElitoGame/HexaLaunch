@@ -17,8 +17,8 @@ export default class SettingsData {
     moveToCursor: boolean
   );
 
-  getwidth(): number;
-  setwidth(x: number): void;
+  getWidth(): number;
+  setWidth(x: number): void;
   getBorderWidth(): number;
   setBorderWidth(x: number): void;
   getBorderStyle(): string;
@@ -31,6 +31,8 @@ export default class SettingsData {
   getFullLayout(): boolean;
   setMoveToCursort(x: boolean): void;
   getMoveToCursor(): boolean;
+
+  setDataFromObject(data: SettingsData): void;
 
   public setFromJSON(data: {
     width: number;
@@ -51,7 +53,7 @@ export default class SettingsData {
     fullLayout: boolean;
     moveToCursor: boolean;
   };
-  fromJSON(data: {
+  public static fromJSON(data: {
     width: number;
     borderWidth: number;
     borderStyle: string;

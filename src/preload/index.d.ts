@@ -1,10 +1,11 @@
 import { ElectronAPI } from '@electron-toolkit/preload';
 import { IpcRendererEvent } from 'electron';
-import HexUiData from '../renderer/src/DataModel/HexUiData';
+import HexUiData from '../../renderer/src/DataModel/HexUiData';
 
 export interface IElectronAPI {
   sendData: (dataToSubmit: SettingsData) => void;
   openApp(app: string, url: string): unknown;
+  runAction(action: string, option?: string): unknown;
   setIgnoreMouseEvents: (yes: boolean, forward: { forward: boolean }) => Promise<void>;
   toggleWindow: (callback: (event: IpcRendererEvent, value: boolean) => void) => void;
   getMousePosition: (

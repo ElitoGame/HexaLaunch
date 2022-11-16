@@ -28,6 +28,9 @@ if (process.contextIsolated) {
       openApp: (app: string, url: string) => {
         ipcRenderer.invoke('hexUI:openApp', app, url);
       },
+      runAction: (action: string, option?: string) => {
+        ipcRenderer.invoke('hexUI:runAction', action, option);
+      },
       getHexUiData: (callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
         ipcRenderer.on('hexUI:getHexUiData', callback);
       },

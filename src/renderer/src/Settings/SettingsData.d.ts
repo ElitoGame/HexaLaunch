@@ -17,8 +17,8 @@ export default class SettingsData {
     moveToCursor: boolean
   );
 
-  getwidth(): number;
-  setwidth(x: number): void;
+  getWidth(): number;
+  setWidth(x: number): void;
   getBorderWidth(): number;
   setBorderWidth(x: number): void;
   getBorderStyle(): string;
@@ -29,7 +29,7 @@ export default class SettingsData {
   setKeyboardNavigation(x: boolean): void;
   setFullLayout(x: boolean): void;
   getFullLayout(): boolean;
-  setMoveToCursort(x: boolean): void;
+  setMoveToCursor(x: boolean): void;
   getMoveToCursor(): boolean;
 
   toJSON(): {

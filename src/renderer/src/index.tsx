@@ -1,5 +1,5 @@
 import { For, render, Show } from 'solid-js/web';
-import { getCurrentRadiant, getHexUiData, getShowPosition, openApp } from './renderer';
+import { getCurrentRadiant, getHexUiData, getShowPosition, openApp, runAction } from './renderer';
 
 import '../assets/index.css';
 import HexTile from './HexUI/Components/HexTile';
@@ -24,6 +24,8 @@ const HexUI = () => {
             onClick={() => {
               if (tile.getAction() === 'App') {
                 openApp(tile.getApp(), tile.getUrl());
+              } else if (tile.getAction() === 'PaperBin') {
+                runAction('PaperBin');
               }
             }}
             title={
@@ -51,6 +53,8 @@ const HexUI = () => {
               onClick={() => {
                 if (tile.getAction() === 'App') {
                   openApp(tile.getApp(), tile.getUrl());
+                } else if (tile.getAction() === 'PaperBin') {
+                  runAction('PaperBin');
                 }
               }}
               title={
