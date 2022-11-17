@@ -21,6 +21,7 @@
     "@electron-toolkit/preload": "^1.0.2",
     "@electron-toolkit/utils": "^1.0.2",
     "@hope-ui/solid": "^0.6.7",
+    "@lyrasearch/lyra": "^0.3.1",
     "@node-steam/vdf": "^2.2.0",
     "@stitches/core": "^1.2.8",
     "binary-vdf": "^0.1.0",

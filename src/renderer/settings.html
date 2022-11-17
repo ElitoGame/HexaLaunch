@@ -7,13 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+      content="default-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'"
     />
   </head>
   <link rel="stylesheet" type="text/css" href="./assets/settings.css" media="screen" />
 
-  <body >
-   
+  <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="settings"></div>
     <script src="./src/settings.tsx" type="module"></script>

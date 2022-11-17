@@ -1,4 +1,5 @@
 import { electronAPI } from '@electron-toolkit/preload';
+import { SearchResult } from '@lyrasearch/lyra';
 const { contextBridge, ipcRenderer } = require('electron');
 
 // Custom APIs for renderer
@@ -15,6 +16,22 @@ if (process.contextIsolated) {
       sendData: (dataToSubmit: any[]) => {
         console.log(JSON.stringify(dataToSubmit) + 'from preload');
         ipcRenderer.send('settings', dataToSubmit);
+      },
+      search: (
+        query: string
+      ): Promise<
+        | SearchResult<{
+            executable: 'string';
+            name: 'string';
+            icon: 'string';
+          }>
+        | undefined
+      > => ipcRenderer.invoke('settings:search', query),
+      addApp: (
+        app: string
+      ): Promise<{ executable: string; name: string; icon: string } | undefined> => {
+        console.log('Preload: addApp: ' + app);
+        return ipcRenderer.invoke('settings:addApp', app);
       },
     });
   } catch (error) {

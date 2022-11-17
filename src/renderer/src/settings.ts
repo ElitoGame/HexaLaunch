@@ -1,3 +1,4 @@
+import { SearchResult } from '@lyrasearch/lyra';
 import { createSignal } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import SettingsData from './Settings/SettingsData';
@@ -49,6 +50,35 @@ export const updateFormField = (fieldName: string) => (event: Event) => {
   console.log(temp + 'from renderer');
   console.log(JSON.stringify(temp) + 'string from render');
   window.electronAPI.sendData(temp);
+};
+
+export const searchAppDB = async (query: string) => {
+  if (query.length == 0) {
+    setSearchResults();
+    return;
+  }
+  const result = (await window.electronAPI.search(query)) as
+    | SearchResult<{
+        executable: 'string';
+        name: 'string';
+        icon: 'string';
+      }>
+    | undefined;
+  if ((result?.count ?? 0) > 0) {
+    setSearchResults(result);
+  }
+};
+
+export const [getSearchResults, setSearchResults] = createSignal<
+  SearchResult<{
+    executable: 'string';
+    name: 'string';
+    icon: 'string';
+  }>
+>();
+
+export const addApp = async (app: string) => {
+  return await window.electronAPI.addApp(app);
 };
 
 export default {};

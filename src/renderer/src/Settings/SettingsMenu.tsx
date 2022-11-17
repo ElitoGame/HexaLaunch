@@ -1,4 +1,13 @@
-import { updateFormField, toggleSwitch, change, value, setValue } from '../settings';
+import {
+  updateFormField,
+  toggleSwitch,
+  change,
+  value,
+  setValue,
+  searchAppDB,
+  getSearchResults,
+  addApp,
+} from '../settings';
 import {
   Box,
   Grid,
@@ -32,8 +41,7 @@ import {
 } from '@hope-ui/solid';
 
 import { HStack, Tabs, TabList, Tab, TabPanel, VStack } from '@hope-ui/solid';
-import { For, createSignal } from 'solid-js';
-import { createStore } from 'solid-js/store';
+import { For } from 'solid-js';
 
 import '../../assets/settings.css';
 
@@ -68,7 +76,22 @@ const SettingsMenu = () => {
 
   return (
     <>
-      <Grid h="100%" templateRows="repeat(, 1fr)" templateColumns="repeat(3, 1fr)" gap="$4">
+      <Grid
+        h="100%"
+        templateRows="repeat(, 1fr)"
+        templateColumns="repeat(3, 1fr)"
+        gap="$4"
+        onDrop={async (e: any) => {
+          e.preventDefault();
+          // console.log(e.dataTransfer.files[0].path);
+          console.log(await addApp(e.dataTransfer.files[0].path));
+        }}
+        onDragOver={(e: any) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'copy';
+          return false;
+        }}
+      >
         <GridItem>
           <VStack alignItems="left" spacing="$4">
             <Tabs keepAlive variant="pills" defaultIndex={1}>
@@ -195,11 +218,34 @@ const SettingsMenu = () => {
                 <p>Assets</p>
                 <p>Drag & drop</p>
 
-                <Input bg="#C3C2C2"></Input>
+                <Input
+                  bg="#C3C2C2"
+                  onInput={(e) => searchAppDB((e.target as HTMLInputElement).value)}
+                ></Input>
                 <br></br>
                 <br></br>
 
                 <p>Apps</p>
+                <ul>
+                  <For each={getSearchResults()?.hits ?? []}>
+                    {(res) => (
+                      <>
+                        <Box class="my-2 p-2 bg-slate-300" borderRadius="$lg">
+                          <li>
+                            <HStack>
+                              <img src={res.document.icon} class="w-10 pr-2"></img>
+                              <div>
+                                <strong>{res.document.name}</strong>
+                                <br />
+                                <em>{res.document.executable}</em>{' '}
+                              </div>
+                            </HStack>
+                          </li>
+                        </Box>
+                      </>
+                    )}
+                  </For>
+                </ul>
                 <Box bg="#C3C2C2" h="200px" borderRadius="$lg"></Box>
                 <p>Actions</p>
                 <Box bg="#C3C2C2" h="200px" borderRadius="$lg"></Box>
