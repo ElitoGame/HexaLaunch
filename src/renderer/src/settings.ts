@@ -62,19 +62,24 @@ export const searchAppDB = async (query: string, offset = 0) => {
         executable: 'string';
         name: 'string';
         icon: 'string';
+        type: 'string';
       }>
     | undefined;
   if ((result?.count ?? 0) > 0) {
     setSearchResults(result);
+  } else {
+    setSearchResults();
   }
 };
 
 export const [getSearchResults, setSearchResults] = createSignal<
-  SearchResult<{
-    executable: 'string';
-    name: 'string';
-    icon: 'string';
-  }>
+  | SearchResult<{
+      executable: 'string';
+      name: 'string';
+      icon: 'string';
+      type: 'string';
+    }>
+  | undefined
 >();
 
 export const addApp = async (app: string) => {
@@ -86,6 +91,7 @@ export const [getRelevantApps, setRelevantApps] = createSignal<
     executable: 'string';
     name: 'string';
     icon: 'string';
+    type: 'string';
   }>
 >();
 

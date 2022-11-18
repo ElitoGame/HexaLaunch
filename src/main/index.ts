@@ -228,6 +228,7 @@ app.on('ready', () => {
 
   // Initialize the search engine and re-query the local apps.
   externalAppManager.getSearchDatabase();
+  externalAppManager.getRelevantApps();
 });
 
 /*
@@ -296,11 +297,19 @@ async function runAction(_event: Electron.IpcMainInvokeEvent, action: string, op
 
 async function searchAppDB(_event: Electron.IpcMainInvokeEvent, query: string, offset: number) {
   if (query !== undefined) {
-    return search(await externalAppManager.getSearchDatabase(), {
-      term: query,
-      properties: ['name', 'executable'],
-      offset: offset,
-    });
+    // test if the query start with this regex: /([a-z]:)+(\/|\\)/gi
+    if (query.match(/^([a-z]:)?(\/|\\).*/gi)) {
+      if (query.startsWith('/') || query.startsWith('\\')) {
+        query = app.getPath('home').slice(0, 2) + query;
+      }
+      return await externalAppManager.searchFileSystem(query, offset);
+    } else {
+      return search(await externalAppManager.getSearchDatabase(), {
+        term: query,
+        properties: ['name', 'executable'],
+        offset: offset,
+      });
+    }
   }
   return;
   // otherwise do nothing

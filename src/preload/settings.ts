@@ -25,6 +25,7 @@ if (process.contextIsolated) {
             executable: 'string';
             name: 'string';
             icon: 'string';
+            type: 'string';
           }>
         | undefined
       > => ipcRenderer.invoke('settings:search', query, offset),
@@ -38,6 +39,7 @@ if (process.contextIsolated) {
         executable: 'string';
         name: 'string';
         icon: 'string';
+        type: 'string';
       }> => ipcRenderer.invoke('settings:getRelevantApps'),
     });
   } catch (error) {

@@ -244,7 +244,24 @@ const SettingsMenu = () => {
                   <For each={getSearchResults()?.hits ?? []}>
                     {(res) => (
                       <>
-                        <Box class="my-2 p-2 bg-slate-300" borderRadius="$lg">
+                        <Box
+                          class="my-2 p-2 bg-slate-300"
+                          borderRadius="$lg"
+                          onClick={() => {
+                            if (searchBar) {
+                              if (searchBar.value.match(/^([a-z]:)?(\/|\\).*/gi)) {
+                                const newPath =
+                                  res.document.executable.replaceAll('\\', '/') +
+                                  (res.document.type === 'Folder' ? '/' : '');
+                                searchBar.value = newPath;
+
+                                searchAppDB(newPath);
+                                setPage(0);
+                                searchBar.focus();
+                              }
+                            }
+                          }}
+                        >
                           <li>
                             <HStack>
                               <img src={res.document.icon} class="w-10 pr-2"></img>
@@ -273,7 +290,7 @@ const SettingsMenu = () => {
                     >
                       Prev
                     </button>
-                    <span>{getPage()}</span>
+                    <span>{getPage() + 1}</span>
                     <button
                       class="bg-blue-300 rounded-sm px-2 py-1 m-2"
                       onClick={() => {

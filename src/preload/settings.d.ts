@@ -8,6 +8,7 @@ export interface IElectronAPI {
         executable: 'string';
         name: 'string';
         icon: 'string';
+        type: 'string';
       }>
     | undefined
   >;
@@ -16,5 +17,6 @@ export interface IElectronAPI {
     executable: 'string';
     name: 'string';
     icon: 'string';
+    type: 'string';
   }>;
 }

@@ -1,4 +1,4 @@
-import { shell, app } from 'electron';
+import { shell, app, NativeImage } from 'electron';
 import getAllInstalledSoftware from 'fetch-installed-software';
 import fse from 'fs-extra';
 import { readAppInfo } from 'binary-vdf';
@@ -7,7 +7,8 @@ import util from 'util';
 import os from 'os';
 import { exec } from 'node:child_process';
 import fs from 'fs';
-import { create, insertBatch, Lyra, insert } from '@lyrasearch/lyra';
+import { create, insertBatch, Lyra, insert, search, SearchResult } from '@lyrasearch/lyra';
+import path from 'path';
 
 export class externalAppManager {
   private static appData: Array<externalApp> = [];
@@ -17,6 +18,20 @@ export class externalAppManager {
     executable: 'string';
     name: 'string';
     icon: 'string';
+    type: 'string';
+  }>;
+  private static fileSystemDB: Lyra<{
+    executable: 'string';
+    name: 'string';
+    icon: 'string';
+    type: 'string';
+  }>;
+  private static lastFileQuery = '';
+  private static lastFolderResult: SearchResult<{
+    executable: 'string';
+    name: 'string';
+    icon: 'string';
+    type: 'string';
   }>;
 
   public static async getSearchDatabase() {
@@ -26,6 +41,7 @@ export class externalAppManager {
           executable: 'string',
           name: 'string',
           icon: 'string',
+          type: 'string',
         },
       });
       if (this.appData.length === 0) {
@@ -35,7 +51,7 @@ export class externalAppManager {
       }
       await insertBatch(
         this.appDB,
-        this.appData.map((x) => x.toJSON())
+        this.appData.map((x) => x.toJSONwithTypes())
       );
     }
     return this.appDB;
@@ -145,28 +161,9 @@ export class externalAppManager {
     );
 
     // Filter out any updaters or similar
-    finalData = finalData.filter((x) => {
-      if (x == undefined) {
-        return false;
-      }
-      const lx = x.executable.toLowerCase().replace(/(-|_)/g, '');
-      if (
-        !lx.endsWith('.exe') ||
-        lx.includes('setup') ||
-        lx.includes('install') ||
-        lx.includes('repair') ||
-        lx.includes('update') ||
-        lx.includes('upgrade') ||
-        lx.includes('unin') ||
-        lx.includes('helper') ||
-        lx.includes('verif') ||
-        lx.includes('bug') ||
-        lx.includes('crash')
-      ) {
-        return false;
-      }
-      return true;
-    });
+    finalData = finalData.filter((x) =>
+      this.filterFile({ executable: x.executable, name: x.name })
+    );
 
     const customApps = await externalAppManager.queryCustomApps();
     customApps.forEach(
@@ -181,6 +178,9 @@ export class externalAppManager {
           return false;
         }) || finalData.push(new externalApp(value.executable, value.name, undefined))
     );
+
+    // unique
+    finalData = finalData.filter((value, index, self) => self.indexOf(value) === index);
 
     const iconPromises: Array<Promise<string | undefined>> = [];
     finalData.forEach((value) => {
@@ -310,28 +310,9 @@ export class externalAppManager {
     );
 
     // Filter out any updaters or similar
-    finalData = finalData.filter((x) => {
-      if (x == undefined) {
-        return false;
-      }
-      const lx = x.executable.toLowerCase().replace(/(-|_)/g, '');
-      if (
-        !lx.endsWith('.exe') ||
-        lx.includes('setup') ||
-        lx.includes('install') ||
-        lx.includes('repair') ||
-        lx.includes('update') ||
-        lx.includes('upgrade') ||
-        lx.includes('unin') ||
-        lx.includes('helper') ||
-        lx.includes('verif') ||
-        lx.includes('bug') ||
-        lx.includes('crash')
-      ) {
-        return false;
-      }
-      return true;
-    });
+    finalData = finalData.filter((x) =>
+      this.filterFile({ executable: x.executable, name: x.name })
+    );
 
     const customApps = await externalAppManager.queryCustomApps();
     customApps.forEach(
@@ -346,6 +327,9 @@ export class externalAppManager {
           return false;
         }) || finalData.push(new externalApp(value.executable, value.name, undefined))
     );
+
+    // unique
+    finalData = finalData.filter((value, index, self) => self.indexOf(value) === index);
 
     const iconPromises: Array<Promise<string | undefined>> = [];
     finalData.forEach((value) => {
@@ -378,11 +362,12 @@ export class externalAppManager {
         executable: 'string',
         name: 'string',
         icon: 'string',
+        type: 'string',
       },
     });
     await insertBatch(
       this.appDB,
-      this.appData.map((x) => x.toJSON())
+      this.appData.map((x) => x.toJSONwithTypes())
     );
     this.saveAppDataToDisk();
     return appData;
@@ -402,7 +387,7 @@ export class externalAppManager {
       this.appData.push(app);
       this.appDataCustomApps.push(app);
       this.saveAppDataToDisk();
-      insert(this.appDB, app.toJSON());
+      insert(this.appDB, app.toJSONwithTypes());
       return app;
     }
     return;
@@ -419,10 +404,97 @@ export class externalAppManager {
         const name = await this.getApplicationNameFromExe([executable[i]], true);
         const icon = await this.getApplicationIconFromExe([executable[i]]);
         this.appData.push(new externalApp(executable[i], name[i], icon[i]));
-        insert(this.appDB, new externalApp(executable[i], name[i], icon[i]).toJSON());
+        insert(this.appDB, new externalApp(executable[i], name[i], icon[i]).toJSONwithTypes());
       }
     }
     this.saveAppDataToDisk();
+  }
+
+  public static async searchFileSystem(query: string, offset: number) {
+    query = query.replace(/\/|\\\\/g, '\\');
+    let fileFolder = query.slice(0, query.lastIndexOf('\\') + 1);
+    if (!fileFolder.endsWith('\\')) {
+      fileFolder += '\\';
+    }
+    const fileName = query.slice(query.lastIndexOf('\\') + 1);
+    // check if the folder exists.
+    if (!fs.existsSync(fileFolder)) return;
+    // New folder, so we need to query the folder.
+    if (this.lastFileQuery !== fileFolder) {
+      this.lastFileQuery = fileFolder;
+      this.fileSystemDB = create({
+        schema: {
+          name: 'string',
+          executable: 'string',
+          icon: 'string',
+          type: 'string',
+        },
+      });
+      const allFiles: {
+        name: string;
+        executable: string;
+        icon: string;
+        type: string;
+      }[] = [];
+      const iconPromises: Array<Promise<NativeImage>> = [];
+      fs.readdirSync(fileFolder).forEach(async (file) => {
+        const filePath = path.join(fileFolder, file);
+        const promise = app.getFileIcon(filePath);
+        iconPromises.push(promise);
+        const icon = (await promise).toDataURL();
+        let type = 'Application';
+        try {
+          type = fs.statSync(filePath).isDirectory() ? 'Folder' : 'Application';
+        } catch (e) {
+          /* file doesn't exist... oh well, not needed then ¯\_(ツ)_/¯ */
+        }
+        const data = {
+          name: file,
+          executable: filePath,
+          icon: icon,
+          type: type,
+        };
+        allFiles.push(data);
+        insert(this.fileSystemDB, data);
+      });
+      await Promise.all(iconPromises);
+      const result: SearchResult<{
+        executable: 'string';
+        name: 'string';
+        icon: 'string';
+        type: 'string';
+      }> = {
+        elapsed: 0n,
+        hits: allFiles.map((x) => {
+          return {
+            id: x.executable,
+            score: 0,
+            document: {
+              executable: x.executable,
+              name: x.name,
+              icon: x.icon,
+              type: x.type,
+            },
+          };
+        }),
+        count: allFiles.length,
+      };
+      this.lastFolderResult = result;
+      return result;
+    } else {
+      if (fileName === '') {
+        // No query, so return all the files.
+        return this.lastFolderResult;
+      } else {
+        const result = search(this.fileSystemDB, {
+          term: fileName,
+          offset: offset,
+          properties: ['name'],
+        });
+        // console.log(result);
+        return result;
+      }
+    }
   }
 
   /*
@@ -548,18 +620,8 @@ export class externalAppManager {
     // filter out duplicates
     collectedApps = collectedApps.filter((value, index, self) => self.indexOf(value) === index);
     // Filter our unlikely results. (.urls, installers, uninstallers, etc.)
-    collectedApps = collectedApps.filter(
-      (x) =>
-        x !== undefined &&
-        x.executable.endsWith('.exe') &&
-        !x.executable.includes('uninstall') &&
-        !x.executable.includes('setup') &&
-        !x.executable.includes('install') &&
-        !x.executable.includes('repair') &&
-        !x.executable.includes('update') &&
-        !x.executable.includes('upgrade') &&
-        !x.executable.includes('unins001') &&
-        !x.executable.includes('unins000')
+    collectedApps = collectedApps.filter((x) =>
+      this.filterFile({ executable: x.executable, name: x.name })
     );
     return collectedApps;
   }
@@ -698,7 +760,7 @@ export class externalAppManager {
       );
     });
     const execProm = util.promisify(exec);
-    let collectedApps: Array<string> = [];
+    const collectedApps: Array<string> = [];
     //TODO check if this path is always the same, regardless of language
     const folders = [programFilesPath, programFiles6432Path];
     for (const folder of folders) {
@@ -712,29 +774,9 @@ export class externalAppManager {
       });
     }
     // Filter our unlikely results. (.urls, installers, uninstallers, etc.)
-    collectedApps = collectedApps.filter((x) => {
-      if (x == undefined) {
-        return false;
-      }
-      const lx = x.toLowerCase().replace(/(-|_)/g, '');
-      if (
-        !lx.endsWith('.exe') ||
-        lx.includes('uninstall') ||
-        lx.includes('setup') ||
-        lx.includes('install') ||
-        lx.includes('repair') ||
-        lx.includes('update') ||
-        lx.includes('upgrade') ||
-        lx.includes('unins001') ||
-        lx.includes('unins000') ||
-        lx.includes('helper') ||
-        lx.includes('crash') ||
-        lx.includes('update')
-      ) {
-        return false;
-      }
-      return true;
-    });
+    // collectedApps = collectedApps.filter((x) => {
+    //   this.filterFile({ executable: x, name: '' });
+    // });
     return collectedApps;
   }
 
@@ -783,18 +825,8 @@ export class externalAppManager {
       });
     }
     // Filter our unlikely results. (.urls, installers, uninstallers, etc.)
-    collectedApps = collectedApps.filter(
-      (x) =>
-        x !== undefined &&
-        x.executable.endsWith('.exe') &&
-        !x.executable.includes('uninstall') &&
-        !x.executable.includes('setup') &&
-        !x.executable.includes('install') &&
-        !x.executable.includes('repair') &&
-        !x.executable.includes('update') &&
-        !x.executable.includes('upgrade') &&
-        !x.executable.includes('unins001') &&
-        !x.executable.includes('unins000')
+    collectedApps = collectedApps.filter((x) =>
+      this.filterFile({ executable: x.executable, name: x.name })
     );
     return collectedApps;
   }
@@ -887,17 +919,43 @@ export class externalAppManager {
       JSON.stringify(this.appDataCustomApps)
     );
   }
+
+  private static filterFile(file: { executable: string; name: string }): boolean {
+    if (file == undefined) {
+      return false;
+    }
+    const lx = file.executable.toLowerCase().replace(/(-|_)/g, '');
+    if (
+      !lx.endsWith('.exe') ||
+      lx.includes('setup') ||
+      lx.includes('install') ||
+      lx.includes('repair') ||
+      // Some Apps like teams use Update.exe as their executable
+      (lx.includes('update') && !file.name.includes('Team')) ||
+      lx.includes('upgrade') ||
+      lx.includes('unin') ||
+      lx.includes('helper') ||
+      lx.includes('verif') ||
+      lx.includes('bug') ||
+      lx.includes('crash')
+    ) {
+      return false;
+    }
+    return true;
+  }
 }
 
 export class externalApp {
   public executable: string;
   public name: string;
   public icon?: string;
+  public type: string;
 
-  public constructor(executable: string, name: string, icon?: string) {
+  public constructor(executable: string, name: string, icon?: string, type?: string) {
     this.executable = executable;
     this.name = name;
     this.icon = icon;
+    this.type = type ?? 'Application';
   }
 
   public setExecutable(executable: string) {
@@ -917,6 +975,15 @@ export class externalApp {
       executable: this.executable,
       name: this.name,
       icon: this.icon ?? '',
+    };
+  }
+
+  public toJSONwithTypes() {
+    return {
+      executable: this.executable,
+      name: this.name,
+      icon: this.icon ?? '',
+      type: this.type,
     };
   }
 }
