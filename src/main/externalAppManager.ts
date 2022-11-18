@@ -50,15 +50,15 @@ export class externalAppManager {
 
   public static async queryRelevantApps(): Promise<externalApp[]> {
     // If data is already present, temporarily use that data, while the new data is being queried.
-    if (fs.existsSync(app.getPath('userData') + '\\appDataAll.json')) {
+    if (fs.existsSync(app.getPath('userData') + '\\appDataRelevant.json')) {
       this.appDataRelevant = JSON.parse(
-        fs.readFileSync(app.getPath('userData') + '\\appDataAll.json', 'utf8')
+        fs.readFileSync(app.getPath('userData') + '\\appDataRelevant.json', 'utf8')
       ).map(
         (value: { executable: string; name: string; icon: string }) =>
           new externalApp(value.executable, value.name, value.icon)
       );
     }
-    console.time('Total');
+    console.time('TotallyRelevant');
     let total: Array<string> = [];
 
     const uninstall = await externalAppManager.queryUninstallApps();
@@ -116,19 +116,6 @@ export class externalAppManager {
           return false;
         }) || finalData.push(new externalApp(value.executable, value.name, undefined))
     );
-    const customApps = await externalAppManager.queryCustomApps();
-    customApps.forEach(
-      (value) =>
-        // if the executable is already in the list, replace it with the new one.
-        finalData.some((value2, index) => {
-          if (value2.executable === value.executable) {
-            finalData[index].setExecutable(value.executable);
-            finalData[index].setName(value.name);
-            return true;
-          }
-          return false;
-        }) || finalData.push(new externalApp(value.executable, value.name, undefined))
-    );
 
     //The Epic and Steam games often have unreadable names, so we need to query them after the other apps. This however means they won't have a version number.
     const epic = await externalAppManager.queryEpicGames();
@@ -165,21 +152,35 @@ export class externalAppManager {
       const lx = x.executable.toLowerCase().replace(/(-|_)/g, '');
       if (
         !lx.endsWith('.exe') ||
-        lx.includes('uninstall') ||
         lx.includes('setup') ||
         lx.includes('install') ||
         lx.includes('repair') ||
         lx.includes('update') ||
         lx.includes('upgrade') ||
-        lx.includes('unins001') ||
-        lx.includes('unins000') ||
+        lx.includes('unin') ||
         lx.includes('helper') ||
+        lx.includes('verif') ||
+        lx.includes('bug') ||
         lx.includes('crash')
       ) {
         return false;
       }
       return true;
     });
+
+    const customApps = await externalAppManager.queryCustomApps();
+    customApps.forEach(
+      (value) =>
+        // if the executable is already in the list, replace it with the new one.
+        finalData.some((value2, index) => {
+          if (value2.executable === value.executable) {
+            finalData[index].setExecutable(value.executable);
+            finalData[index].setName(value.name);
+            return true;
+          }
+          return false;
+        }) || finalData.push(new externalApp(value.executable, value.name, undefined))
+    );
 
     const iconPromises: Array<Promise<string | undefined>> = [];
     finalData.forEach((value) => {
@@ -205,7 +206,7 @@ export class externalAppManager {
     const appData = finalData.filter((value) => value.icon !== '' && value.name !== '');
 
     fs.writeFileSync(app.getPath('userData') + '\\appDataRelevant.json', JSON.stringify(appData));
-    console.timeEnd('Total');
+    console.timeEnd('TotallyRelevant');
     this.appDataRelevant = appData;
     return appData;
   }
@@ -280,19 +281,6 @@ export class externalAppManager {
           return false;
         }) || finalData.push(new externalApp(value.executable, value.name, undefined))
     );
-    const customApps = await externalAppManager.queryCustomApps();
-    customApps.forEach(
-      (value) =>
-        // if the executable is already in the list, replace it with the new one.
-        finalData.some((value2, index) => {
-          if (value2.executable === value.executable) {
-            finalData[index].setExecutable(value.executable);
-            finalData[index].setName(value.name);
-            return true;
-          }
-          return false;
-        }) || finalData.push(new externalApp(value.executable, value.name, undefined))
-    );
 
     //The Epic and Steam games often have unreadable names, so we need to query them after the other apps. This however means they won't have a version number.
     const epic = await externalAppManager.queryEpicGames();
@@ -329,21 +317,35 @@ export class externalAppManager {
       const lx = x.executable.toLowerCase().replace(/(-|_)/g, '');
       if (
         !lx.endsWith('.exe') ||
-        lx.includes('uninstall') ||
         lx.includes('setup') ||
         lx.includes('install') ||
         lx.includes('repair') ||
         lx.includes('update') ||
         lx.includes('upgrade') ||
-        lx.includes('unins001') ||
-        lx.includes('unins000') ||
+        lx.includes('unin') ||
         lx.includes('helper') ||
+        lx.includes('verif') ||
+        lx.includes('bug') ||
         lx.includes('crash')
       ) {
         return false;
       }
       return true;
     });
+
+    const customApps = await externalAppManager.queryCustomApps();
+    customApps.forEach(
+      (value) =>
+        // if the executable is already in the list, replace it with the new one.
+        finalData.some((value2, index) => {
+          if (value2.executable === value.executable) {
+            finalData[index].setExecutable(value.executable);
+            finalData[index].setName(value.name);
+            return true;
+          }
+          return false;
+        }) || finalData.push(new externalApp(value.executable, value.name, undefined))
+    );
 
     const iconPromises: Array<Promise<string | undefined>> = [];
     finalData.forEach((value) => {
@@ -514,6 +516,37 @@ export class externalAppManager {
         return;
       }
     });
+    {
+      const startMenuPath2 = await new Promise((resolve) => {
+        exec(
+          `Get-ItemProperty "HKLM:\\SOFTWARE${
+            os.platform() === 'win32' ? '\\WOW6432Node' : ''
+          }\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders\\Backup" | Select-Object -ExpandProperty "Programs"`,
+          { shell: 'powershell.exe' },
+          (_err, stout) => {
+            resolve(stout.trim());
+          }
+        );
+      });
+      const { stdout } = await execProm(
+        `where /r "${(startMenuPath2 as string).replace(
+          '%USERPROFILE%',
+          app.getPath('home')
+        )}" *.lnk`
+      );
+      stdout.split(/(\r\n|\n|\r)/gm).forEach((x) => {
+        try {
+          collectedApps.push({
+            executable: shell.readShortcutLink(x).target,
+            name: x.split('\\').slice(-1)[0].split('.lnk')[0],
+          });
+        } catch (error) {
+          return;
+        }
+      });
+    }
+    // filter out duplicates
+    collectedApps = collectedApps.filter((value, index, self) => self.indexOf(value) === index);
     // Filter our unlikely results. (.urls, installers, uninstallers, etc.)
     collectedApps = collectedApps.filter(
       (x) =>
@@ -559,7 +592,9 @@ export class externalAppManager {
             // console.log(parsed);
             for (const key in parsed.libraryfolders) {
               for (const app in parsed.libraryfolders[key].apps) {
-                const gameData = appInfo.filter((x) => x.id === Number.parseInt(app))[0];
+                const gameData = appInfo.filter(
+                  (x: { id: number }) => x.id === Number.parseInt(app)
+                )[0];
                 if (gameData.entries.common.name === 'Steamworks Common Redistributables') continue;
                 // console.log(gameData);
                 // console.log(gameData.entries.common.name);

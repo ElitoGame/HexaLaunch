@@ -224,6 +224,10 @@ app.on('ready', () => {
   ipcMain.handle('hexUI:runAction', runAction);
   ipcMain.handle('settings:search', searchAppDB);
   ipcMain.handle('settings:addApp', addApp);
+  ipcMain.handle('settings:getRelevantApps', getRelevantApps);
+
+  // Initialize the search engine and re-query the local apps.
+  externalAppManager.getSearchDatabase();
 });
 
 /*
@@ -290,11 +294,12 @@ async function runAction(_event: Electron.IpcMainInvokeEvent, action: string, op
   // otherwise do nothing
 }
 
-async function searchAppDB(_event: Electron.IpcMainInvokeEvent, query: string) {
+async function searchAppDB(_event: Electron.IpcMainInvokeEvent, query: string, offset: number) {
   if (query !== undefined) {
     return search(await externalAppManager.getSearchDatabase(), {
       term: query,
       properties: ['name', 'executable'],
+      offset: offset,
     });
   }
   return;
@@ -307,6 +312,10 @@ async function addApp(_event: Electron.IpcMainInvokeEvent, app: string) {
   }
   return;
   // otherwise do nothing
+}
+
+async function getRelevantApps() {
+  return externalAppManager.getRelevantApps();
 }
 
 /*

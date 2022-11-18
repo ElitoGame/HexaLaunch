@@ -12,7 +12,10 @@ export interface IElectronAPI {
     callback: (event: IpcRendererEvent, value: { x: number; y: number }) => void
   ) => void;
   getHexUiData: (callback: (event: IpcRendererEvent, value: HexUiData) => void) => void;
-  search: (query: string) => Promise<
+  search: (
+    query: string,
+    offset: number
+  ) => Promise<
     | SearchResult<{
         executable: 'string';
         name: 'string';
@@ -21,6 +24,13 @@ export interface IElectronAPI {
     | undefined
   >;
   addApp: (app: string) => Promise<{ executable: string; name: string; icon: string } | undefined>;
+  getRelevantApps: () => Promise<
+    Array<{
+      executable: 'string';
+      name: 'string';
+      icon: 'string';
+    }>
+  >;
 }
 
 declare global {

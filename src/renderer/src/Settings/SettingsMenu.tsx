@@ -7,6 +7,7 @@ import {
   searchAppDB,
   getSearchResults,
   addApp,
+  getRelevantApps,
 } from '../settings';
 import {
   Box,
@@ -38,10 +39,11 @@ import {
   Button,
   Switch,
   createDisclosure,
+  Center,
 } from '@hope-ui/solid';
 
 import { HStack, Tabs, TabList, Tab, TabPanel, VStack } from '@hope-ui/solid';
-import { For } from 'solid-js';
+import { createSignal, For, Show } from 'solid-js';
 
 import '../../assets/settings.css';
 
@@ -74,6 +76,10 @@ const SettingsMenu = () => {
 
   const { isOpen, onOpen, onClose } = createDisclosure();
 
+  const [getPage, setPage] = createSignal<number>(0);
+
+  let searchBar: HTMLInputElement | undefined;
+
   return (
     <>
       <Grid
@@ -81,14 +87,18 @@ const SettingsMenu = () => {
         templateRows="repeat(, 1fr)"
         templateColumns="repeat(3, 1fr)"
         gap="$4"
-        onDrop={async (e: any) => {
+        onDrop={async (e: DragEvent) => {
           e.preventDefault();
+          if (e?.dataTransfer?.files[0]?.path) {
+            console.log(await addApp(e.dataTransfer.files[0].path));
+          }
           // console.log(e.dataTransfer.files[0].path);
-          console.log(await addApp(e.dataTransfer.files[0].path));
         }}
-        onDragOver={(e: any) => {
+        onDragOver={(e: DragEvent) => {
           e.preventDefault();
-          e.dataTransfer.dropEffect = 'copy';
+          if (e?.dataTransfer?.dropEffect) {
+            e.dataTransfer.dropEffect = 'copy';
+          }
           return false;
         }}
       >
@@ -220,7 +230,11 @@ const SettingsMenu = () => {
 
                 <Input
                   bg="#C3C2C2"
-                  onInput={(e) => searchAppDB((e.target as HTMLInputElement).value)}
+                  ref={searchBar}
+                  onInput={(e) => {
+                    searchAppDB((e.target as HTMLInputElement).value);
+                    setPage(0);
+                  }}
                 ></Input>
                 <br></br>
                 <br></br>
@@ -246,7 +260,59 @@ const SettingsMenu = () => {
                     )}
                   </For>
                 </ul>
-                <Box bg="#C3C2C2" h="200px" borderRadius="$lg"></Box>
+                <Show when={(getSearchResults()?.hits?.length ?? 0) > 0}>
+                  <Center>
+                    <button
+                      class="bg-blue-300 rounded-sm px-2 py-1 m-2"
+                      onClick={() => {
+                        if (searchBar?.value !== '' && getPage() > 0) {
+                          setPage((page) => page - 1);
+                          searchAppDB(searchBar?.value ?? '', getPage() * 10);
+                        }
+                      }}
+                    >
+                      Prev
+                    </button>
+                    <span>{getPage()}</span>
+                    <button
+                      class="bg-blue-300 rounded-sm px-2 py-1 m-2"
+                      onClick={() => {
+                        console.log(getSearchResults()?.count);
+                        if (
+                          searchBar?.value !== '' &&
+                          (getSearchResults()?.count ?? 0) > (getPage() + 1) * 10
+                        ) {
+                          setPage((page) => page + 1);
+                          searchAppDB(searchBar?.value ?? '', getPage() * 10);
+                        }
+                      }}
+                    >
+                      Next
+                    </button>
+                  </Center>
+                </Show>
+                <Box bg="#C3C2C2" minH="200px" borderRadius="$lg">
+                  <ul class="p-1">
+                    <For each={getRelevantApps() ?? []}>
+                      {(res) => (
+                        <>
+                          <Box class="my-2 p-2 bg-slate-300" borderRadius="$lg">
+                            <li>
+                              <HStack>
+                                <img src={res.icon} class="w-10 pr-2"></img>
+                                <div>
+                                  <strong>{res.name}</strong>
+                                  <br />
+                                  <em>{res.executable}</em>{' '}
+                                </div>
+                              </HStack>
+                            </li>
+                          </Box>
+                        </>
+                      )}
+                    </For>
+                  </ul>
+                </Box>
                 <p>Actions</p>
                 <Box bg="#C3C2C2" h="200px" borderRadius="$lg"></Box>
               </TabPanel>

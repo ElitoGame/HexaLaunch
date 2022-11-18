@@ -52,12 +52,12 @@ export const updateFormField = (fieldName: string) => (event: Event) => {
   window.electronAPI.sendData(temp);
 };
 
-export const searchAppDB = async (query: string) => {
+export const searchAppDB = async (query: string, offset = 0) => {
   if (query.length == 0) {
     setSearchResults();
     return;
   }
-  const result = (await window.electronAPI.search(query)) as
+  const result = (await window.electronAPI.search(query, offset)) as
     | SearchResult<{
         executable: 'string';
         name: 'string';
@@ -80,5 +80,20 @@ export const [getSearchResults, setSearchResults] = createSignal<
 export const addApp = async (app: string) => {
   return await window.electronAPI.addApp(app);
 };
+
+export const [getRelevantApps, setRelevantApps] = createSignal<
+  Array<{
+    executable: 'string';
+    name: 'string';
+    icon: 'string';
+  }>
+>();
+
+const findApps = async () => {
+  console.log('searching Apps');
+  setRelevantApps((await window.electronAPI.getRelevantApps()) ?? []);
+};
+
+findApps();
 
 export default {};

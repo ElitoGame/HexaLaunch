@@ -1,6 +1,9 @@
 export interface IElectronAPI {
   sendData: (dataToSubmit: any[]) => void;
-  search: (query: string) => Promise<
+  search: (
+    query: string,
+    offset: number
+  ) => Promise<
     | SearchResult<{
         executable: 'string';
         name: 'string';
@@ -9,4 +12,9 @@ export interface IElectronAPI {
     | undefined
   >;
   addApp: (app: string) => Promise<{ executable: string; name: string; icon: string } | undefined>;
+  getRelevantApps: () => Promise<{
+    executable: 'string';
+    name: 'string';
+    icon: 'string';
+  }>;
 }

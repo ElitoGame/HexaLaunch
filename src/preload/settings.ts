@@ -18,7 +18,8 @@ if (process.contextIsolated) {
         ipcRenderer.send('settings', dataToSubmit);
       },
       search: (
-        query: string
+        query: string,
+        offset: number
       ): Promise<
         | SearchResult<{
             executable: 'string';
@@ -26,13 +27,18 @@ if (process.contextIsolated) {
             icon: 'string';
           }>
         | undefined
-      > => ipcRenderer.invoke('settings:search', query),
+      > => ipcRenderer.invoke('settings:search', query, offset),
       addApp: (
         app: string
       ): Promise<{ executable: string; name: string; icon: string } | undefined> => {
         console.log('Preload: addApp: ' + app);
         return ipcRenderer.invoke('settings:addApp', app);
       },
+      getRelevantApps: (): Promise<{
+        executable: 'string';
+        name: 'string';
+        icon: 'string';
+      }> => ipcRenderer.invoke('settings:getRelevantApps'),
     });
   } catch (error) {
     console.error(error);
