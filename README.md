@@ -12,16 +12,19 @@ A radial hexagon menu to boost productivity
   - [ ] Themes
   - [ ] Hotkey
   - [ ] App layout customization
-- [ ] Essential Extensions
-  - [ ] Browser Launcher
-  - [ ] Empty Paper bin
+- [X] Essential Extensions
+  - [X] Browser Launcher
+  - [X] Empty Paper bin
 - [ ] Auto Updating (Windows 100%, Mac potentially harder due to notarizing)
-- [ ] Add a possibility to add Apps to the Launcher without pasting the Apps install location. This can be one or multiple of these:
-  - [ ] Via the Windows.edb index File.
-  - [ ] Via a CMD or Powershell command (Get-WMIObject or wmic or Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*)
-  - [ ] Via node.fs
-  - [ ] Via Drap & Drop
-  - [ ] Via detecting active processes
+- [X] Add a possibility to add Apps to the Launcher without pasting the Apps install location. This can be one or multiple of these:
+  - [X] Uninstall Registy
+  - [X] Apps linked in the startMenu
+  - [x] Detecting steam games
+  - [x] Detecting epic games
+  - [x] Finding executables in the program files folders
+  - [x] Finding linked files on the (public & useres) desktop
+  - [X] Via Drap & Drop
+  - [X] Via detecting active processes
 
 ### Optional
 
@@ -31,7 +34,7 @@ A radial hexagon menu to boost productivity
   - [ ] ~~Bluetooth Connector~~
   - [ ] Windows Media Player Extension (or Spotify alternatively)
   - [ ] System Stats (RAM, CPU, Storage, GPU)
-  - [ ] Searchbar (Depends highly on App detection)
+  - [X] Searchbar (Depends highly on App detection)
   - [ ] Browser Bookmarks (Chrome & Firefox for now)
 - [ ] Animations in the Hex UI
   - [ ] Opening and Closing the UI
