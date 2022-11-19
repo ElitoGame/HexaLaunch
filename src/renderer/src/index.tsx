@@ -1,11 +1,37 @@
 import { For, render, Show } from 'solid-js/web';
-import { getCurrentRadiant, getHexUiData, getShowPosition, openApp, runAction } from './renderer';
+import {
+  getCurrentRadiant,
+  getHexUiData,
+  getSearchResults,
+  getShowPosition,
+  isSearchVisible,
+  openApp,
+  runAction,
+  searchAppDB,
+  setIsSearchVisible,
+} from './renderer';
 
 import '../assets/index.css';
 import HexTile from './HexUI/Components/HexTile';
 import HexTileData from './DataModel/HexTileData';
+import { createSignal } from 'solid-js';
+import { Box, HStack } from '@hope-ui/solid';
 
 const HexUI = () => {
+  let searchBar: HTMLInputElement | undefined;
+  const [getPage, setPage] = createSignal<number>(0);
+
+  window.addEventListener('keydown', (e) => {
+    console.log(e);
+    if (!isSearchVisible() && e.key !== ' ' && e.key !== 'Control' && e.key !== 'Shift') {
+      setIsSearchVisible(true);
+      if (searchBar) {
+        searchBar.focus();
+        searchBar.select();
+        console.log('search bar is visible');
+      }
+    }
+  });
   return (
     <div
       class=""
@@ -16,6 +42,64 @@ const HexUI = () => {
         'font-size': '0',
       }}
     >
+      <div class={`${isSearchVisible() ? 'block' : 'hidden'} z-40`} style={{ 'font-size': '16px' }}>
+        <input
+          type="text"
+          ref={searchBar}
+          class="z-40"
+          onInput={(e) => {
+            searchAppDB((e.target as HTMLInputElement).value);
+            setPage(0);
+            if (searchBar?.value === '') {
+              setIsSearchVisible(false);
+            }
+          }}
+        />
+        <ul>
+          <For each={getSearchResults()?.hits ?? []}>
+            {(res) => (
+              <>
+                <Box
+                  class="my-2 p-2 bg-slate-300"
+                  borderRadius="$lg"
+                  onClick={() => {
+                    if (searchBar) {
+                      if (searchBar.value.match(/^([a-z]:)?(\/|\\).*/gi)) {
+                        if (res.document.type !== 'Folder') {
+                          openApp('', res.document.executable);
+                          setIsSearchVisible(false);
+                        }
+                        const newPath =
+                          res.document.executable.replaceAll('\\', '/') +
+                          (res.document.type === 'Folder' ? '/' : '');
+                        searchBar.value = newPath;
+
+                        searchAppDB(newPath);
+                        setPage(0);
+                        searchBar.focus();
+                      } else {
+                        openApp('', res.document.executable);
+                        setIsSearchVisible(false);
+                      }
+                    }
+                  }}
+                >
+                  <li>
+                    <HStack>
+                      <img src={res.document.icon} class="w-10 pr-2"></img>
+                      <div>
+                        <strong>{res.document.name}</strong>
+                        <br />
+                        <em>{res.document.executable}</em>{' '}
+                      </div>
+                    </HStack>
+                  </li>
+                </Box>
+              </>
+            )}
+          </For>
+        </ul>
+      </div>
       <For each={getHexUiData()?.getCoreTiles()}>
         {(tile: HexTileData) => (
           <HexTile

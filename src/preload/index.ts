@@ -1,4 +1,5 @@
 import { electronAPI } from '@electron-toolkit/preload';
+import { SearchResult } from '@lyrasearch/lyra';
 const { contextBridge, ipcRenderer } = require('electron');
 
 // Custom APIs for renderer
@@ -34,6 +35,18 @@ if (process.contextIsolated) {
       getHexUiData: (callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
         ipcRenderer.on('hexUI:getHexUiData', callback);
       },
+      search: (
+        query: string,
+        offset: number
+      ): Promise<
+        | SearchResult<{
+            executable: 'string';
+            name: 'string';
+            icon: 'string';
+            type: 'string';
+          }>
+        | undefined
+      > => ipcRenderer.invoke('settings:search', query, offset),
     });
   } catch (error) {
     console.error(error);

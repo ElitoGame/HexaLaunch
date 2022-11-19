@@ -1,3 +1,4 @@
+import { SearchResult } from '@lyrasearch/lyra';
 import { createSignal } from 'solid-js';
 import HexUiData from './DataModel/HexUiData';
 
@@ -8,6 +9,7 @@ export const [getHexUiData, setHexUiData] = createSignal<HexUiData>();
 export const [getCurrentRadiant, setCurrentRadiant] = createSignal(-1);
 export const [getHexSize, setHexSize] = createSignal(66);
 export const [getHexMargin, setHexMargin] = createSignal(4);
+export const [isSearchVisible, setIsSearchVisible] = createSignal(false);
 
 window.addEventListener('mousemove', (event) => {
   // Handle Window Intractable
@@ -64,9 +66,11 @@ window.onload = function (): void {
     if (!value) {
       setTimeout(() => {
         body.classList.remove('hidden');
+        setIsSearchVisible(false);
       }, 1);
     } else {
       body.classList.add('hidden');
+      setIsSearchVisible(false);
       setCurrentRadiant(-1);
     }
   });
@@ -139,5 +143,35 @@ export const openApp = (app: string, url: string) => {
 export const runAction = (action: string, option?: string) => {
   window.electronAPI.runAction(action, option);
 };
+
+export const searchAppDB = async (query: string, offset = 0) => {
+  if (query.length == 0) {
+    setSearchResults();
+    return;
+  }
+  const result = (await window.electronAPI.search(query, offset)) as
+    | SearchResult<{
+        executable: 'string';
+        name: 'string';
+        icon: 'string';
+        type: 'string';
+      }>
+    | undefined;
+  if ((result?.count ?? 0) > 0) {
+    setSearchResults(result);
+  } else {
+    setSearchResults();
+  }
+};
+
+export const [getSearchResults, setSearchResults] = createSignal<
+  | SearchResult<{
+      executable: 'string';
+      name: 'string';
+      icon: 'string';
+      type: 'string';
+    }>
+  | undefined
+>();
 
 export default {};
