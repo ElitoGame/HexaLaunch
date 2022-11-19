@@ -4,7 +4,6 @@ import { createStore } from 'solid-js/store';
 import SettingsData from './Settings/SettingsData';
 
 const settings = new SettingsData(0, 0, 'solid', 0, true, true, true);
-
 export const [value, setValue] = createSignal('');
 
 export const [getSettingsData, setSettingsData] = createSignal(settings);
@@ -19,25 +18,40 @@ export const [form, setForm] = createStore({
   moveToCursor: true,
 });
 
-export const [change, toggleSwitch] = createSignal(true);
+export const restrictValue = (e: Event) => {
+  //restrict input by minimum and maximum
+  const input = e.currentTarget as HTMLInputElement;
+  const max = parseInt(input.max);
+  const min = parseInt(input.min);
 
-export const dataToSubmit = {
-  width: form.width,
-  borderWidth: form.borderWidth,
-  radius: form.borderRadius,
-  borderStyle: form.borderStyle,
-  borderRadius: form.borderRadius,
-  keyboardNavigation: form.keyboardNavigation,
-  fullLayout: form.fullLayout,
-  moveToCursor: form.moveToCursor,
+  if (parseInt(input.value) >= max) {
+    input.value = max.toString();
+  }
+  if (parseInt(input.value) <= min) {
+    input.value = min.toString();
+  }
+
+  // replace special characters
+  let a = input.value;
+  a = a.replace(/[^a-zA-Z0-9]/g, '');
+  input.value = a;
 };
+
 export const updateFormField = (fieldName: string) => (event: Event) => {
   const inputElement = event.currentTarget as HTMLInputElement;
   setForm({
     [fieldName]: inputElement.value,
   });
+  updateSettingData();
+};
 
-  //TODO: border style doesnt update yet
+export const updateBorderStyle = (event: Event) => {
+  const value = event.toString();
+  console.log(value);
+  setValue(value);
+  updateSettingData();
+};
+export const updateSettingData = () => {
   getSettingsData()?.setWidth(parseInt(form.width));
   getSettingsData()?.setBorderWidth(parseInt(form.borderWidth));
   getSettingsData()?.setBorderRadius(parseInt(form.borderRadius));
@@ -47,8 +61,8 @@ export const updateFormField = (fieldName: string) => (event: Event) => {
   getSettingsData()?.setMoveToCursor(form.moveToCursor);
   //console.log(JSON.stringify(getSettingsData()?.toJSON()) + ' ipc');
   const temp = JSON.parse(JSON.stringify(getSettingsData()?.toJSON()));
-  console.log(temp + 'from renderer');
-  console.log(JSON.stringify(temp) + 'string from render');
+  //console.log(temp + 'from renderer');
+  //console.log(JSON.stringify(temp) + 'string from render');
   window.electronAPI.sendData(temp);
 };
 

@@ -1,31 +1,24 @@
 import {
   updateFormField,
-  toggleSwitch,
-  change,
-  value,
-  setValue,
+  setForm,
+  restrictValue,
+  updateBorderStyle,
   searchAppDB,
   getSearchResults,
   addApp,
   getRelevantApps,
+  updateSettingData,
+  form,
 } from '../settings';
 import {
+  SimpleSelect,
+  SimpleOption,
   Box,
   Grid,
   GridItem,
   Divider,
   css,
   Radio,
-  Select,
-  SelectTrigger,
-  SelectPlaceholder,
-  SelectValue,
-  SelectIcon,
-  SelectContent,
-  SelectListbox,
-  SelectOption,
-  SelectOptionText,
-  SelectOptionIndicator,
   Input,
   InputGroup,
   InputRightElement,
@@ -167,33 +160,28 @@ const SettingsMenu = () => {
                     <p>Border Width</p>
                     <InputGroup size="xs">
                       <Input
+                        type="number"
+                        max="50"
+                        min="0"
                         onInput={(e: Event) => {
-                          updateFormField('borderWidth')(e);
+                          restrictValue(e), updateFormField('borderWidth')(e);
                         }}
                         placeholder="0"
                       />
                       <InputRightElement pointerEvents="none">px</InputRightElement>
                     </InputGroup>
-                    <p>{value()}</p>
-                    <Select value={value()} onChange={setValue} size="xs">
-                      <SelectTrigger>
-                        <SelectPlaceholder>None</SelectPlaceholder>
-                        <SelectValue />
-                        <SelectIcon />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectListbox>
-                          <SelectOption value="solid">
-                            <SelectOptionText>solid</SelectOptionText>
-                            <SelectOptionIndicator />
-                          </SelectOption>
-                          <SelectOption value="double">
-                            <SelectOptionText>double</SelectOptionText>
-                            <SelectOptionIndicator />
-                          </SelectOption>
-                        </SelectListbox>
-                      </SelectContent>
-                    </Select>
+                    <p>Border Style</p>
+                    <SimpleSelect
+                      size="xs"
+                      id="borderStyle"
+                      placeholder="none"
+                      onChange={(e: Event) => {
+                        updateBorderStyle(e);
+                      }}
+                    >
+                      <SimpleOption value="solid">solid</SimpleOption>
+                      <SimpleOption value="double">double</SimpleOption>
+                    </SimpleSelect>
                   </GridItem>
                   <GridItem rowStart={2} rowEnd={2} colStart={1} colEnd={1} h="100%">
                     <p>Hexagon</p>
@@ -202,8 +190,9 @@ const SettingsMenu = () => {
                       <Input
                         type="number"
                         max="50"
+                        min="0"
                         onInput={(e: Event) => {
-                          updateFormField('width')(e);
+                          restrictValue(e), updateFormField('width')(e);
                         }}
                         placeholder="0"
                       />
@@ -213,8 +202,10 @@ const SettingsMenu = () => {
                     <InputGroup size="xs">
                       <Input
                         type="number"
+                        max="50"
+                        min="0"
                         onInput={(e: Event) => {
-                          updateFormField('borderRadius')(e);
+                          restrictValue(e), updateFormField('borderRadius')(e);
                         }}
                         placeholder="0"
                       />
@@ -337,7 +328,7 @@ const SettingsMenu = () => {
               <TabPanel id="tp_preferences">
                 <p>Start Hotkey</p>
 
-                <InputGroup class="w-40">
+                <InputGroup id="hello" class="w-40">
                   <Input size="xs" placeholder="STRG" />
                   <Input size="xs" placeholder="K" />
                 </InputGroup>
@@ -351,11 +342,12 @@ const SettingsMenu = () => {
                   <p>Navigation via keyboard</p>{' '}
                   <GridItem class="flex justify-end">
                     <Switch
-                      onChange={(e: Event) => {
-                        toggleSwitch(!change());
-                        updateFormField('keyboardNavigation')(e);
+                      onChange={() => {
+                        setForm({
+                          keyboardNavigation: !form.keyboardNavigation,
+                        }),
+                          updateSettingData();
                       }}
-                      value={change() ? 'on' : 'off'}
                       class="flex-end"
                       defaultChecked
                     ></Switch>
@@ -372,11 +364,12 @@ const SettingsMenu = () => {
                   <p>Full Layout</p>
                   <GridItem class="flex justify-end">
                     <Switch
-                      onChange={(e: Event) => {
-                        toggleSwitch(!change());
-                        updateFormField('fullLayout')(e);
+                      onChange={() => {
+                        setForm({
+                          fullLayout: !form.fullLayout,
+                        }),
+                          updateSettingData();
                       }}
-                      value={change() ? 'on' : 'off'}
                       class="flex-end"
                       defaultChecked
                     ></Switch>
@@ -396,11 +389,12 @@ const SettingsMenu = () => {
                   <h2>Move to Cursor</h2>
                   <GridItem class="flex justify-end">
                     <Switch
-                      onChange={(e: Event) => {
-                        toggleSwitch(!change());
-                        updateFormField('moveToCursor')(e);
+                      onChange={() => {
+                        setForm({
+                          moveToCursor: !form.moveToCursor,
+                        }),
+                          updateSettingData();
                       }}
-                      value={change() ? 'on' : 'off'}
                       class="flex-end"
                       defaultChecked
                     ></Switch>
