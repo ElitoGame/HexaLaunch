@@ -4,6 +4,7 @@ import {
   getHexUiData,
   getSearchResults,
   getShowPosition,
+  isHexUiVisible,
   isSearchVisible,
   openApp,
   runAction,
@@ -100,33 +101,36 @@ const HexUI = () => {
           </For>
         </ul>
       </div>
-      <For each={getHexUiData()?.getCoreTiles()}>
-        {(tile: HexTileData) => (
-          <HexTile
-            x={tile.getX()}
-            y={tile.getY()}
-            onClick={() => {
-              if (tile.getAction() === 'App') {
-                openApp(tile.getApp(), tile.getUrl());
-              } else if (tile.getAction() === 'PaperBin') {
-                runAction('PaperBin');
+      <Show when={isHexUiVisible()}>
+        <For each={getHexUiData()?.getCoreTiles()}>
+          {(tile: HexTileData) => (
+            <HexTile
+              x={tile.getX()}
+              y={tile.getY()}
+              radiant={0}
+              onClick={() => {
+                if (tile.getAction() === 'App') {
+                  openApp(tile.getApp(), tile.getUrl());
+                } else if (tile.getAction() === 'PaperBin') {
+                  runAction('PaperBin');
+                }
+              }}
+              title={
+                tile
+                  .getApp()
+                  ?.split('.')[0]
+                  ?.split('/')
+                  [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
+                tile
+                  .getUrl()
+                  ?.split('.')[0]
+                  ?.split('/')
+                  [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
               }
-            }}
-            title={
-              tile
-                .getApp()
-                ?.split('.')[0]
-                ?.split('/')
-                [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
-              tile
-                .getUrl()
-                ?.split('.')[0]
-                ?.split('/')
-                [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
-            }
-          ></HexTile>
-        )}
-      </For>
+            ></HexTile>
+          )}
+        </For>
+      </Show>
       <Show when={getCurrentRadiant() !== -1}>
         <For each={getHexUiData()?.getRadiantTiles(getCurrentRadiant())}>
           {(tile: HexTileData) => (
@@ -134,6 +138,7 @@ const HexUI = () => {
               zIndex={10}
               x={tile.getX()}
               y={tile.getY()}
+              radiant={tile.getRadiant()}
               onClick={() => {
                 if (tile.getAction() === 'App') {
                   openApp(tile.getApp(), tile.getUrl());

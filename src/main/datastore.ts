@@ -40,41 +40,47 @@ export class UserSettings {
     this.language = 'en';
     this.settingsData = new SettingsData(0, 0, 'solid', 0, true, true, true);
     this.hexUI = new HexUiData([
-      new HexTileData(0, 0, 0, 'Unset', '', ''),
-      new HexTileData(1, 0, 1, 'Unset', '', ''),
-      new HexTileData(2, 1, 1, 'Unset', '', ''),
+      new HexTileData(1, 0, 0, 'Unset', '', ''),
+      // new HexTileData(0, 0, 1, 'Unset', '', ''),
       new HexTileData(2, 0, 1, 'Unset', '', ''),
-      new HexTileData(2, -1, 1, 'Unset', '', ''),
+      new HexTileData(3, 1, 1, 'Unset', '', ''),
+      new HexTileData(3, 0, 1, 'Unset', '', ''),
+      new HexTileData(3, -1, 1, 'Unset', '', ''),
+
+      new HexTileData(1, 1, 0, 'Unset', '', ''),
+      // new HexTileData(0, 0, 2, 'Unset', '', ''),
+      new HexTileData(1, 2, 2, 'Unset', '', ''),
+      new HexTileData(2, 2, 2, 'Unset', '', ''),
+      new HexTileData(2, 3, 2, 'Unset', '', ''),
+      new HexTileData(1, 3, 2, 'Unset', '', ''),
 
       new HexTileData(0, 1, 0, 'Unset', '', ''),
-      new HexTileData(0, 2, 2, 'Unset', '', ''),
-      new HexTileData(1, 2, 2, 'Unset', '', ''),
-      new HexTileData(1, 3, 2, 'Unset', '', ''),
-      new HexTileData(0, 3, 2, 'Unset', '', ''),
-
-      new HexTileData(-1, 1, 0, 'Unset', '', ''),
+      // new HexTileData(0, 0, 3, 'Unset', '', ''),
+      new HexTileData(-1, 2, 3, 'Unset', '', ''),
       new HexTileData(-2, 2, 3, 'Unset', '', ''),
-      new HexTileData(-3, 2, 3, 'Unset', '', ''),
+      new HexTileData(0, 3, 3, 'Unset', '', ''),
       new HexTileData(-1, 3, 3, 'Unset', '', ''),
-      new HexTileData(-2, 3, 3, 'Unset', '', ''),
 
-      new HexTileData(-2, 0, 0, 'Unset', '', ''),
+      new HexTileData(-1, 0, 0, 'Unset', '', ''),
+      // new HexTileData(0, 0, 4, 'Unset', '', ''),
+      new HexTileData(-2, 0, 4, 'Unset', '', ''),
+      new HexTileData(-2, 1, 4, 'Unset', '', ''),
       new HexTileData(-3, 0, 4, 'Unset', '', ''),
-      new HexTileData(-3, 1, 4, 'Unset', '', ''),
-      new HexTileData(-4, 0, 4, 'Unset', '', ''),
-      new HexTileData(-3, -1, 4, 'Unset', '', ''),
-
-      new HexTileData(-1, -1, 0, 'Unset', '', ''),
-      new HexTileData(-2, -2, 5, 'Unset', '', ''),
-      new HexTileData(-3, -2, 5, 'Unset', '', ''),
-      new HexTileData(-2, -3, 5, 'Unset', '', ''),
-      new HexTileData(-1, -3, 5, 'Unset', '', ''),
+      new HexTileData(-2, -1, 4, 'Unset', '', ''),
 
       new HexTileData(0, -1, 0, 'Unset', '', ''),
-      new HexTileData(0, -2, 6, 'Unset', '', ''),
-      new HexTileData(0, -3, 6, 'Unset', '', ''),
-      new HexTileData(1, -3, 6, 'Unset', '', ''),
+      // new HexTileData(0, 0, 5, 'Unset', '', ''),
+      new HexTileData(-1, -2, 5, 'Unset', '', ''),
+      new HexTileData(-2, -2, 5, 'Unset', '', ''),
+      new HexTileData(-1, -3, 5, 'Unset', '', ''),
+      new HexTileData(0, -3, 5, 'Unset', '', ''),
+
+      new HexTileData(1, -1, 0, 'Unset', '', ''),
+      // new HexTileData(0, 0, 6, 'Unset', '', ''),
       new HexTileData(1, -2, 6, 'Unset', '', ''),
+      new HexTileData(1, -3, 6, 'Unset', '', ''),
+      new HexTileData(2, -3, 6, 'Unset', '', ''),
+      new HexTileData(2, -2, 6, 'Unset', '', ''),
     ]);
   }
 

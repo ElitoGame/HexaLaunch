@@ -10,6 +10,7 @@ export const [getCurrentRadiant, setCurrentRadiant] = createSignal(-1);
 export const [getHexSize, setHexSize] = createSignal(66);
 export const [getHexMargin, setHexMargin] = createSignal(4);
 export const [isSearchVisible, setIsSearchVisible] = createSignal(false);
+export const [isHexUiVisible, setIsHexUiVisible] = createSignal(false);
 
 window.addEventListener('mousemove', (event) => {
   // Handle Window Intractable
@@ -66,10 +67,12 @@ window.onload = function (): void {
     if (!value) {
       setTimeout(() => {
         body.classList.remove('hidden');
+        setIsHexUiVisible(true);
         setIsSearchVisible(false);
       }, 1);
     } else {
       body.classList.add('hidden');
+      setIsHexUiVisible(false);
       setIsSearchVisible(false);
       setCurrentRadiant(-1);
     }
