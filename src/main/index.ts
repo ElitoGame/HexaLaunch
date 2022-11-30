@@ -119,7 +119,7 @@ function createSettingsWindow(): void {
     settingsWindow.loadFile(path.join(__dirname, '../renderer/settings.html'));
   }
   // Open the DevTools.
-  //mainWindow.webContents.openDevTools();
+  settingsWindow.webContents.openDevTools();
 
   settingsWindow.once('ready-to-show', () => {
     settingsWindow?.show();

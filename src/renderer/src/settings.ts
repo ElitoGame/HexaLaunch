@@ -6,8 +6,18 @@ import SettingsData from './Settings/SettingsData';
 const settings = new SettingsData(0, 0, 'solid', 0, true, true, true);
 export const [value, setValue] = createSignal('');
 
+export const [getHotkeys, setHotkeys] = createSignal('');
+
+const color = document.getElementsByClassName('colorPick');
+const themeColor = document.getElementById('theme-color');
+
+export const [getColor, setColor] = createSignal('#FFFFFF');
+
+export const changeColor = () => {};
+
 export const [getSettingsData, setSettingsData] = createSignal(settings);
 
+let hotkeys: string[] = [];
 export const [form, setForm] = createStore({
   width: '',
   borderWidth: '',
@@ -16,10 +26,40 @@ export const [form, setForm] = createStore({
   keyboardNavigation: true,
   fullLayout: true,
   moveToCursor: true,
+  hotkeys: hotkeys,
+  settingsBgColor: '#343434',
+  settingsAccentColor: '#5A6AFC',
+  settingsTextColor: '#DFDFDF',
 });
 
+export const [getNewTheme, setNewTheme] = createSignal(false);
+export const changeWindow = () => setNewTheme(!getNewTheme());
+
+export function handleHotkeyEvent(e) {
+  e.preventDefault();
+  const input = e.currentTarget as HTMLInputElement;
+  if (e.keyCode === 46) {
+    //delete hotkeys when delete is pressed
+    input.value = '';
+    hotkeys = [];
+  } else if (e.keyCode === 8) {
+    //delete last hotkey when backspace is pressed
+    hotkeys.pop();
+    input.value = hotkeys.join('+');
+  } else {
+    input.value = '';
+    const temp = e.key.toString();
+    setHotkeys(temp.toUpperCase());
+    if (hotkeys.length == 3) {
+      hotkeys = [];
+    }
+    hotkeys.push(temp.toUpperCase());
+
+    input.value = hotkeys.join('+');
+  }
+}
+//restrict input by minimum and maximum
 export const restrictValue = (e: Event) => {
-  //restrict input by minimum and maximum
   const input = e.currentTarget as HTMLInputElement;
   const max = parseInt(input.max);
   const min = parseInt(input.min);
@@ -58,6 +98,7 @@ export const updateSettingData = () => {
   getSettingsData()?.setBorderStyle(value());
   getSettingsData()?.setKeyboardNavigation(form.keyboardNavigation);
   getSettingsData()?.setFullLayout(form.fullLayout);
+  getSettingsData()?.setMoveToCursor(form.moveToCursor);
   getSettingsData()?.setMoveToCursor(form.moveToCursor);
   //console.log(JSON.stringify(getSettingsData()?.toJSON()) + ' ipc');
   const temp = JSON.parse(JSON.stringify(getSettingsData()?.toJSON()));

@@ -8,6 +8,7 @@ export declare const getSettingsData: Accessor<SettingsData>,
     name: string;
     icon: string;
   }[];
+export declare const hotkeys: string[];
 
 declare const _default: unknown;
 export default _default;

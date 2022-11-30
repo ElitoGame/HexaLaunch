@@ -6,6 +6,9 @@ export default class SettingsData {
   private keyboardNavigation = true;
   private fullLayout = true;
   private moveToCursor = true;
+  private settingsBgColor = '#505050';
+  private settingsTextColor = '#DFDFDF';
+  private settingsAccentColor = '#5A6AFC';
 
   constructor(
     width: number,
