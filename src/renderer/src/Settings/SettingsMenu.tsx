@@ -222,7 +222,6 @@ const SettingsMenu = () => {
                   class={tabstyle}
                   onClick={() => {
                     setCurrentTab('Appearance');
-                    console.log(getCurrentTab());
                   }}
                 >
                   Appearance
@@ -231,7 +230,6 @@ const SettingsMenu = () => {
                   class={tabstyle}
                   onClick={() => {
                     setCurrentTab('Layout');
-                    console.log(getCurrentTab());
                   }}
                 >
                   Layout
@@ -240,7 +238,6 @@ const SettingsMenu = () => {
                   class={tabstyle}
                   onClick={() => {
                     setCurrentTab('Preferences');
-                    console.log(getCurrentTab());
                   }}
                 >
                   Preferences
