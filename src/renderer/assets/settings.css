@@ -17,14 +17,20 @@
     background-color: #343434;
 }
 
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 h2, h1  {
-    color: theme('colors.text');
+    color: var(--text);
     font-weight: 400;
     font-size: 20px;
 }
 
+
 p {
-    color: theme('colors.text');
+    color: var(--text);
     font-size: 14px;
     font-weight: 300;
 }
@@ -32,12 +38,20 @@ p {
 :root {
 
     height: 100%;
+    --input:  rgb(92, 92, 92, .5) !important;
+    --accent:  #5A6AFC ;
+    --background:  #343434; 
+    --text: '#DFDFDF';
 
 }
 
 h1 {
     font-size: 25px;
-    color: #DFDFDF;
+    color: var(--text);
+}
+
+.hope-input-right-element{
+    color: var(--text);
 }
 
 #settings {
@@ -60,7 +74,7 @@ h1 {
 
 
 #leftPanelWindow {
-    background-color: #343434;
+
     color: #EAEAEA;
     --hope-colors-neutral11: none;
     height: 100%;
@@ -115,8 +129,8 @@ h1 {
 
 input, #borderStyle-trigger {
     border-radius: none !important;
-    background-color: #5C5C5C !important;
-    border-color: #5C5C5C !important;
+    background-color: var(--input) !important;
+    border-color:  var(--input) !important;
     border-radius: var(--hope-radii-sm);
     border-top-left-radius: 0 !important;
     border-top-right-radius: 3% !important;
@@ -127,8 +141,8 @@ input, #borderStyle-trigger {
 
 input[type="color"] {
     -webkit-appearance: none;
-    border-color: #5C5C5C !important;
-    background-color: #5C5C5C !important;
+    border-color:  var(--input) !important;
+    background-color: var(--input) !important;
     border: none;
     border-radius: var(--hope-radii-sm);
     border-top-left-radius: 3%;
@@ -139,12 +153,12 @@ input[type="color"] {
 
 input[type="color"]::-webkit-color-swatch-wrapper {
     padding: 0;
-    border-color: #5C5C5C !important;
+    border-color:  var(--input) !important;
 
 }
 
 input[type="color"]::-webkit-color-swatch {
-    border-color: #5C5C5C !important;
+    border-color:var(--input) !important;
     border-radius: var(--hope-radii-sm);
     border-top-left-radius: 3%;
     border-top-right-radius: 3%;
@@ -156,3 +170,56 @@ input[type="color"]::-webkit-color-swatch {
     padding-right: 5px;
     color: #d4d4d4
 }
+
+.hope-tabs__tablist > button{
+    margin-top:7px;
+}
+
+input[type=range] {
+   
+    height:4px;
+    
+}
+#hexagon-size {
+    -webkit-appearance: none;
+    background: #000;
+    --track-color: rgba(0, 0, 0, 0.2)
+   
+  }
+  
+  #hexagon-size::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    background-color: var(--accent);
+    cursor: pointer;
+    border-radius: 50%;
+  }
+
+
+  #hexagon-size::-ms-fill-lower {
+    background: #ac51b5;
+    border: 0px solid #000101;
+    border-radius: 50px;
+    box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+  }
+
+  #hexagon-size::-webkit-slider-runnable-track{
+    color: red;
+    --track-color: rgba(0, 0, 0, 0.2)
+  }
+  
+ 
+  
+
+ 
+ 
+ 
+
+ 
+ 
+ 
+
+
+ 

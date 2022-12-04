@@ -6,6 +6,12 @@ export default class SettingsData {
   private keyboardNavigation = true;
   private fullLayout = true;
   private moveToCursor = true;
+  private hotkeys = ['STRG', 'Shift', ' '];
+  private settingsBgColor = '#343434';
+  private settingsAccentColor = '#5A6AFC';
+  private settingsTextColor = '#DFDFDF';
+  private hexagonSize = 50;
+  private hexagonMargin = 5;
 
   constructor(
     width: number,
@@ -14,7 +20,13 @@ export default class SettingsData {
     borderRadius: number,
     keyboardNavigation: boolean,
     fullLayout: boolean,
-    moveToCursor: boolean
+    moveToCursor: boolean,
+    hotkeys: string[],
+    settingsBgColor: string,
+    settingsAccentColor: string,
+    settingsTextColor: string,
+    hexagonSize: number,
+    hexagonMargin: number
   ) {
     this.width = width;
     this.borderWidth = borderWidth;
@@ -23,8 +35,52 @@ export default class SettingsData {
     this.keyboardNavigation = keyboardNavigation;
     this.fullLayout = fullLayout;
     this.moveToCursor = moveToCursor;
+    this.hotkeys = hotkeys;
+    this.settingsBgColor = settingsBgColor;
+    this.settingsAccentColor = settingsAccentColor;
+    this.settingsTextColor = settingsTextColor;
+    this.hexagonSize = hexagonSize;
+    this.hexagonMargin = hexagonMargin;
   }
 
+  public getHexagonMargin() {
+    return this.hexagonMargin;
+  }
+  public setHexagonMargin(value) {
+    this.hexagonMargin = value;
+  }
+  public getHexagonSize() {
+    return this.hexagonSize;
+  }
+  public setHexagonSize(value) {
+    this.hexagonSize = value;
+  }
+  public getSettingsTextColor() {
+    return this.settingsTextColor;
+  }
+  public setSettingsTextColor(value) {
+    this.settingsTextColor = value;
+  }
+
+  public getSettingsAccentColor() {
+    return this.settingsAccentColor;
+  }
+  public setSettingsAccentColor(value) {
+    this.settingsAccentColor = value;
+  }
+
+  public getSettingsBgColor() {
+    return this.settingsBgColor;
+  }
+  public setSettingsBgColor(value) {
+    this.settingsBgColor = value;
+  }
+  public getHotkeys() {
+    return this.hotkeys;
+  }
+  public setHotkeys(value: string[]) {
+    this.hotkeys = value;
+  }
   public getWidth() {
     return this.width;
   }
@@ -68,9 +124,10 @@ export default class SettingsData {
   public getMoveToCursor() {
     return this.moveToCursor;
   }
-  public setMoveToCursorn(x: boolean) {
+  public setMoveToCursor(x: boolean) {
     this.moveToCursor = x;
   }
+
   // Convert the Object to a JSON string
 
   public toJSON(): {
@@ -81,6 +138,12 @@ export default class SettingsData {
     keyboardNavigation: boolean;
     fullLayout: boolean;
     moveToCursor: boolean;
+    hotkeys: Array<string>;
+    settingsBgColor: string;
+    settingsAccentColor: string;
+    settingsTextColor: string;
+    hexagonSize: number;
+    hexagonMargin: number;
   } {
     return {
       width: this.width,
@@ -90,35 +153,13 @@ export default class SettingsData {
       keyboardNavigation: this.keyboardNavigation,
       fullLayout: this.fullLayout,
       moveToCursor: this.moveToCursor,
+      hotkeys: this.hotkeys,
+      settingsBgColor: this.settingsBgColor,
+      settingsAccentColor: this.settingsAccentColor,
+      settingsTextColor: this.settingsTextColor,
+      hexagonSize: this.hexagonSize,
+      hexagonMargin: this.hexagonMargin,
     };
-  }
-
-  public setDataFromObject(settings: SettingsData) {
-    this.width = settings.width;
-    this.borderWidth = settings.borderWidth;
-    this.borderStyle = settings.borderStyle;
-    this.borderRadius = settings.borderRadius;
-    this.keyboardNavigation = settings.keyboardNavigation;
-    this.fullLayout = settings.fullLayout;
-    this.moveToCursor = settings.moveToCursor;
-  }
-
-  public setFromJSON(data: {
-    width: number;
-    borderWidth: number;
-    borderStyle: string;
-    borderRadius: number;
-    keyboardNavigation: boolean;
-    fullLayout: boolean;
-    moveToCursor: boolean;
-  }) {
-    this.width = data.width;
-    this.borderWidth = data.borderWidth;
-    this.borderStyle = data.borderStyle;
-    this.borderRadius = data.borderRadius;
-    this.keyboardNavigation = data.keyboardNavigation;
-    this.fullLayout = data.fullLayout;
-    this.moveToCursor = data.moveToCursor;
   }
 
   public static fromJSON(data: {
@@ -129,6 +170,12 @@ export default class SettingsData {
     keyboardNavigation: boolean;
     fullLayout: boolean;
     moveToCursor: boolean;
+    hotkeys: Array<string>;
+    settingsBgColor: string;
+    settingsAccentColor: string;
+    settingsTextColor: string;
+    hexagonSize: number;
+    hexagonMargin: number;
   }) {
     return new SettingsData(
       data.width,
@@ -137,7 +184,29 @@ export default class SettingsData {
       data.borderRadius,
       data.keyboardNavigation,
       data.fullLayout,
-      data.moveToCursor
+      data.moveToCursor,
+      data.hotkeys,
+      data.settingsBgColor,
+      data.settingsAccentColor,
+      data.settingsTextColor,
+      data.hexagonSize,
+      data.hexagonMargin
     );
+  }
+
+  public setDataFromObject(settings: SettingsData) {
+    this.width = settings.width;
+    this.borderWidth = settings.borderWidth;
+    this.borderStyle = settings.borderStyle;
+    this.borderRadius = settings.borderRadius;
+    this.keyboardNavigation = settings.keyboardNavigation;
+    this.fullLayout = settings.fullLayout;
+    this.moveToCursor = settings.moveToCursor;
+    this.hotkeys = settings.hotkeys;
+    this.settingsBgColor = settings.settingsBgColor;
+    this.settingsAccentColor = settings.settingsAccentColor;
+    this.settingsTextColor = settings.settingsTextColor;
+    this.hexagonSize = settings.hexagonSize;
+    this.hexagonMargin = settings.hexagonMargin;
   }
 }

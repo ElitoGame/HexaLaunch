@@ -12,6 +12,7 @@ export interface IElectronAPI {
     callback: (event: IpcRendererEvent, value: { x: number; y: number }) => void
   ) => void;
   getHexUiData: (callback: (event: IpcRendererEvent, value: HexUiData) => void) => void;
+  getSettingsData: (callback: (event: IpcRendererEvent, value: SettingsData) => void) => void;
   search: (
     query: string,
     offset: number

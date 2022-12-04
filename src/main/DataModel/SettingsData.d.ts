@@ -6,6 +6,12 @@ export default class SettingsData {
   keyboardNavigation: boolean;
   fullLayout: boolean;
   moveToCursor: boolean;
+  hotkeys: string[];
+  settingsBgColor: string;
+  settingsAccentColor: string;
+  settingsTextColor: string;
+  hexagonSize: number;
+  hexagonMargin: number;
 
   constructor(
     width: number,
@@ -14,7 +20,13 @@ export default class SettingsData {
     borderRadius: number,
     keyboardNavigation: boolean,
     fullLayout: boolean,
-    moveToCursor: boolean
+    moveToCursor: boolean,
+    hotkeys: string[],
+    settingsBgColor: string,
+    settingsAccentColor: string,
+    settingsTextColor: string,
+    hexagonSize: number,
+    hexagonMargin: number
   );
 
   getWidth(): number;
@@ -29,20 +41,18 @@ export default class SettingsData {
   setKeyboardNavigation(x: boolean): void;
   setFullLayout(x: boolean): void;
   getFullLayout(): boolean;
-  setMoveToCursort(x: boolean): void;
+  setMoveToCursor(x: boolean): void;
   getMoveToCursor(): boolean;
-
-  setDataFromObject(data: SettingsData): void;
-
-  public setFromJSON(data: {
-    width: number;
-    borderWidth: number;
-    borderStyle: string;
-    borderRadius: number;
-    keyboardNavigation: boolean;
-    fullLayout: boolean;
-    moveToCursor: boolean;
-  }): void;
+  getHotkey(): string[];
+  setHotkey(x: string[]): void;
+  setSettingsBgColor(x: string): void;
+  getSettingsBgColor(): string;
+  setSettingsAccentColor(x: string): void;
+  getSettingsAccentColor(): string;
+  setSettingsTextColor(x: string): void;
+  getSettingsTextColor(): string;
+  getHexagonSize(): number;
+  setHexagonMargin(x: number): void;
 
   toJSON(): {
     width: number;
@@ -52,8 +62,14 @@ export default class SettingsData {
     keyboardNavigation: boolean;
     fullLayout: boolean;
     moveToCursor: boolean;
+    hotkeys: string[];
+    settingsBgColor: string;
+    settingsAccentColor: string;
+    settingsTextColor: string;
+    hexagonSize: number;
+    hexagonMargin: number;
   };
-  public static fromJSON(data: {
+  fromJSON(data: {
     width: number;
     borderWidth: number;
     borderStyle: string;
@@ -61,5 +77,11 @@ export default class SettingsData {
     keyboardNavigation: boolean;
     fullLayout: boolean;
     moveToCursor: boolean;
+    hotkeys: string[];
+    settingsBgColor: string;
+    settingsAccentColor: string;
+    settingsTextColor: string;
+    hexagonSize: number;
+    hexagonMargin: number;
   }): SettingsData;
 }

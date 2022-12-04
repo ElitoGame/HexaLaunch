@@ -60,7 +60,7 @@ function createWindow(): void {
 
   mainWindow.setAlwaysOnTop(true, 'pop-up-menu');
   // Open the DevTools.
-  //mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 
   mainWindow.once('ready-to-show', () => {
     mainWindow?.show();
@@ -123,6 +123,9 @@ function createSettingsWindow(): void {
 
   settingsWindow.once('ready-to-show', () => {
     settingsWindow?.show();
+    settingsWindow?.webContents.send('hexUI:getHexUiData', UserSettings.settings.getHexUI());
+    settingsWindow?.webContents.send('hexUI:getSettingsData', UserSettings.settings.getSetting());
+    //console.log(UserSettings.settings.getHexUI() + 'from Main');
   });
 
   settingsWindow.on('close', () => {

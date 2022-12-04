@@ -14,7 +14,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('api', api);
     contextBridge.exposeInMainWorld('electronAPI', {
       sendData: (dataToSubmit: any[]) => {
-        console.log(JSON.stringify(dataToSubmit) + 'from preload');
+        console.log(JSON.stringify(dataToSubmit) + 'fromm preload');
         ipcRenderer.send('settings', dataToSubmit);
       },
       setIgnoreMouseEvents: (yes: boolean, forward: { forward: boolean } = { forward: false }) => {
@@ -34,6 +34,10 @@ if (process.contextIsolated) {
       },
       getHexUiData: (callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
         ipcRenderer.on('hexUI:getHexUiData', callback);
+      },
+      getSettingsData: (callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
+        ipcRenderer.on('hexUI:getSettingsData', callback);
+        console.log(callback.arguments);
       },
       search: (
         query: string,

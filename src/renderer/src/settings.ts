@@ -1,39 +1,49 @@
 import { SearchResult } from '@lyrasearch/lyra';
 import { createSignal } from 'solid-js';
-import { createStore } from 'solid-js/store';
 import SettingsData from './Settings/SettingsData';
+import HexUiData from './DataModel/HexUiData';
+import { getHexUiData, setHexUiData } from './renderer';
+import { getHexSize, setHexSize } from './renderer';
 
-const settings = new SettingsData(0, 0, 'solid', 0, true, true, true);
 export const [value, setValue] = createSignal('');
 
 export const [getHotkeys, setHotkeys] = createSignal('');
 
-const color = document.getElementsByClassName('colorPick');
-const themeColor = document.getElementById('theme-color');
-
 export const [getColor, setColor] = createSignal('#FFFFFF');
 
 export const changeColor = () => {};
-
-export const [getSettingsData, setSettingsData] = createSignal(settings);
-
-let hotkeys: string[] = [];
-export const [form, setForm] = createStore({
-  width: '',
-  borderWidth: '',
-  borderRadius: '',
-  borderStyle: '',
-  keyboardNavigation: true,
-  fullLayout: true,
-  moveToCursor: true,
-  hotkeys: hotkeys,
-  settingsBgColor: '#343434',
-  settingsAccentColor: '#5A6AFC',
-  settingsTextColor: '#DFDFDF',
+const init = new SettingsData(
+  1,
+  1,
+  'solid',
+  1,
+  true,
+  true,
+  true,
+  ['STRG', 'SHIFT', ' '],
+  '#343434',
+  '#5A6AFC',
+  '#DFDFDF',
+  50,
+  4
+);
+export const [getSettingsData, setSettingsData] = createSignal<SettingsData>(init, {
+  equals: false,
 });
 
+export const [getCurrentTab, setCurrentTab] = createSignal('Appearance');
+//export const [getHexUiData, setHexUiData] = createSignal<HexUiData>();
+//export const [getHexSize, setHexSize] = createSignal(80);
+
+export const [getShowPosition, setShowPosition] = createSignal({ x: 50, y: 50 });
+export const [getCurrentRadiant, setCurrentRadiant] = createSignal(-1);
+export const [getHexMargin, setHexMargin] = createSignal(4);
+export const [isSearchVisible, setIsSearchVisible] = createSignal(true);
+export const [isHexUiVisible, setIsHexUiVisible] = createSignal(true);
 export const [getNewTheme, setNewTheme] = createSignal(false);
 export const changeWindow = () => setNewTheme(!getNewTheme());
+
+let hotkeys: string[] = [];
 
 export function handleHotkeyEvent(e) {
   e.preventDefault();
@@ -47,8 +57,14 @@ export function handleHotkeyEvent(e) {
     hotkeys.pop();
     input.value = hotkeys.join('+');
   } else {
-    input.value = '';
-    const temp = e.key.toString();
+    let temp = '';
+    if (e.keyCode === 32) {
+      input.value = '';
+      temp = 'SPACE';
+    } else {
+      input.value = '';
+      temp = e.key.toString();
+    }
     setHotkeys(temp.toUpperCase());
     if (hotkeys.length == 3) {
       hotkeys = [];
@@ -57,6 +73,9 @@ export function handleHotkeyEvent(e) {
 
     input.value = hotkeys.join('+');
   }
+
+  getSettingsData()?.setHotkeys(hotkeys);
+  updateSettingData();
 }
 //restrict input by minimum and maximum
 export const restrictValue = (e: Event) => {
@@ -79,30 +98,32 @@ export const restrictValue = (e: Event) => {
 
 export const updateFormField = (fieldName: string) => (event: Event) => {
   const inputElement = event.currentTarget as HTMLInputElement;
-  setForm({
-    [fieldName]: inputElement.value,
-  });
-  updateSettingData();
+  getSettingsData()?.setSettingsBgColor(inputElement.value);
+  // setForm({
+  //   [fieldName]: inputElement.value,
+  // });
+  console.log(fieldName, inputElement.value);
 };
 
 export const updateBorderStyle = (event: Event) => {
   const value = event.toString();
-  console.log(value);
   setValue(value);
   updateSettingData();
 };
+
 export const updateSettingData = () => {
-  getSettingsData()?.setWidth(parseInt(form.width));
-  getSettingsData()?.setBorderWidth(parseInt(form.borderWidth));
-  getSettingsData()?.setBorderRadius(parseInt(form.borderRadius));
-  getSettingsData()?.setBorderStyle(value());
-  getSettingsData()?.setKeyboardNavigation(form.keyboardNavigation);
-  getSettingsData()?.setFullLayout(form.fullLayout);
-  getSettingsData()?.setMoveToCursor(form.moveToCursor);
-  getSettingsData()?.setMoveToCursor(form.moveToCursor);
-  //console.log(JSON.stringify(getSettingsData()?.toJSON()) + ' ipc');
+  // console.log(getHexSize());
+  console.log(JSON.stringify(getSettingsData()) + 'from update');
+  //assign new objects for rerendering
+  const newObj = SettingsData.fromJSON(getSettingsData().toJSON());
+  setSettingsData(newObj);
+
+  // setHexSize(getSettingsData()!.getHexagonSize());
+  const newHexObj = HexUiData.fromJSON(getHexUiData()!.toJSON());
+  setHexUiData(newHexObj);
+
   const temp = JSON.parse(JSON.stringify(getSettingsData()?.toJSON()));
-  //console.log(temp + 'from renderer');
+  // console.log(temp + 'from renderer');
   //console.log(JSON.stringify(temp) + 'string from render');
   window.electronAPI.sendData(temp);
 };
@@ -155,6 +176,37 @@ const findApps = async () => {
   setRelevantApps((await window.electronAPI.getRelevantApps()) ?? []);
 };
 
+window.electronAPI.getHexUiData((_event, value) => {
+  value = HexUiData.fromJSON(value as any);
+  setHexUiData(value);
+  //console.log(value);
+});
+
 findApps();
+
+window.electronAPI.getSettingsData((_event, value) => {
+  value = SettingsData.fromJSON(value as any);
+  setSettingsData(value);
+  document.documentElement.style.setProperty(
+    '--accent',
+    getSettingsData()?.getSettingsAccentColor()
+  );
+  document.documentElement.style.setProperty(
+    '--background',
+    getSettingsData()?.getSettingsBgColor()
+  );
+  document.documentElement.style.setProperty('--text', getSettingsData()?.getSettingsTextColor());
+  //setHexSize(getSettingsData()!.getHexagonSize());
+});
+
+let t: NodeJS.Timeout;
+
+export const openApp = (app: string, url: string) => {
+  window.electronAPI.openApp(app, url);
+};
+
+export const runAction = (action: string, option?: string) => {
+  window.electronAPI.runAction(action, option);
+};
 
 export default {};

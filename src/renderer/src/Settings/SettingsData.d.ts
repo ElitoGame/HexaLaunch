@@ -6,6 +6,12 @@ export default class SettingsData {
   keyboardNavigation: boolean;
   fullLayout: boolean;
   moveToCursor: boolean;
+  hotkeys: string[];
+  settingsBgColor: string;
+  settingsAccentColor: string;
+  settingsTextColor: string;
+  hexagonSize: number;
+  hexagonMargin: number;
 
   constructor(
     width: number,
@@ -14,7 +20,13 @@ export default class SettingsData {
     borderRadius: number,
     keyboardNavigation: boolean,
     fullLayout: boolean,
-    moveToCursor: boolean
+    moveToCursor: boolean,
+    hotkeys: string[],
+    settingsBgColor: string,
+    settingsAccentColor: string,
+    settingsTextColor: string,
+    hexagonSize: number,
+    hexagonMargin: number
   );
 
   getWidth(): number;
@@ -31,6 +43,18 @@ export default class SettingsData {
   getFullLayout(): boolean;
   setMoveToCursor(x: boolean): void;
   getMoveToCursor(): boolean;
+  getHotkey(): string[];
+  setHotkey(x: string[]): void;
+  setSettingsBgColor(x: string): void;
+  getSettingsBgColor(): string;
+  setSettingsAccentColor(x: string): void;
+  getSettingsAccentColor(): string;
+  setSettingsTextColor(x: string): void;
+  getSettingsTextColor(): string;
+  getHexagonMargin(): number;
+  getHexagonSize(): number;
+  setHexagonSize(x: number): void;
+  setHexagonMargin(x: number): void;
 
   toJSON(): {
     width: number;
@@ -40,6 +64,12 @@ export default class SettingsData {
     keyboardNavigation: boolean;
     fullLayout: boolean;
     moveToCursor: boolean;
+    hotkeys: string[];
+    settingsBgColor: string;
+    settingsAccentColor: string;
+    settingsTextColor: string;
+    hexagonSize: number;
+    hexagonMargin: number;
   };
   fromJSON(data: {
     width: number;
@@ -49,5 +79,11 @@ export default class SettingsData {
     keyboardNavigation: boolean;
     fullLayout: boolean;
     moveToCursor: boolean;
+    hotkeys: string[];
+    settingsBgColor: string;
+    settingsAccentColor: string;
+    settingsTextColor: string;
+    hexagonSize: number;
+    hexagonMargin: number;
   }): SettingsData;
 }

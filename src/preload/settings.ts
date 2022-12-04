@@ -17,6 +17,29 @@ if (process.contextIsolated) {
         console.log(JSON.stringify(dataToSubmit) + 'from preload');
         ipcRenderer.send('settings', dataToSubmit);
       },
+      setIgnoreMouseEvents: (yes: boolean, forward: { forward: boolean } = { forward: false }) => {
+        ipcRenderer.send('set-ignore-mouse-events', yes, forward);
+      },
+      toggleWindow: (callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
+        ipcRenderer.on('toggle-window', callback);
+      },
+      getMousePosition: (callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
+        ipcRenderer.on('set-mouse-position', callback);
+      },
+      openApp: (app: string, url: string) => {
+        ipcRenderer.invoke('hexUI:openApp', app, url);
+      },
+      runAction: (action: string, option?: string) => {
+        ipcRenderer.invoke('hexUI:runAction', action, option);
+      },
+      getHexUiData: (callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
+        ipcRenderer.on('hexUI:getHexUiData', callback);
+        console.log(callback.arguments);
+      },
+      getSettingsData: (callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
+        ipcRenderer.on('hexUI:getSettingsData', callback);
+        console.log(callback.arguments);
+      },
       search: (
         query: string,
         offset: number

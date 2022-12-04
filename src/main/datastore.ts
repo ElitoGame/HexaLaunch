@@ -38,7 +38,21 @@ export class UserSettings {
   constructor() {
     this.autoLaunch = true;
     this.language = 'en';
-    this.settingsData = new SettingsData(0, 0, 'solid', 0, true, true, true);
+    this.settingsData = new SettingsData(
+      0,
+      0,
+      '',
+      0,
+      true,
+      true,
+      true,
+      ['STRG', 'Shift', ' '],
+      '#505050',
+      '#5A6AFC',
+      '#DFDFDF',
+      50,
+      5
+    );
     this.hexUI = new HexUiData([
       new HexTileData(1, 0, 0, 'Unset', '', ''),
       // new HexTileData(0, 0, 1, 'Unset', '', ''),

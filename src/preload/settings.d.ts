@@ -1,5 +1,14 @@
 export interface IElectronAPI {
   sendData: (dataToSubmit: any[]) => void;
+  openApp(app: string, url: string): unknown;
+  runAction(action: string, option?: string): unknown;
+  setIgnoreMouseEvents: (yes: boolean, forward: { forward: boolean }) => Promise<void>;
+  toggleWindow: (callback: (event: IpcRendererEvent, value: boolean) => void) => void;
+  getMousePosition: (
+    callback: (event: IpcRendererEvent, value: { x: number; y: number }) => void
+  ) => void;
+  getHexUiData: (callback: (event: IpcRendererEvent, value: HexUiData) => void) => void;
+  getSettingsData: (callback: (event: IpcRendererEvent, value: SettingsData) => void) => void;
   search: (
     query: string,
     offset: number
@@ -19,4 +28,12 @@ export interface IElectronAPI {
     icon: 'string';
     type: 'string';
   }>;
+}
+
+declare global {
+  interface Window {
+    electronAPI: IElectronAPI;
+    electron: ElectronAPI;
+    api: unknown;
+  }
 }
