@@ -348,8 +348,9 @@ function toggleUI(visible = appVisible) {
   // If called and appVisible is currently false, then the window will be shown.
   // Set it to fullscreen so that the window is maximized and the menu can be moved via CSS later.
   if (!visible) {
-    mainWindow?.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y);
-    mainWindow?.setFullScreen(true);
+    const currentScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    mainWindow?.setSize(currentScreen.size.width, currentScreen.size.height);
+    mainWindow?.setPosition(currentScreen.bounds.x, currentScreen.bounds.y);
     mainWindow?.focus();
   } else {
     mainWindow?.setFullScreen(false); // Set the window to it's default size of 0,0 so it won't interfere with any user interaction.

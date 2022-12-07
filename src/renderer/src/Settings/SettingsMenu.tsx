@@ -40,7 +40,7 @@ const HexUIGrid = () => {
             'font-size': '0',
           }}
         >
-          <For each={getHexUiData()!.getCoreTiles()}>
+          <For each={getHexUiData()?.getCoreTiles() ?? []}>
             {(tile: HexTileData) => (
               <HexTile
                 x={tile.getX()}
@@ -69,10 +69,10 @@ const HexUIGrid = () => {
             )}
           </For>
 
-          <For each={getHexUiData()!.getTiles()}>
+          <For each={getHexUiData()?.getTiles() ?? []}>
             {(tile: HexTileData, i) => (
               <Show when={i() !== 0}>
-                <For each={getHexUiData()!.getRadiantTiles(i())}>
+                <For each={getHexUiData()?.getRadiantTiles(i()) ?? []}>
                   {(tile: HexTileData) => (
                     <HexTile
                       zIndex={10}

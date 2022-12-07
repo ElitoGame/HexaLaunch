@@ -3,7 +3,7 @@ import { createSignal } from 'solid-js';
 import SettingsData from './Settings/SettingsData';
 import HexUiData from './DataModel/HexUiData';
 import { getHexUiData, setHexUiData } from './renderer';
-import { getHexSize, setHexSize } from './renderer';
+import { actionType } from './DataModel/HexTileData';
 
 export const [value, setValue] = createSignal('');
 
@@ -102,7 +102,7 @@ export const updateFormField = (fieldName: string) => (event: Event) => {
   // setForm({
   //   [fieldName]: inputElement.value,
   // });
-  console.log(fieldName, inputElement.value);
+  console.log('Formfieldupdate', fieldName, inputElement.value);
 };
 
 export const updateBorderStyle = (event: Event) => {
@@ -113,13 +113,25 @@ export const updateBorderStyle = (event: Event) => {
 
 export const updateSettingData = () => {
   // console.log(getHexSize());
-  console.log(JSON.stringify(getSettingsData()) + 'from update');
+  console.log('updateSettingsData', JSON.stringify(getSettingsData()) + 'from update');
   //assign new objects for rerendering
   const newObj = SettingsData.fromJSON(getSettingsData().toJSON());
   setSettingsData(newObj);
 
   // setHexSize(getSettingsData()!.getHexagonSize());
-  const newHexObj = HexUiData.fromJSON(getHexUiData()!.toJSON());
+  // Why not implement a clone method in the HexUiData class?
+  const newHexObj = HexUiData.fromJSON(
+    getHexUiData()?.toJSON() as {
+      tiles: {
+        x: number;
+        y: number;
+        radiant: number;
+        action: actionType;
+        app: string;
+        url: string;
+      }[];
+    }
+  );
   setHexUiData(newHexObj);
 
   const temp = JSON.parse(JSON.stringify(getSettingsData()?.toJSON()));
@@ -198,8 +210,6 @@ window.electronAPI.getSettingsData((_event, value) => {
   document.documentElement.style.setProperty('--text', getSettingsData()?.getSettingsTextColor());
   //setHexSize(getSettingsData()!.getHexagonSize());
 });
-
-let t: NodeJS.Timeout;
 
 export const openApp = (app: string, url: string) => {
   window.electronAPI.openApp(app, url);
