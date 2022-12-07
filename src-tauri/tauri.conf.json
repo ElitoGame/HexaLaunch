@@ -1,0 +1,206 @@
+{
+	"$schema": "../node_modules/@tauri-apps/cli/schema.json",
+	"build": {
+		"beforeBuildCommand": "npm run build",
+		"beforeDevCommand": "npm run dev",
+		"devPath": "http://localhost:3000",
+		"distDir": "../dist"
+	},
+	"package": {
+		"productName": "RadialHexUI_Tauri",
+		"version": "0.1.0"
+	},
+	"tauri": {
+		"allowlist": {
+			"all": false,
+			"globalShortcut": {
+				"all": true
+			},
+			"window": {
+				"all": true,
+				"create": true,
+				"center": true,
+				"requestUserAttention": true,
+				"setResizable": true,
+				"setTitle": true,
+				"maximize": true,
+				"unmaximize": true,
+				"minimize": true,
+				"unminimize": true,
+				"show": true,
+				"hide": true,
+				"close": true,
+				"setDecorations": true,
+				"setAlwaysOnTop": true,
+				"setSize": true,
+				"setMinSize": true,
+				"setMaxSize": true,
+				"setPosition": true,
+				"setFullscreen": true,
+				"setFocus": true,
+				"setIcon": true,
+				"setSkipTaskbar": true,
+				"setCursorGrab": true,
+				"setCursorVisible": true,
+				"setCursorIcon": true,
+				"setCursorPosition": true,
+				"setIgnoreCursorEvents": true,
+				"startDragging": true,
+				"print": true
+			},
+			"fs": {
+				"all": true,
+				"readFile": true,
+				"writeFile": true,
+				"readDir": true,
+				"copyFile": true,
+				"createDir": true,
+				"removeDir": true,
+				"removeFile": true,
+				"renameFile": true,
+				"exists": true,
+				"scope": ["*"]
+			},
+			"os": {
+				"all": true
+			},
+			"shell": {
+				"all": true,
+				"execute": true,
+				"sidecar": true,
+				"open": true,
+				"scope": [
+					{
+						"name": "open",
+						"args": true,
+						"cmd": "powershell.exe"
+					},
+					{
+						"name": "clearbin",
+						"args": ["-Command", "Clear-RecycleBin", "-Force"],
+						"cmd": "powershell.exe"
+					},
+					{
+						"name": "queryRunningProcesses",
+						"args": [
+							"-Command",
+							"Get-Process",
+							"|",
+							"Where-Object",
+							"{$_.MainWindowTitle -ne \"\"}",
+							"|",
+							"Select-Object",
+							"-Expand",
+							"MainModule",
+							"|",
+							"Select-Object",
+							"-Property",
+							"FileName"
+						],
+						"cmd": "powershell.exe"
+					},
+					{
+						"name": "queryRelevantApps",
+						"args": true,
+						"cmd": "powershell.exe"
+					},
+					{
+						"name": "queryAdditionalApps",
+						"args": true,
+						"cmd": "powershell.exe"
+					},
+					{
+						"name": "queryGameLibrary",
+						"args": true,
+						"cmd": "powershell.exe"
+					},
+					{
+						"name": "queryAppIcon",
+						"args": true,
+						"cmd": "powershell.exe"
+					},
+					{
+						"name": "queryAppName",
+						"args": true,
+						"cmd": "powershell.exe"
+					}
+				]
+			},
+			"protocol": {
+				"asset": true,
+				"assetScope": ["*"]
+			}
+		},
+		"bundle": {
+			"active": true,
+			"category": "DeveloperTool",
+			"copyright": "",
+			"deb": {
+				"depends": []
+			},
+			"externalBin": [],
+			"icon": [
+				"icons/32x32.png",
+				"icons/128x128.png",
+				"icons/128x128@2x.png",
+				"icons/icon.icns",
+				"icons/icon.ico"
+			],
+			"identifier": "radialhexui",
+			"longDescription": "",
+			"macOS": {
+				"entitlements": null,
+				"exceptionDomain": "",
+				"frameworks": [],
+				"providerShortName": null,
+				"signingIdentity": null
+			},
+			"resources": [],
+			"shortDescription": "",
+			"targets": "all",
+			"windows": {
+				"certificateThumbprint": null,
+				"digestAlgorithm": "sha256",
+				"timestampUrl": ""
+			}
+		},
+		"security": {
+			"csp": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; asset: https://asset.localhost"
+		},
+		"updater": {
+			"active": false
+		},
+		"windows": [
+			{
+				"label": "main",
+				"fullscreen": false,
+				"height": 1,
+				"resizable": true,
+				"title": "RadialHexUI",
+				"width": 1,
+				"transparent": true,
+				"decorations": false,
+				"skipTaskbar": true,
+				"alwaysOnTop": true,
+				"visible": false,
+				"theme": "Dark",
+				"url": "index.html"
+			},
+			{
+				"label": "settings",
+				"height": 600,
+				"resizable": true,
+				"title": "RadialHexUI Settings",
+				"width": 800,
+				"url": "settings.html",
+				"visible": false,
+				"theme": "Dark",
+				"fileDropEnabled": true
+			}
+		],
+		"systemTray": {
+			"iconPath": "icons/icon.png",
+			"iconAsTemplate": true
+		}
+	}
+}

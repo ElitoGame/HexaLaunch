@@ -1,24 +1,14 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "target": "ESNext",
-    "module": "ESNext",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    "noEmit": true,
-    "isolatedModules": true,
-    "skipLibCheck": true,
-    "types": [],
-    "baseUrl": ".",
-    "typeRoots": ["src/preload", "node_modules/@types"],
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "out", "build"],
-  "files": [],
-  "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" }]
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"jsx": "preserve",
+		"jsxImportSource": "solid-js",
+		"types": ["vite/client", "node"],
+		"noEmit": true,
+		"isolatedModules": true
+	}
 }

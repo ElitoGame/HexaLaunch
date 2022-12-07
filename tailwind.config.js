@@ -11,6 +11,9 @@ module.exports = {
         text: 'var(--text)',
         background: 'var(--background)',
       },
+      scale: {
+        97: '0.97',
+      },
     },
     plugins: [],
   },

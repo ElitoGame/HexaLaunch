@@ -1,53 +1,34 @@
 {
-  "name": "radialhexui",
-  "version": "1.0.0",
-  "description": "A Desktop App Launcher built with Electron",
-  "main": "./out/main/index.js",
-  "author": "ElitoGame",
-  "homepage": "https://github.com/ElitoGame/RadialHexUI",
-  "scripts": {
-    "format": "prettier --write .",
-    "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
-    "typecheck": "tsc --noEmit",
-    "start": "electron-vite preview",
-    "dev": "electron-vite dev",
-    "build": "tsc --noEmit && electron-vite build",
-    "postinstall": "electron-builder install-app-deps",
-    "build:win": "npm run build && electron-builder --win --config",
-    "build:mac": "npm run build && electron-builder --mac --config",
-    "build:linux": "npm run build && electron-builder --linux --config"
-  },
-  "dependencies": {
-    "@electron-toolkit/preload": "^1.0.2",
-    "@electron-toolkit/utils": "^1.0.2",
-    "@hope-ui/solid": "^0.6.7",
-    "@lyrasearch/lyra": "^0.3.1",
-    "@node-steam/vdf": "^2.2.0",
-    "@stitches/core": "^1.2.8",
-    "binary-vdf": "^0.1.0",
-    "electron-updater": "^5.3.0",
-    "fetch-installed-software": "^0.0.7",
-    "open": "^8.4.0",
-    "solid-js": "^1.6.1"
-  },
-  "devDependencies": {
-    "@electron-toolkit/tsconfig": "^1.0.1",
-    "@types/node": "18.11.9",
-    "@typescript-eslint/eslint-plugin": "^5.42.1",
-    "@typescript-eslint/parser": "^5.42.1",
-    "autoprefixer": "^10.4.13",
-    "electron": "^21.2.2",
-    "electron-builder": "^23.6.0",
-    "electron-notarize": "^1.2.1",
-    "electron-vite": "^1.0.12",
-    "eslint": "^8.27.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "postcss": "^8.4.18",
-    "prettier": "^2.7.1",
-    "tailwindcss": "^3.2.2",
-    "typescript": "^4.8.4",
-    "vite": "^3.2.3",
-    "vite-plugin-solid": "^2.4.0"
-  }
+	"name": "RadialHexUI_Tauri",
+	"version": "0.0.0",
+	"description": "",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"serve": "vite preview",
+		"tauri": "tauri"
+	},
+	"license": "MIT",
+	"devDependencies": {
+		"@tauri-apps/cli": "^1.2.1",
+		"@types/node": "^18.11.9",
+		"autoprefixer": "^10.4.8",
+		"postcss": "^8.4.16",
+		"tailwindcss": "^3.1.8",
+		"typescript": "^4.8.2",
+		"vite": "^3.0.9",
+		"vite-plugin-solid": "^2.3.0"
+	},
+	"dependencies": {
+		"@hope-ui/solid": "^0.6.7",
+		"@lyrasearch/lyra": "^0.3.1",
+		"@node-steam/vdf": "^2.2.0",
+		"@stitches/core": "^1.2.8",
+		"@tauri-apps/api": "^1.2.0",
+		"binary-vdf": "^0.1.0",
+		"fetch-installed-software": "^0.0.7",
+		"open": "^8.4.0",
+		"solid-js": "^1.5.1",
+		"solid-transition-group": "^0.0.10"
+	}
 }
