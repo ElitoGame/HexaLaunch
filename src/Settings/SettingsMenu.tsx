@@ -47,6 +47,7 @@ const HexUIGrid = () => {
                     ?.split('/')
                     [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
                 }
+                action={tile.getAction()}
                 hasAnimation={false}
               ></HexTile>
             )}
@@ -77,6 +78,7 @@ const HexUIGrid = () => {
                           ?.split('/')
                           [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
                       }
+                      action={tile.getAction()}
                       hasAnimation={false}
                     ></HexTile>
                   )}
@@ -123,6 +125,7 @@ const HexUIPreview = () => {
                     ?.split('/')
                     [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
                 }
+                action={tile.getAction()}
                 hasAnimation={false}
               ></HexTile>
             )}
@@ -151,6 +154,7 @@ const HexUIPreview = () => {
                       ?.split('/')
                       [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
                   }
+                  action={tile.getAction()}
                   color={'bg-green-400'}
                 ></HexTile>
               )}

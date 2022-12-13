@@ -3,6 +3,7 @@ import { listen } from '@tauri-apps/api/event';
 import { register, isRegistered, unregister } from '@tauri-apps/api/globalShortcut';
 import { Command } from '@tauri-apps/api/shell';
 import { currentMonitor, getAll, LogicalPosition } from '@tauri-apps/api/window';
+import { fromJSON } from 'postcss';
 import { createSignal } from 'solid-js';
 import HexUiData from './DataModel/HexUiData';
 import {
@@ -11,6 +12,8 @@ import {
   getHexSize,
   getShowPosition,
   isHexUiVisible,
+  isSearchVisible,
+  setCurrentMedia,
   setCurrentRadiant,
   setCursorPosition,
   setHexUiData,
@@ -92,7 +95,7 @@ const unlisten = await listen('mouse_move', (event) => {
     isIgnoringEvents = false;
   }
 
-  if (isHexUiVisible()) {
+  if (isHexUiVisible() && !isSearchVisible()) {
     // Handle Hex Sector to render
     // current position
     const mx = getCursorPosition().x;
@@ -270,6 +273,7 @@ export const openApp = async (app: string, url: string) => {
   console.log('pid:', child.pid);
 };
 export const runAction = async (action: string, option?: string) => {
+  console.log('running action', action, option);
   if (action === 'PaperBin') {
     const command = new Command('clearbin', ['-Command', 'Clear-RecycleBin', '-Force']);
     command.on('close', (data) => {
