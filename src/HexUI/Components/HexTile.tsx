@@ -163,12 +163,11 @@ const HexTile = (props: {
                       }}
                     />
                     <Show
-                      when={true}
+                      when={getCurrentMedia()?.isPlaying}
                       fallback={
                         <FaSolidPlay
                           onClick={() => {
                             invoke('toggle_media');
-                            console.log(invoke('get_current_media'));
                           }}
                         />
                       }
@@ -176,7 +175,6 @@ const HexTile = (props: {
                       <FaSolidPause
                         onClick={async () => {
                           invoke('toggle_media');
-                          console.log(await invoke('get_current_media'));
                         }}
                       />
                     </Show>

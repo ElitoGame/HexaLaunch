@@ -48,13 +48,6 @@ const HexUI = () => {
         } z-40 absolute top-10 left-1/2 -translate-x-1/2 w-1/4`}
         style={{ 'font-size': '16px' }}
       >
-        <BsSearch
-          style={{
-            'z-index': '41',
-            color: '#C3C2C2',
-            'stroke-width': '2px',
-          }}
-        />
         <InputGroup>
           <InputLeftElement class="text-neutral-300">
             <BsSearch />

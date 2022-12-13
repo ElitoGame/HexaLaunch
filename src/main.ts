@@ -1,10 +1,11 @@
 import { search, SearchResult } from '@lyrasearch/lyra';
 import { createEffect, createSignal } from 'solid-js';
 import HexUiData from './DataModel/HexUiData';
-import { fs } from '@tauri-apps/api';
+import { fs, invoke } from '@tauri-apps/api';
 import { externalAppManager, externalApp } from './externalAppManager';
 import { Command } from '@tauri-apps/api/shell';
 import { BaseDirectory } from '@tauri-apps/api/fs';
+import { listen } from '@tauri-apps/api/event';
 
 export const [getShowPosition, setShowPosition] = createSignal({ x: 0, y: 0 });
 export const [getCursorPosition, setCursorPosition] = createSignal({
@@ -80,31 +81,17 @@ export const [getSearchResults, setSearchResults] = createSignal<
 externalAppManager.getSearchDatabase();
 
 async function startMusicListener() {
-  // start the music listener
-  const musicListener = Command.sidecar(
-    '../CSharpIntegration/CSharpIntegration/bin/Release/CSharpIntegration',
-    '-listenToMediaChanges'
-  );
-  musicListener.stdout.on('data', (line) => {
-    const data = JSON.parse(line);
-    const media = new MediaObject(
-      data.title,
-      data.thumbnail,
-      data.artist,
-      data.isPlaying === 'true'
+  const unlisten = await listen<any>('mediaChanged', (event) => {
+    console.log(event);
+    setCurrentMedia(
+      new MediaObject(event.payload[0], event.payload[2], event.payload[1], event.payload[3])
     );
-    setCurrentMedia(media);
   });
-
-  const musicPid = await musicListener.execute();
-
-  window.addEventListener('beforeunload', () => {
-    // kill the music listener process using the pid
-    process.kill(musicPid.code);
-  });
+  const startData = await invoke('get_current_media');
+  setCurrentMedia(new MediaObject(startData[0], startData[2], startData[1], startData[3]));
 }
 
-// startMusicListener();
+startMusicListener();
 
 export class MediaObject {
   public title: string;

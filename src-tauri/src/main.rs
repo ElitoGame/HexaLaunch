@@ -7,14 +7,16 @@ use std::io::Error;
 
 // use lnk_parser::LNKParser;
 use rdev::{listen, Event};
-use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
+use tauri::{AppHandle, CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
 use tauri_plugin_autostart::MacosLauncher;
 use windows::{
     core::{InParam, Interface},
-    Media::Control::GlobalSystemMediaTransportControlsSessionManager,
-    Storage::Streams::{
-        Buffer, IBuffer, IInputStream, IRandomAccessStream, IRandomAccessStreamReference,
+    Media::Control::{
+        GlobalSystemMediaTransportControlsSession,
+        GlobalSystemMediaTransportControlsSessionManager,
+        GlobalSystemMediaTransportControlsSessionPlaybackStatus,
     },
+    Storage::Streams::{Buffer, IBuffer},
     Win32::System::WinRT::IBufferByteAccess,
 };
 
@@ -25,23 +27,67 @@ fn main() {
     let system_tray = SystemTray::new().with_menu(tray_menu);
     tauri::Builder::default()
         .setup(|app| {
-            let handle = app.handle();
-            std::thread::spawn(move || {
-                let callback = move |event: Event| match event.event_type {
-                    rdev::EventType::MouseMove { x, y } => {
-                        let _res = handle.emit_to("main", "mouse_move", (x, y));
-                    }
-                    _ => {}
-                };
+            {
+                let handle = app.handle().clone();
+                std::thread::spawn(move || {
+                    let callback = move |event: Event| match event.event_type {
+                        rdev::EventType::MouseMove { x, y } => {
+                            let _res = handle.emit_to("main", "mouse_move", (x, y));
+                        }
+                        _ => {}
+                    };
 
-                loop {
-                    if let Err(error) = listen(callback.clone()) {
-                        // without the loop you wouldn't need to clone here.
-                        println!("Error: {:?}", error)
+                    loop {
+                        if let Err(error) = listen(callback.clone()) {
+                            // without the loop you wouldn't need to clone here.
+                            println!("Error: {:?}", error)
+                        }
                     }
-                }
-            });
+                });
+            }
 
+            // Media Control Events
+            let manager = GlobalSystemMediaTransportControlsSessionManager::RequestAsync()
+                .unwrap()
+                .get()
+                .unwrap();
+            {
+                let handle = app.handle().clone();
+                std::thread::spawn(move || {
+                    let mut last_title: String = "".to_string();
+                    let mut last_play_pause: bool = false;
+                    loop {
+                        if handle
+                            .windows()
+                            .iter()
+                            .any(|(_k, v)| v.is_visible().unwrap())
+                        {
+                            let session = manager.GetCurrentSession().unwrap();
+                            let title = session
+                                .TryGetMediaPropertiesAsync()
+                                .unwrap()
+                                .get()
+                                .unwrap()
+                                .Title()
+                                .unwrap();
+                            let title = title.to_string();
+                            let play_state = session
+                                .GetPlaybackInfo()
+                                .unwrap()
+                                .PlaybackStatus()
+                                .unwrap()
+                                == GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing;
+                            if title != last_title || last_play_pause != play_state {
+                                last_title = title.clone();
+                                last_play_pause = play_state;
+                                query_current_media_emitter(handle.clone(), &session);
+                            }
+                        }
+                        // wait for 200ms
+                        std::thread::sleep(std::time::Duration::from_millis(200));
+                    }
+                });
+            }
             Ok(())
         })
         .plugin(tauri_plugin_autostart::init(
@@ -134,74 +180,63 @@ async fn next_media() {
 }
 
 #[tauri::command]
-async fn get_current_media() -> (String, String) {
+async fn get_current_media() -> (String, String, String, bool) {
     let manager = GlobalSystemMediaTransportControlsSessionManager::RequestAsync()
         .unwrap()
-        .await
+        .get()
         .unwrap();
 
     let session = manager.GetCurrentSession().unwrap();
 
-    // register callback
-    let media = session.TryGetMediaPropertiesAsync().unwrap().await.unwrap();
-    let title = media.Title().unwrap();
-    let artist = media.Artist().unwrap();
-
-    let thumbnail_raw = media.Thumbnail().unwrap();
-    // convert to a IInputStream
-    let thumbnail = thumbnail_raw.OpenReadAsync().unwrap().GetResults().unwrap();
-    IInputStream::try_from(thumbnail).unwrap();
-
-    // let ras_async = thumbnail_raw.OpenReadAsync().unwrap();
-    // let ras = ras_async.await.unwrap();
-    // // let ras = ras_async.GetResults().unwrap();
-    // // Create a buffer from the size of the IRandomAccessStream
-    // let size = ras.Size().unwrap() as u32;
-    // let buffer = Buffer::Create(size).unwrap();
-    // // Create a IBuffer from the buffer
-    // let ibuffer = IBuffer::try_from(buffer).unwrap();
-    // // InParam<'_, IBuffer>
-    // let param = InParam::owned(ibuffer);
-
-    // let res_async = ras
-    //     .ReadAsync(
-    //         param,
-    //         size,
-    //         windows::Storage::Streams::InputStreamOptions::None,
-    //     )
-    //     .unwrap();
-
-    // let res = res_async.GetResults().unwrap();
-
-    // let res = Buffer::Create(100).unwrap();
-
-    // Convert the IBuffer to a Vec<u8>
-    // unsafe {
-    //     let data = as_mut_bytes(&res).unwrap();
-    //     let thumb = base64::encode(data);
-    //     println!("{}", thumb);
-    // }
-
-    // let thumb = base64::encode(Vec::from(res));
-    return (title.to_string(), artist.to_string());
+    return query_current_media(&session);
 }
 
-// #[tauri::command]
-// async fn queryApps<R: Runtime>(
-//     app: tauri::AppHandle<R>,
-//     window: tauri::Window<R>,
-// ) -> Result<(), String> {
-//     let start_menu = std::env::var("ST").unwrap();
-//     Ok(())
-// }
+unsafe fn as_mut_bytes(buffer: &IBuffer) -> Result<&mut [u8], Error> {
+    let interop = buffer.cast::<IBufferByteAccess>()?;
+    let data = interop.Buffer()?;
+    Ok(std::slice::from_raw_parts_mut(data, buffer.Length()? as _))
+}
 
-// fn queryRelevantApps() {
-//     // get the environment variable for the start menu
-//     let start_menu = std::env::var("").unwrap() + "\\Microsoft\\Windows\\Start Menu\\Programs";
-// }
+fn query_current_media(
+    session: &GlobalSystemMediaTransportControlsSession,
+) -> (String, String, String, bool) {
+    let media = session.TryGetMediaPropertiesAsync().unwrap().get().unwrap();
+    let title = media.Title().unwrap();
+    let artist = media.Artist().unwrap();
+    let is_playing = session.GetPlaybackInfo().unwrap().PlaybackStatus().unwrap()
+        == GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing;
 
-// unsafe fn as_mut_bytes(buffer: &IBuffer) -> Result<&mut [u8], Error> {
-//     let interop = buffer.cast::<IBufferByteAccess>()?;
-//     let data = interop.Buffer()?;
-//     Ok(std::slice::from_raw_parts_mut(data, buffer.Length()? as _))
-// }
+    let thumbnail_raw = media.Thumbnail().unwrap();
+    let ras = thumbnail_raw.OpenReadAsync().unwrap().get().unwrap();
+    // Create a buffer from the size of the IRandomAccessStream
+    let size = ras.Size().unwrap() as u32;
+    let buffer = Buffer::Create(size).unwrap();
+    // Create a IBuffer from the buffer
+    let ibuffer = IBuffer::try_from(buffer).unwrap();
+    // InParam<'_, IBuffer>
+    let param = InParam::owned(ibuffer);
+
+    let res = ras
+        .ReadAsync(
+            param,
+            size,
+            windows::Storage::Streams::InputStreamOptions::None,
+        )
+        .unwrap()
+        .get()
+        .unwrap();
+
+    let thumbnail: String;
+    unsafe {
+        let data = as_mut_bytes(&res).unwrap();
+        thumbnail = base64::encode(data);
+    }
+    return (title.to_string(), artist.to_string(), thumbnail, is_playing);
+}
+
+fn query_current_media_emitter(
+    handle: AppHandle,
+    session: &GlobalSystemMediaTransportControlsSession,
+) {
+    let _res = handle.emit_all("mediaChanged", query_current_media(session));
+}
