@@ -174,7 +174,7 @@
         "label": "main",
         "fullscreen": false,
         "height": 1,
-        "resizable": true,
+        "resizable": false,
         "title": "RadialHexUI",
         "width": 1,
         "transparent": true,

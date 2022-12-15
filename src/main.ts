@@ -1,9 +1,8 @@
 import { search, SearchResult } from '@lyrasearch/lyra';
-import { createEffect, createSignal } from 'solid-js';
+import { createSignal } from 'solid-js';
 import HexUiData from './DataModel/HexUiData';
 import { fs, invoke } from '@tauri-apps/api';
-import { externalAppManager, externalApp } from './externalAppManager';
-import { Command } from '@tauri-apps/api/shell';
+import { externalAppManager } from './externalAppManager';
 import { BaseDirectory } from '@tauri-apps/api/fs';
 import { listen } from '@tauri-apps/api/event';
 
@@ -20,6 +19,33 @@ export const [getHexMargin, setHexMargin] = createSignal(4); //4
 export const [isSearchVisible, setIsSearchVisible] = createSignal(false);
 export const [isHexUiVisible, setIsHexUiVisible] = createSignal(false);
 export const [getCurrentMedia, setCurrentMedia] = createSignal<MediaObject>();
+
+// let lastSwitch = true;
+// setInterval(async () => {
+//   setHexSize(getHexSize() + (lastSwitch ? 40 : -40));
+//   lastSwitch = !lastSwitch;
+// }, 1000);
+
+await listen('updateSettings', (event) => {
+  const settings = event.payload as {
+    width: string;
+    borderWidth: string;
+    borderStyle: string;
+    borderRadius: string;
+    keyboardNavigation: string;
+    fullLayout: string;
+    moveToCursor: string;
+    hotkeys: string;
+    settingsBgColor: string;
+    settingsAccentColor: string;
+    settingsTextColor: string;
+    hexagonSize: string;
+    hexagonMargin: string;
+  };
+  console.log('updateSettings', settings.hexagonMargin, settings.hexagonSize);
+  setHexMargin(parseInt(settings.hexagonMargin));
+  setHexSize(parseInt(settings.hexagonSize));
+});
 
 // value =  // for some reason, the type is not recognized, so I am doing some casting magic and it works - wooooow
 setHexUiData(

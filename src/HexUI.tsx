@@ -22,7 +22,7 @@ const HexUI = () => {
   const [getPage, setPage] = createSignal<number>(0);
 
   window.addEventListener('keydown', (e) => {
-    if (!isSearchVisible() && e.key !== ' ' && e.key !== 'Control' && e.key !== 'Shift') {
+    if (!isSearchVisible() && e.key !== ' ' && e.key.length === 1) {
       setIsSearchVisible(true);
       setCurrentRadiant(-1);
       if (searchBar) {

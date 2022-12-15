@@ -1,9 +1,7 @@
-import { x } from '@tauri-apps/api/path-e12e0e34';
 import { createSignal, Match, mergeProps, Show, Switch } from 'solid-js';
 import { JSX } from 'solid-js/jsx-runtime';
-import { getCurrentMedia, getHexMargin, getHexSize, searchAppDB } from '../../main';
-import { FaSolidPlay, FaSolidForwardStep, FaBrandsItunesNote, FaSolidPause } from 'solid-icons/fa';
-import { Command } from '@tauri-apps/api/shell';
+import { getCurrentMedia, getHexMargin, getHexSize } from '../../main';
+import { FaSolidPlay, FaSolidForwardStep, FaSolidPause } from 'solid-icons/fa';
 import { invoke } from '@tauri-apps/api';
 
 const HexTile = (props: {

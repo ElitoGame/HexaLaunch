@@ -1,5 +1,6 @@
 import { updateSettingData, handleHotkeyEvent, getSettingsData } from '../settings';
 import { Grid, GridItem, Input, Switch } from '@hope-ui/solid';
+import { invoke } from '@tauri-apps/api';
 
 export const PreferencesTab = () => {
   return (
@@ -14,10 +15,12 @@ export const PreferencesTab = () => {
         onfocusout={(e: Event) => {
           const inputElement = e.currentTarget as HTMLInputElement;
           inputElement.value = getSettingsData()?.getHotkeys().join('+');
+          invoke('set_changing_hotkey', { changing: false });
         }}
         onfocus={(e: Event) => {
           const inputElement = e.currentTarget as HTMLInputElement;
           inputElement.value = 'Press any Key(s)';
+          invoke('set_changing_hotkey', { changing: true });
         }}
         value={getSettingsData()?.getHotkeys().join('+')}
         placeholder="Press any Key(s)"

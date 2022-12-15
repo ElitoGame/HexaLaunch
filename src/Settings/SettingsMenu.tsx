@@ -167,7 +167,7 @@ const HexUIPreview = () => {
 };
 const SettingsMenu = () => {
   // console.log(getHexUiData()?.getCoreTiles());
-  const tabstyle =
+  const tabStyle =
     'w-100 text-text h-30 focus:bg-accent focus:hover:brightness-125 focus:text-white aria-selected:hover:bg-accent aria-selected:bg-accent aria-selected:text-white hover:bg-accent select:text-gray select:bg-accent';
   return (
     <>
@@ -188,7 +188,7 @@ const SettingsMenu = () => {
               <TabList borderWidth="1px">
                 <h1 class="pl-3">Settings</h1>
                 <Tab
-                  class={tabstyle}
+                  class={tabStyle}
                   onClick={() => {
                     setCurrentTab('Appearance');
                   }}
@@ -196,7 +196,7 @@ const SettingsMenu = () => {
                   Appearance
                 </Tab>
                 <Tab
-                  class={tabstyle}
+                  class={tabStyle}
                   onClick={() => {
                     setCurrentTab('Layout');
                   }}
@@ -204,7 +204,7 @@ const SettingsMenu = () => {
                   Layout
                 </Tab>
                 <Tab
-                  class={tabstyle}
+                  class={tabStyle}
                   onClick={() => {
                     setCurrentTab('Preferences');
                   }}

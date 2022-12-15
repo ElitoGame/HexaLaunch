@@ -17,6 +17,11 @@ import {
   createDisclosure,
   HStack,
 } from '@hope-ui/solid';
+import { primaryMonitor } from '@tauri-apps/api/window';
+import { createSignal } from 'solid-js';
+
+const [getSize, setSize] = createSignal<number>(0);
+setSize((await primaryMonitor()).size.height);
 
 export const AppearanceTab = () => {
   const { isOpen, onOpen, onClose } = createDisclosure();
@@ -108,8 +113,8 @@ export const AppearanceTab = () => {
             type="range"
             id="hexagon-size"
             name="hexagon-size"
-            min="0"
-            max="50"
+            min="20"
+            max={Math.floor(getSize() / (9 * 1.169))}
             value={getSettingsData()?.getHexagonSize()}
             step="1"
             onInput={(e: Event) => {
@@ -153,7 +158,6 @@ export const AppearanceTab = () => {
                     const inputElement = e.currentTarget as HTMLInputElement;
                     getSettingsData()?.setSettingsTextColor(inputElement.value);
                     updateSettingData();
-                    document.documentElement.style.setProperty('--text', inputElement.value);
                   }}
                   class="colorPick"
                   type="color"
@@ -170,7 +174,6 @@ export const AppearanceTab = () => {
                       const inputElement = e.currentTarget as HTMLInputElement;
                       getSettingsData()?.setSettingsTextColor(inputElement.value);
                       updateSettingData();
-                      document.documentElement.style.setProperty('--text', inputElement.value);
                     }}
                   />
                   <InputRightElement pointerEvents="none">
@@ -194,7 +197,6 @@ export const AppearanceTab = () => {
                     const inputElement = e.currentTarget as HTMLInputElement;
                     getSettingsData()?.setSettingsBgColor(inputElement.value);
                     updateSettingData();
-                    document.documentElement.style.setProperty('--background', inputElement.value);
                   }}
                   class="colorPick"
                   type="color"
@@ -211,10 +213,6 @@ export const AppearanceTab = () => {
                       const inputElement = e.currentTarget as HTMLInputElement;
                       getSettingsData()?.setSettingsBgColor(inputElement.value);
                       updateSettingData();
-                      document.documentElement.style.setProperty(
-                        '--background',
-                        inputElement.value
-                      );
                     }}
                   />
                   <InputRightElement pointerEvents="none">
@@ -235,7 +233,6 @@ export const AppearanceTab = () => {
                     const inputElement = e.currentTarget as HTMLInputElement;
                     getSettingsData()?.setSettingsAccentColor(inputElement.value);
                     updateSettingData();
-                    document.documentElement.style.setProperty('--accent', inputElement.value);
                   }}
                   class="colorPick"
                   type="color"
@@ -252,7 +249,6 @@ export const AppearanceTab = () => {
                       const inputElement = e.currentTarget as HTMLInputElement;
                       getSettingsData()?.setSettingsAccentColor(inputElement.value);
                       updateSettingData();
-                      document.documentElement.style.setProperty('--accent', inputElement.value);
                     }}
                   />
                   <InputRightElement pointerEvents="none">

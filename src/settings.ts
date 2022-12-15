@@ -1,15 +1,21 @@
-import { search, SearchResult } from '@lyrasearch/lyra';
 import { createSignal } from 'solid-js';
 import SettingsData from './Settings/SettingsData';
 import { externalApp, externalAppManager } from './externalAppManager';
-import { writeTextFile, BaseDirectory, writeFile } from '@tauri-apps/api/fs';
 import { getAll } from '@tauri-apps/api/window';
-import { app } from '@tauri-apps/api';
+import { window } from '@tauri-apps/api';
 import { UserSettings } from './datastore';
 import HexUiData from './DataModel/HexUiData';
-import { getHexUiData, setHexUiData } from './main';
-import { getHexSize, setHexSize } from './main';
+import {
+  getHexMargin,
+  getHexSize,
+  getHexUiData,
+  setHexMargin,
+  setHexSize,
+  setHexUiData,
+} from './main';
 import { actionType } from './DataModel/HexTileData';
+import { unregister, isRegistered, register } from '@tauri-apps/api/globalShortcut';
+import { emit, listen } from '@tauri-apps/api/event';
 
 const appWindow = getAll().find((w) => w.label === 'settings');
 export const userSettings: UserSettings = await UserSettings.load();
@@ -24,24 +30,29 @@ export const [getRelevantApps, setRelevantApps] = createSignal<Array<externalApp
 
 export const changeColor = () => {};
 
-const init = new SettingsData(
-  1,
-  1,
-  'solid',
-  1,
-  true,
-  true,
-  true,
-  ['STRG', 'SHIFT', ' '],
-  '#343434',
-  '#5A6AFC',
-  '#DFDFDF',
-  50,
-  4
+console.log(userSettings);
+
+// const init = new SettingsData(
+//   1,
+//   1,
+//   'solid',
+//   1,
+//   true,
+//   true,
+//   true,
+//   ['CONTROL', 'SHIFT', 'SPACE'],
+//   '#343434',
+//   '#5A6AFC',
+//   '#DFDFDF',
+//   50,
+//   4
+// );
+export const [getSettingsData, setSettingsData] = createSignal<SettingsData>(
+  userSettings.getSetting(),
+  {
+    equals: false,
+  }
 );
-export const [getSettingsData, setSettingsData] = createSignal<SettingsData>(init, {
-  equals: false,
-});
 
 export const [getCurrentTab, setCurrentTab] = createSignal('Appearance');
 //export const [getHexUiData, setHexUiData] = createSignal<HexUiData>();
@@ -73,6 +84,10 @@ export function handleHotkeyEvent(e) {
     hotkeys.pop();
     input.value = hotkeys.join('+');
   } else {
+    // ignore if already pressed
+    if (hotkeys.includes(e.key.toString().toUpperCase())) {
+      return;
+    }
     let temp = '';
     if (e.keyCode === 32) {
       input.value = '';
@@ -86,11 +101,53 @@ export function handleHotkeyEvent(e) {
       hotkeys = [];
     }
     hotkeys.push(temp.toUpperCase());
+    // bring SHIFT to front
+    if (hotkeys.includes('SHIFT')) {
+      hotkeys.splice(hotkeys.indexOf('SHIFT'), 1);
+      hotkeys.unshift('SHIFT');
+    }
+    // bring ALT to front
+    if (hotkeys.includes('ALT')) {
+      hotkeys.splice(hotkeys.indexOf('ALT'), 1);
+      hotkeys.unshift('ALT');
+    }
+    // bring CONTrol to front
+    if (hotkeys.includes('CONTROL')) {
+      hotkeys.splice(hotkeys.indexOf('CONTROL'), 1);
+      hotkeys.unshift('CONTROL');
+    }
+
+    if (hotkeys.length == 3) {
+      // must contain at least 2 modifier keys and 1 key
+      if (hotkeys[0] == 'SHIFT' || hotkeys[0] == 'ALT' || hotkeys[0] == 'CONTROL') {
+        if (hotkeys[1] == 'SHIFT' || hotkeys[1] == 'ALT' || hotkeys[1] == 'CONTROL') {
+          if (hotkeys[2] != 'SHIFT' && hotkeys[2] != 'ALT' && hotkeys[2] != 'CONTROL') {
+            // all good
+          } else {
+            hotkeys.pop();
+          }
+        } else {
+          hotkeys.pop();
+        }
+      }
+    }
+    if (hotkeys.length == 2) {
+      // hotkey 1 must be a modifier key and hotkey 2 must be a key
+      if (hotkeys[0] == 'SHIFT' || hotkeys[0] == 'ALT' || hotkeys[0] == 'CONTROL') {
+        if (hotkeys[1] != 'SHIFT' && hotkeys[1] != 'ALT' && hotkeys[1] != 'CONTROL') {
+          // all good
+        } else {
+          hotkeys.pop();
+        }
+      }
+    }
 
     input.value = hotkeys.join('+');
   }
-  getSettingsData()?.setHotkeys(hotkeys);
-  updateSettingData();
+  if (hotkeys.length != 0) {
+    getSettingsData()?.setHotkeys(hotkeys);
+    updateSettingData();
+  }
 }
 //restrict input by minimum and maximum
 
@@ -128,33 +185,78 @@ export const updateBorderStyle = (event: Event) => {
 };
 export const updateSettingData = () => {
   // console.log(getHexSize());
-  console.log(JSON.stringify(getSettingsData()) + 'from update');
+  // console.log(JSON.stringify(getSettingsData()) + 'from update');
   //assign new objects for rerendering
   const newObj = SettingsData.fromJSON(getSettingsData().toJSON());
   setSettingsData(newObj);
+  registerShortCut(newObj.getHotkeys().join('+'));
+
+  const temp = JSON.parse(JSON.stringify(getSettingsData()?.toJSON()));
+
+  userSettings.setSetting(temp);
+  userSettings.save();
 
   // setHexSize(getSettingsData()!.getHexagonSize());
   //TODO clone object?
-  const newHexObj = HexUiData.fromJSON(
-    getHexUiData()?.toJSON() as {
-      tiles: {
-        x: number;
-        y: number;
-        radiant: number;
-        action: actionType;
-        app: string;
-        url: string;
-      }[];
-    }
+  // try catch to avoid an error in the hexUI window
+  // that somehow getHexUiData() is not initialized yet...
+  try {
+    const newHexObj = HexUiData.fromJSON(
+      getHexUiData()?.toJSON() as {
+        tiles: {
+          x: number;
+          y: number;
+          radiant: number;
+          action: actionType;
+          app: string;
+          url: string;
+        }[];
+      }
+    );
+    setHexUiData(newHexObj);
+  } catch (e) {
+    // console.error(e);
+  }
+
+  console.log(userSettings.getSetting());
+  emit('updateSettings', userSettings.getSetting());
+
+  document.documentElement.style.setProperty(
+    '--accent',
+    userSettings.getSetting().getSettingsAccentColor()
   );
-  setHexUiData(newHexObj);
-  //console.log(JSON.stringify(getSettingsData()?.toJSON()) + ' ipc');
-  const temp = JSON.parse(JSON.stringify(getSettingsData()?.toJSON()));
-  //console.log(temp + 'from renderer');
-  //console.log(JSON.stringify(temp) + 'string from render');
-  // window.electronAPI.sendData(temp);
-  userSettings.setSetting(temp);
-  userSettings.save();
+  document.documentElement.style.setProperty(
+    '--background',
+    userSettings.getSetting().getSettingsBgColor()
+  );
+  document.documentElement.style.setProperty(
+    '--text',
+    userSettings.getSetting().getSettingsTextColor()
+  );
 };
+
+let oldShortcut = getSettingsData()?.getHotkeys().join('+') ?? 'Control+Shift+Space';
+const mainWindow = window.getAll().find((w) => w.label === 'main');
+
+async function registerShortCut(shortcut: string) {
+  try {
+    await unregister(oldShortcut);
+    oldShortcut = shortcut;
+    if (!(await isRegistered(shortcut))) {
+      await register(shortcut, async () => {
+        const currentVisibility = await mainWindow?.isVisible();
+        emit('toggleUI', {
+          hide: currentVisibility,
+        });
+      });
+    }
+    appWindow.onCloseRequested(async () => {
+      await unregister(shortcut);
+    });
+  } catch (error) {}
+}
+
+updateSettingData();
+registerShortCut(userSettings.getSetting().getHotkeys().join('+'));
 
 export default {};

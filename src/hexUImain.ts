@@ -1,11 +1,8 @@
-import { fs } from '@tauri-apps/api';
 import { listen } from '@tauri-apps/api/event';
-import { register, isRegistered, unregister } from '@tauri-apps/api/globalShortcut';
 import { Command } from '@tauri-apps/api/shell';
 import { currentMonitor, getAll, LogicalPosition } from '@tauri-apps/api/window';
-import { fromJSON } from 'postcss';
-import { createSignal } from 'solid-js';
-import HexUiData from './DataModel/HexUiData';
+import { createEffect, createSignal } from 'solid-js';
+import { UserSettings } from './datastore';
 import {
   getCursorPosition,
   getHexMargin,
@@ -13,14 +10,15 @@ import {
   getShowPosition,
   isHexUiVisible,
   isSearchVisible,
-  setCurrentMedia,
   setCurrentRadiant,
   setCursorPosition,
-  setHexUiData,
+  setHexMargin,
+  setHexSize,
   setIsHexUiVisible,
   setIsSearchVisible,
   setShowPosition,
 } from './main';
+import SettingsData from './Settings/SettingsData';
 
 /*
  █████   █████                      █████  █████ █████                                    ██████   ███          
@@ -63,14 +61,6 @@ const [getShowAbsolutePosition, setShowAbsolutePosition] = createSignal({
 const appWindow = getAll().find((w) => w.label === 'main');
 
 let isIgnoringEvents = false;
-
-await unregister('CommandOrControl+Shift+Space');
-if (!(await isRegistered('CommandOrControl+Shift+Space'))) {
-  await register('CommandOrControl+Shift+Space', async () => {
-    console.log('Shortcut triggered');
-    toggleUI(await appWindow.isVisible());
-  });
-}
 
 const unlisten = await listen('mouse_move', (event) => {
   // Handle Window Intractable
@@ -150,8 +140,14 @@ appWindow.onFocusChanged(({ payload: focused }) => {
   }
 });
 
+await listen('toggleUI', async (event) => {
+  toggleUI((event.payload as { hide: boolean }).hide);
+  // invoke('print_debug');
+});
+
 export async function toggleUI(hide: boolean) {
   const body = document.querySelector('body') as HTMLElement;
+  // if (await invoke('is_changing_hotkey')) return;
   if (hide) {
     console.log('hiding');
     appWindow.hide();
@@ -222,10 +218,6 @@ export async function toggleUI(hide: boolean) {
     }, 1);
   }
 }
-
-appWindow.onCloseRequested(async () => {
-  await unregister('CmdOrControl+Shift+Space');
-});
 
 /*
  █████  █████ █████    ██████████              █████             

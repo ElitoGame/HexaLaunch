@@ -3,20 +3,13 @@
     windows_subsystem = "windows"
 )]
 
-use std::{
-    env,
-    io::Error,
-    path::{self, PathBuf},
-};
+use std::{env, io::Error};
 
 use parselnk::Lnk;
 use path_clean::PathClean;
 use pelite::{FileMap, PeFile};
 use rdev::{listen, Event};
-use std::io::prelude::*;
-use tauri::{
-    AppHandle, CustomMenuItem, Icon, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu,
-};
+use tauri::{AppHandle, CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
 use tauri_plugin_autostart::MacosLauncher;
 use walkdir::WalkDir;
 use windows::{
@@ -27,7 +20,7 @@ use windows::{
         GlobalSystemMediaTransportControlsSessionPlaybackStatus,
     },
     Storage::Streams::{Buffer, IBuffer},
-    Win32::{System::WinRT::IBufferByteAccess, UI::Shell::ExtractAssociatedIconA},
+    Win32::System::WinRT::IBufferByteAccess,
 };
 
 fn main() {
@@ -151,7 +144,10 @@ fn main() {
             toggle_media,
             prev_media,
             next_media,
-            get_current_media
+            get_current_media,
+            is_changing_hotkey,
+            set_changing_hotkey,
+            print_debug
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -297,7 +293,7 @@ fn query_current_media_emitter(
 // PUBLIC: C:\Users\Public - PUBLIC
 // HOMEPATH: \Users\ElitoGame - HOMEPATH
 
-fn query_apps() {}
+// fn query_apps() {}
 
 fn query_relevant_apps() {
     // search for apps in the start menu
@@ -311,9 +307,9 @@ fn query_relevant_apps() {
     query_lnk_dir(std::env::var("PUBLIC").unwrap() + "\\Desktop\\");
 }
 
-fn query_current_apps() {}
+// fn query_current_apps() {}
 
-fn query_other_apps() {}
+// fn query_other_apps() {}
 
 fn query_lnk_dir(dir: String) {
     for entry in WalkDir::new(dir)
@@ -337,13 +333,13 @@ fn query_lnk_dir(dir: String) {
                     if absolute_path.to_string_lossy().ends_with(".exe") {
                         let icon = query_app_icon(absolute_path.to_string_lossy().to_string());
                         if icon.len() > 0 {
-                            println!(
-                                "{}: {:?} from {}, icon: {}kb",
-                                f_name.replace(".lnk", ""),
-                                absolute_path,
-                                f_name.replace(".lnk", ""),
-                                (icon.len() / 1000)
-                            );
+                            // println!(
+                            //     "{}: {:?} from {}, icon: {}kb",
+                            //     f_name.replace(".lnk", ""),
+                            //     absolute_path,
+                            //     f_name.replace(".lnk", ""),
+                            //     (icon.len() / 1000)
+                            // );
                         }
                     }
 
@@ -389,4 +385,34 @@ fn query_app_icon(path: String) -> String {
         return data;
     }
     return "".to_string();
+}
+
+/*
+ █████   ███   █████  ███                 █████                               █████████
+░░███   ░███  ░░███  ░░░                 ░░███                               ███░░░░░███
+ ░███   ░███   ░███  ████  ████████    ███████   ██████  █████ ███ █████    ███     ░░░   ██████  █████████████
+ ░███   ░███   ░███ ░░███ ░░███░░███  ███░░███  ███░░███░░███ ░███░░███    ░███          ███░░███░░███░░███░░███
+ ░░███  █████  ███   ░███  ░███ ░███ ░███ ░███ ░███ ░███ ░███ ░███ ░███    ░███         ░███ ░███ ░███ ░███ ░███
+  ░░░█████░█████░    ░███  ░███ ░███ ░███ ░███ ░███ ░███ ░░███████████     ░░███     ███░███ ░███ ░███ ░███ ░███
+    ░░███ ░░███      █████ ████ █████░░████████░░██████   ░░████░████       ░░█████████ ░░██████  █████░███ █████
+     ░░░   ░░░      ░░░░░ ░░░░ ░░░░░  ░░░░░░░░  ░░░░░░     ░░░░ ░░░░         ░░░░░░░░░   ░░░░░░  ░░░░░ ░░░ ░░░░░
+*/
+// global variables
+static mut IS_CHANGING_HOTKEY: bool = false;
+
+#[tauri::command]
+fn is_changing_hotkey() -> bool {
+    unsafe { return IS_CHANGING_HOTKEY }
+}
+
+#[tauri::command]
+fn set_changing_hotkey(changing: bool) {
+    unsafe {
+        IS_CHANGING_HOTKEY = changing;
+    }
+}
+
+#[tauri::command]
+fn print_debug() {
+    println!("debug!");
 }
