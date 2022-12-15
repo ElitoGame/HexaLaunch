@@ -3,12 +3,22 @@
     windows_subsystem = "windows"
 )]
 
-use std::io::Error;
+use std::{
+    env,
+    io::Error,
+    path::{self, PathBuf},
+};
 
-// use lnk_parser::LNKParser;
+use parselnk::Lnk;
+use path_clean::PathClean;
+use pelite::{FileMap, PeFile};
 use rdev::{listen, Event};
-use tauri::{AppHandle, CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
+use std::io::prelude::*;
+use tauri::{
+    AppHandle, CustomMenuItem, Icon, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu,
+};
 use tauri_plugin_autostart::MacosLauncher;
+use walkdir::WalkDir;
 use windows::{
     core::{InParam, Interface},
     Media::Control::{
@@ -17,7 +27,7 @@ use windows::{
         GlobalSystemMediaTransportControlsSessionPlaybackStatus,
     },
     Storage::Streams::{Buffer, IBuffer},
-    Win32::System::WinRT::IBufferByteAccess,
+    Win32::{System::WinRT::IBufferByteAccess, UI::Shell::ExtractAssociatedIconA},
 };
 
 fn main() {
@@ -27,6 +37,13 @@ fn main() {
     let system_tray = SystemTray::new().with_menu(tray_menu);
     tauri::Builder::default()
         .setup(|app| {
+            // for (n, v) in env::vars() {
+            //     println!("{}: {}", n, v);
+            // }
+            query_relevant_apps();
+            query_app_icon(
+                "C:\\Program Files (x86)\\Minecraft Launcher\\Minecraftlauncher.exe".to_string(),
+            );
             {
                 let handle = app.handle().clone();
                 std::thread::spawn(move || {
@@ -140,6 +157,17 @@ fn main() {
         .expect("error while running tauri application");
 }
 
+/*
+ ██████   ██████              █████  ███                 █████████                       █████                       ████
+░░██████ ██████              ░░███  ░░░                 ███░░░░░███                     ░░███                       ░░███
+ ░███░█████░███   ██████   ███████  ████   ██████      ███     ░░░   ██████  ████████   ███████   ████████   ██████  ░███
+ ░███░░███ ░███  ███░░███ ███░░███ ░░███  ░░░░░███    ░███          ███░░███░░███░░███ ░░░███░   ░░███░░███ ███░░███ ░███
+ ░███ ░░░  ░███ ░███████ ░███ ░███  ░███   ███████    ░███         ░███ ░███ ░███ ░███   ░███     ░███ ░░░ ░███ ░███ ░███
+ ░███      ░███ ░███░░░  ░███ ░███  ░███  ███░░███    ░░███     ███░███ ░███ ░███ ░███   ░███ ███ ░███     ░███ ░███ ░███
+ █████     █████░░██████ ░░████████ █████░░████████    ░░█████████ ░░██████  ████ █████  ░░█████  █████    ░░██████  █████
+░░░░░     ░░░░░  ░░░░░░   ░░░░░░░░ ░░░░░  ░░░░░░░░      ░░░░░░░░░   ░░░░░░  ░░░░ ░░░░░    ░░░░░  ░░░░░      ░░░░░░  ░░░░░
+*/
+
 #[tauri::command]
 // This function returns a Result<(), Box<dyn Error>> to indicate that it may return an error.
 async fn toggle_media() {
@@ -206,6 +234,14 @@ fn query_current_media(
     let is_playing = session.GetPlaybackInfo().unwrap().PlaybackStatus().unwrap()
         == GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing;
 
+    if media.Thumbnail().is_err() {
+        return (
+            title.to_string(),
+            artist.to_string(),
+            "None".to_string(),
+            is_playing,
+        );
+    }
     let thumbnail_raw = media.Thumbnail().unwrap();
     let ras = thumbnail_raw.OpenReadAsync().unwrap().get().unwrap();
     // Create a buffer from the size of the IRandomAccessStream
@@ -239,4 +275,118 @@ fn query_current_media_emitter(
     session: &GlobalSystemMediaTransportControlsSession,
 ) {
     let _res = handle.emit_all("mediaChanged", query_current_media(session));
+}
+
+/*
+   █████████                          ██████████              █████
+  ███░░░░░███                        ░░███░░░░███            ░░███
+ ░███    ░███  ████████  ████████     ░███   ░░███  ██████   ███████    ██████
+ ░███████████ ░░███░░███░░███░░███    ░███    ░███ ░░░░░███ ░░░███░    ░░░░░███
+ ░███░░░░░███  ░███ ░███ ░███ ░███    ░███    ░███  ███████   ░███      ███████
+ ░███    ░███  ░███ ░███ ░███ ░███    ░███    ███  ███░░███   ░███ ███ ███░░███
+ █████   █████ ░███████  ░███████     ██████████  ░░████████  ░░█████ ░░████████
+░░░░░   ░░░░░  ░███░░░   ░███░░░     ░░░░░░░░░░    ░░░░░░░░    ░░░░░   ░░░░░░░░
+               ░███      ░███
+               █████     █████
+              ░░░░░     ░░░░░
+*/
+// APPDATA: C:\Users\ElitoGame\AppData\Roaming - APPDATA
+// ProgramData: C:\ProgramData - ALLUSERSPROFILE
+// ProgramFiles: C:\Program Files - ProgramFiles
+// ProgramFiles(x86): C:\Program Files (x86) - ProgramFiles(x86)
+// PUBLIC: C:\Users\Public - PUBLIC
+// HOMEPATH: \Users\ElitoGame - HOMEPATH
+
+fn query_apps() {}
+
+fn query_relevant_apps() {
+    // search for apps in the start menu
+    query_lnk_dir(
+        std::env::var("ProgramData").unwrap() + "\\Microsoft\\Windows\\Start Menu\\Programs",
+    );
+    query_lnk_dir(
+        std::env::var("APPDATA").unwrap() + "\\Microsoft\\Windows\\Start Menu\\Programs\\",
+    );
+    query_lnk_dir(std::env::var("HOMEPATH").unwrap() + "\\Desktop\\");
+    query_lnk_dir(std::env::var("PUBLIC").unwrap() + "\\Desktop\\");
+}
+
+fn query_current_apps() {}
+
+fn query_other_apps() {}
+
+fn query_lnk_dir(dir: String) {
+    for entry in WalkDir::new(dir)
+        .follow_links(false)
+        .into_iter()
+        .filter_map(|e| e.ok())
+    {
+        let f_name = entry.file_name().to_string_lossy();
+
+        if f_name.ends_with(".lnk") {
+            let lnk_path = std::path::Path::new(entry.path());
+            let lnk = Lnk::try_from(lnk_path).unwrap();
+            match lnk.relative_path() {
+                Some(path) => {
+                    let absolute_path = if path.is_absolute() {
+                        path.to_path_buf()
+                    } else {
+                        env::current_dir().unwrap().join(path)
+                    }
+                    .clean();
+                    if absolute_path.to_string_lossy().ends_with(".exe") {
+                        let icon = query_app_icon(absolute_path.to_string_lossy().to_string());
+                        if icon.len() > 0 {
+                            println!(
+                                "{}: {:?} from {}, icon: {}kb",
+                                f_name.replace(".lnk", ""),
+                                absolute_path,
+                                f_name.replace(".lnk", ""),
+                                (icon.len() / 1000)
+                            );
+                        }
+                    }
+
+                    // if the absolute path fails or doesn't end with .exe, ignore it.
+                    // Use the absolute path to get the icon if it exists.
+                    // the launcher uses the lnk path and lnk name.
+                }
+                None => {
+                    // println!("lnk: {:?} from {}", "no path", f_name.replace(".lnk", ""))
+                }
+            }
+        }
+    }
+}
+
+fn query_app_icon(path: String) -> String {
+    // extrect I icon from a given path to a base64 string
+    // ExtractAssociatedIconA(hinst, psziconpath, piicon);
+
+    let map_res = FileMap::open(&path);
+    if map_res.is_err() {
+        return "".to_string();
+    }
+    let map = map_res.unwrap();
+    let file_res = PeFile::from_bytes(&map);
+    if file_res.is_err() {
+        return "".to_string();
+    }
+    let file = file_res.unwrap();
+    // let dest = PathBuf::from(path);
+    let resources = file
+        .resources()
+        .expect("Error binary does not have resources");
+    for (_name, group) in resources.icons().filter_map(Result::ok) {
+        // Write the ICO file
+        let mut input = Vec::new();
+        group.write(&mut input).unwrap();
+        // let mut encoder = zstd::Encoder::new(Vec::new(), 3).unwrap();
+        // encoder.write_all(&input).unwrap();
+        // let compressed_output = encoder.finish().unwrap();
+        let data = base64::encode(&input);
+        // println!("{}", data);
+        return data;
+    }
+    return "".to_string();
 }

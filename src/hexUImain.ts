@@ -174,8 +174,17 @@ export async function toggleUI(hide: boolean) {
     );
     monitor = await currentMonitor();
     appWindow.setSize(monitor.size);
+    appWindow.setPosition(monitor.position);
     const position = monitor.position;
-    console.log(monitor);
+    console.log(
+      monitor,
+      await appWindow.outerSize(),
+      window.innerWidth,
+      window.innerHeight,
+      getWindowPosition(),
+      getShowAbsolutePosition(),
+      getCursorPosition()
+    );
     setWindowPosition({ x: position.x, y: position.y });
     setCursorPosition({
       x: getShowAbsolutePosition().x - getWindowPosition().x,
@@ -204,7 +213,6 @@ export async function toggleUI(hide: boolean) {
         getHexMargin()
     );
     setShowPosition({ x, y });
-    appWindow.setFullscreen(true);
     appWindow.setFocus();
 
     setTimeout(() => {
@@ -254,7 +262,7 @@ export const openApp = async (app: string, url: string) => {
   if (app) {
     args.push(`"${app}"`);
     if (url) {
-      args.push('-ArgumentList', `"${url}"`);
+      args.push('-ArgumentList', `"'${url}'"`);
     }
   } else if (url) {
     args.push(`"${url}"`);

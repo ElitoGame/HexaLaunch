@@ -20,6 +20,11 @@ serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2.0", features = ["devtools", "fs-all", "global-shortcut-all", "os-all", "protocol-asset", "shell-all", "system-tray", "window-all"] }
 rdev = "0.5.2"
 base64 = "0.20.0"
+parselnk = "0.1.1"
+path-clean = "0.1.0"
+walkdir = "2.3.2"
+pelite = "0.10.0"
+zstd = "0.12.1+zstd.1.5.2"
 
 [dependencies.tauri-plugin-autostart]
 git = "https://github.com/tauri-apps/tauri-plugin-autostart"
@@ -37,6 +42,7 @@ features = [
     "Foundation",
     "Storage_Streams",
     "Win32_System_WinRT",
+    "Win32_UI_Shell",
 ]
 
 [features]

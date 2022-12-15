@@ -7,7 +7,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "RadialHexUI_Tauri",
+    "productName": "RadialHexUI",
     "version": "0.1.0"
   },
   "tauri": {
