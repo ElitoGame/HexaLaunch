@@ -254,7 +254,7 @@ export const openApp = async (app: string, url: string) => {
   if (app) {
     args.push(`"${app}"`);
     if (url) {
-      args.push('-ArgumentList', `"'${url}'"`);
+      args.push('-ArgumentList', `"${url}"`);
     }
   } else if (url) {
     args.push(`"${url}"`);

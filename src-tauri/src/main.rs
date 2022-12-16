@@ -3,7 +3,8 @@
     windows_subsystem = "windows"
 )]
 
-use std::{env, io::Error};
+use lazy_static::lazy_static;
+use std::{env, io::Error, time::Instant};
 
 use parselnk::Lnk;
 use path_clean::PathClean;
@@ -23,6 +24,9 @@ use windows::{
     Win32::System::WinRT::IBufferByteAccess,
 };
 
+use winreg::enums::*;
+use winreg::RegKey;
+
 fn main() {
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let settings = CustomMenuItem::new("settings".to_string(), "Settings");
@@ -34,9 +38,7 @@ fn main() {
             //     println!("{}: {}", n, v);
             // }
             query_relevant_apps();
-            query_app_icon(
-                "C:\\Program Files (x86)\\Minecraft Launcher\\Minecraftlauncher.exe".to_string(),
-            );
+            query_other_apps();
             {
                 let handle = app.handle().clone();
                 std::thread::spawn(move || {
@@ -104,6 +106,9 @@ fn main() {
             MacosLauncher::LaunchAgent,
             Some(vec![]),
         ))
+        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+            println!("{}, {argv:?}, {cwd}", app.package_info().name);
+        }))
         .system_tray(system_tray)
         .on_system_tray_event(|app, event| match event {
             SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
@@ -296,6 +301,8 @@ fn query_current_media_emitter(
 // fn query_apps() {}
 
 fn query_relevant_apps() {
+    //start a timer
+    let start = Instant::now();
     // search for apps in the start menu
     query_lnk_dir(
         std::env::var("ProgramData").unwrap() + "\\Microsoft\\Windows\\Start Menu\\Programs",
@@ -305,11 +312,31 @@ fn query_relevant_apps() {
     );
     query_lnk_dir(std::env::var("HOMEPATH").unwrap() + "\\Desktop\\");
     query_lnk_dir(std::env::var("PUBLIC").unwrap() + "\\Desktop\\");
+
+    // query for apps in the registry
+    query_registry_key("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall");
+    query_registry_key("Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall");
+
+    // end the timer
+    let duration = start.elapsed();
+    println!("Time elapsed in query_relevant_apps() is: {:?}", duration);
 }
 
 // fn query_current_apps() {}
 
-// fn query_other_apps() {}
+fn query_other_apps() {
+    let start = Instant::now();
+    query_folder(std::env::var("ProgramFiles").unwrap().as_str());
+    query_folder(std::env::var("ProgramFiles(x86)").unwrap().as_str());
+    let duration = start.elapsed();
+    println!("Time elapsed in query_other_apps() is: {:?}", duration);
+}
+
+/*
+____ _  _ ____ ____ _   _    _  _ ____ _    ___  ____ ____ ____
+|  | |  | |___ |__/  \_/     |__| |___ |    |__] |___ |__/ [__
+|_\| |__| |___ |  \   |      |  | |___ |___ |    |___ |  \ ___]
+*/
 
 fn query_lnk_dir(dir: String) {
     for entry in WalkDir::new(dir)
@@ -355,6 +382,92 @@ fn query_lnk_dir(dir: String) {
     }
 }
 
+fn query_registry_key(key: &str) {
+    let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+    let uninstall_registry = hklm.open_subkey_with_flags(key, KEY_READ).unwrap();
+    for subkey_name in uninstall_registry.enum_keys().map(|x| x.unwrap()) {
+        // Open each subkey
+        let subkey = uninstall_registry.open_subkey(&subkey_name).unwrap();
+
+        // Get the display name of the installed program
+        let display_name: String = subkey
+            .get_value("DisplayName")
+            .unwrap_or_else(|_| "".to_string());
+        if display_name == "" {
+            continue;
+        }
+        let mut display_icon: String = subkey
+            .get_value("DisplayIcon")
+            .unwrap_or_else(|_| "".to_string());
+        if display_icon == "" {
+            continue;
+        }
+        if display_icon.ends_with(",0") {
+            display_icon = display_icon.replace(",0", "");
+        }
+        if !display_icon.to_lowercase().ends_with(".exe") {
+            continue;
+        }
+        if display_icon.contains("ProgramData\\Package Cache") {
+            continue;
+        }
+
+        // println!("{}: {}", display_name, display_icon);
+    }
+}
+
+fn query_folder(path: &str) {
+    let mut apps: Vec<String> = Vec::new();
+    for entry in WalkDir::new(path)
+        .follow_links(false)
+        .into_iter()
+        .filter_map(|e| e.ok())
+    {
+        let f_name = entry.file_name().to_string_lossy();
+        let f_path = entry.path().to_string_lossy();
+        if f_name.ends_with(".exe") && is_valid(f_path.to_string()) {
+            apps.push(entry.path().to_string_lossy().to_string());
+        }
+    }
+    println!("apps in {}: \n{}", path, apps.len());
+
+    // get all folder paths in a given path without recursing
+    // let mut folders: Vec<String> = Vec::new();
+    // for entry in WalkDir::new(path)
+    //     .min_depth(1)
+    //     .max_depth(1)
+    //     .follow_links(false)
+    //     .into_iter()
+    //     .filter_map(|e| e.ok())
+    // {
+    //     if entry.file_type().is_dir() {
+    //         folders.push(entry.path().to_string_lossy().to_string());
+    //     }
+    // }
+
+    // println!("folders {}: \n{}", path, folders.join(",\n"));
+
+    // let futures: Vec<_> = folders
+    //     .into_iter()
+    //     .map(|folder| async move {
+    //         let mut apps: Vec<String> = Vec::new();
+    //         for entry in WalkDir::new(folder)
+    //             .follow_links(false)
+    //             .into_iter()
+    //             .filter_map(|e| e.ok())
+    //         {
+    //             let f_name = entry.file_name().to_string_lossy();
+    //             apps.push(f_name.to_string());
+    //         }
+    //         return apps;
+    //     })
+    //     .collect();
+
+    // let results: Vec<_> = block_on(join_all(futures));
+    // println!("{:?}", results.len());
+    // join all the threads
+}
+
 fn query_app_icon(path: String) -> String {
     // extrect I icon from a given path to a base64 string
     // ExtractAssociatedIconA(hinst, psziconpath, piicon);
@@ -385,6 +498,35 @@ fn query_app_icon(path: String) -> String {
         return data;
     }
     return "".to_string();
+}
+
+lazy_static! {
+    static ref PATTERNS: Vec<String> = vec![
+        "install".to_string(),
+        "setup".to_string(),
+        "unins".to_string(),
+        "remove".to_string(),
+        "update".to_string(),
+        "reapair".to_string(),
+        "upgrade".to_string(),
+        "patch".to_string(),
+        "helper".to_string(),
+        "verif".to_string(),
+        "crash".to_string(),
+        "bug".to_string(),
+    ];
+}
+fn is_valid(path: String) -> bool {
+    // short for vec of strings to hold patterns to match
+
+    let mut is_valid = true;
+    for pattern in PATTERNS.iter() {
+        if path.to_lowercase().contains(pattern) {
+            is_valid = false;
+            break;
+        }
+    }
+    return is_valid;
 }
 
 /*
