@@ -260,7 +260,11 @@ export const openApp = async (app: string, url: string) => {
     args.push(`"${url}"`);
   }
 
-  const command = new Command('open', ['-Command', 'Start', ...args]);
+  const command = new Command('open', [
+    '-Command',
+    app.includes('--processStart') ? '' : 'Start',
+    ...args,
+  ]);
   command.on('close', (data) => {
     toggleUI(true);
     console.log(`command finished with code ${data.code} and signal ${data.signal}`);

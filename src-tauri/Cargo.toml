@@ -46,6 +46,7 @@ features = [
     "Storage_Streams",
     "Win32_System_WinRT",
     "Win32_UI_Shell",
+    "Win32_Storage_FileSystem",
 ]
 
 [features]
