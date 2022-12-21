@@ -12,8 +12,9 @@
   box-sizing: border-box;
 }
 
-.body {
-  background-color: #343434;
+body {
+  background-color: transparent;
+  backdrop-filter: blur(30px);
 }
 
 html,

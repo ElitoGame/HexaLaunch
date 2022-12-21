@@ -194,7 +194,9 @@
         "url": "settings.html",
         "visible": false,
         "theme": "Dark",
-        "fileDropEnabled": true
+        "transparent": true,
+        "fileDropEnabled": true,
+        "decorations": false
       }
     ],
     "systemTray": {

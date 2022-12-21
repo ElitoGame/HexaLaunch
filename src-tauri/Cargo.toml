@@ -28,6 +28,7 @@ pelite = "0.10.0"
 winreg = "0.10.1"
 futures = "0.3.25"
 lazy_static = "1.4.0"
+window-vibrancy = "0.3.2"
 # image = "0.24.5"
 
 [dependencies.tauri-plugin-autostart]

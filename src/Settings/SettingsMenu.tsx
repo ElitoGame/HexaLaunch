@@ -1,7 +1,18 @@
 import { getNewTheme } from '../settings';
-import { Grid, GridItem, Divider, Tabs, TabList, Tab, TabPanel, VStack } from '@hope-ui/solid';
+import {
+  Grid,
+  GridItem,
+  Divider,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanel,
+  VStack,
+  Center,
+  HStack,
+} from '@hope-ui/solid';
 
-import { For, Show } from 'solid-js';
+import { createResource, createSignal, For, Show } from 'solid-js';
 
 //import '../../assets/index.css';
 import HexTile from '../HexUI/Components/HexTile';
@@ -12,6 +23,9 @@ import { AppearanceTab } from './appearanceTab';
 import { LayoutTab } from './layoutTab';
 import { PreferencesTab } from './preferencesTab';
 import { setCurrentTab, getCurrentTab } from '../settings';
+import { appWindow } from '@tauri-apps/api/window';
+import { VsChromeMaximize, VsChromeMinimize, VsChromeRestore, VsClose } from 'solid-icons/vs';
+import icon from '../../src-tauri/icons/icon.png';
 
 const HexUIGrid = () => {
   console.log('found hexUIData: ', getHexUiData());
@@ -54,7 +68,13 @@ const HexUIGrid = () => {
             )}
           </For>
 
-          <For each={getHexUiData()?.getTiles() ?? []}>
+          <For
+            each={
+              getHexUiData()
+                ?.getTiles()
+                .filter((x) => x.getRadiant() !== 0) ?? []
+            }
+          >
             {(tile: HexTileData, i) => (
               <Show when={i() !== 0}>
                 <HexTile
@@ -93,7 +113,7 @@ const HexUIGrid = () => {
 const HexUIPreview = () => {
   return (
     <>
-      <div class="relative w-full h-screen">
+      <div class="relative w-full h-full">
         <div
           style={{
             position: 'absolute',
@@ -166,13 +186,53 @@ const HexUIPreview = () => {
   );
 };
 const SettingsMenu = () => {
+  const [isMaximized, setMaximized] = createSignal(false);
+  const [getMaxStatus] = createResource(isMaximized, async () => await appWindow.isMaximized());
+
   // console.log(getHexUiData()?.getCoreTiles());
   const tabStyle =
     'w-100 text-text h-30 focus:bg-accent focus:hover:brightness-125 focus:text-white aria-selected:hover:bg-accent aria-selected:bg-accent aria-selected:text-white hover:bg-accent select:text-gray select:bg-accent';
   return (
     <>
+      <div data-tauri-drag-region class="h-5 w-full absolute z-20">
+        {/* <Center class="absolute top-0 left-0 w-max inline h-full">
+          <img src={icon} alt="RadialHexUI Icon" class="h-full p-0.5 pl-1" />
+        </Center> */}
+        <Center class="absolute top-0 right-0 w-max inline h-full">
+          <button
+            class="text-text h-full px-2 focus:outline-none hover:bg-background"
+            onClick={() => {
+              appWindow.minimize();
+            }}
+          >
+            <VsChromeMinimize />
+          </button>
+
+          <button
+            class="text-text h-full px-2 focus:outline-none hover:bg-background"
+            onClick={() => {
+              appWindow.toggleMaximize();
+            }}
+          >
+            <Show when={getMaxStatus()} fallback={<VsChromeMaximize />}>
+              <VsChromeRestore />
+            </Show>
+          </button>
+
+          <button
+            class="text-text h-full px-2 focus:outline-none hover:bg-red-500"
+            onClick={() => {
+              appWindow.hide();
+            }}
+          >
+            <VsClose />
+          </button>
+        </Center>
+      </div>
       <Grid
-        h="100%"
+        style={{
+          height: 'calc(100%)',
+        }}
         templateColumns="repeat(3, 1fr)"
         onDragOver={(e: DragEvent) => {
           e.preventDefault();
@@ -182,10 +242,10 @@ const SettingsMenu = () => {
           return false;
         }}
       >
-        <GridItem class="bg-background" id="leftPanelWindow">
+        <GridItem class="bg-background rounded-r-md pt-5" id="leftPanelWindow">
           <VStack alignItems="left" spacing="$4">
             <Tabs keepAlive variant="pills" defaultIndex={0}>
-              <TabList borderWidth="1px">
+              <TabList borderWidth="1px" gap="$8">
                 <h1 class="pl-3">Settings</h1>
                 <Tab
                   class={tabStyle}
@@ -243,7 +303,7 @@ const SettingsMenu = () => {
             </Tabs>
           </VStack>
         </GridItem>
-        <GridItem rowSpan={1} colSpan={2} bg="#EAEAEA" h="100%">
+        <GridItem rowSpan={1} colSpan={2} h="100%">
           <Show when={getCurrentTab() == 'Layout'}>
             <HexUIGrid></HexUIGrid>
           </Show>

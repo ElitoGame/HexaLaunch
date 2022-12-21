@@ -34,6 +34,8 @@ use windows::{
 use winreg::enums::*;
 use winreg::RegKey;
 
+use window_vibrancy::apply_blur;
+
 fn main() {
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let settings = CustomMenuItem::new("settings".to_string(), "Settings");
@@ -41,6 +43,9 @@ fn main() {
     let system_tray = SystemTray::new().with_menu(tray_menu);
     tauri::Builder::default()
         .setup(|app| {
+            
+            #[cfg(target_os = "windows")]
+            apply_blur(&app.get_window("settings").unwrap(), Some((8, 8, 8, 125))).expect("Unsupported platform! 'apply_blur' is only supported on Windows");
             // for (n, v) in env::vars() {
             //     println!("{}: {}", n, v);
             // }
