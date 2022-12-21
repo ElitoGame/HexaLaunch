@@ -17,6 +17,7 @@ import {
   setCurrentRadiant,
 } from './main';
 import { BsSearch } from 'solid-icons/bs';
+import { externalAppManager } from './externalAppManager';
 const HexUI = () => {
   let searchBar: HTMLInputElement | undefined;
   const [getPage, setPage] = createSignal<number>(0);
@@ -172,6 +173,7 @@ const HexUI = () => {
                   }
                 }}
                 action={tile.getAction()}
+                icon={tile.getApp()}
                 title={
                   tile
                     .getApp()
@@ -204,7 +206,7 @@ const HexUI = () => {
                   }
                 }}
                 action={tile.getAction()}
-                icon={tile.getIcon()}
+                icon={tile.getApp()}
                 title={
                   tile
                     .getApp()

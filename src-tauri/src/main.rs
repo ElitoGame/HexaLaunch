@@ -387,11 +387,7 @@ fn query_relevant_apps(handle: AppHandle) {
     }
 
     // get the icons for the apps if they don't have one yet
-    for app in &mut apps {
-        if app.icon == "" {
-            app.icon = query_app_icon(app.executable.clone());
-        }
-    }
+    apps = query_app_icons(apps);
 
     // filter out the apps that don't have an icon
     apps.retain(|app| app.icon != "");
@@ -488,6 +484,7 @@ async fn query_other_apps(handle: AppHandle) {
     let mut apps: Vec<App> = Vec::new();
     apps.append(&mut query_folder(std::env::var("ProgramFiles").unwrap().as_str()).await);
     apps.append(&mut query_folder(std::env::var("ProgramFiles(x86)").unwrap().as_str()).await);
+    apps = query_app_icons(apps);
     let duration = start.elapsed();
     println!(
         "Time elapsed in query_other_apps() is: {:?} for {} apps",
@@ -541,11 +538,11 @@ fn query_lnk_dir(dir: String) -> Vec<App> {
                             .replace(r"\\?\", "");
 
                         // get the icon from the link
-                        let icon = query_app_icon(lnk_path.to_str().unwrap().to_string());
+                        // let icon = query_app_icon(lnk_path.to_str().unwrap().to_string());
                         apps.push(App {
                             name: f_name.replace(".lnk", "").to_string(),
                             executable: absoluter_path,
-                            icon,
+                            icon: "".to_string(),
                         });
                     }
 
@@ -623,46 +620,14 @@ async fn query_folder(path: &str) -> Vec<App> {
             && !f_path.contains("steamapps")
         {
             apps.push(App {
-                name: f_name.replace(".exe", "").to_string(), //TODO get the name from the exe's properties
+                name: query_app_name(f_path.to_string()),//f_name.replace(".exe", "").to_string(), //TODO get the name from the exe's properties
                 executable: entry.path().to_string_lossy().to_string(),
                 icon: String::from(""),
             });
         }
     }
-    // split the apps into chunks of 100
-    let chunks: Vec<Vec<App>> = apps.chunks(10).map(|x| x.to_vec()).collect();
-    let mut futures: Vec<_> = Vec::new();
-    // use the std::thread::spawn to spawn a thread for each chunk.
-    for chunk in chunks {
-        let chunk = chunk.clone();
-        futures.push(std::thread::spawn(|| {
-            futures::executor::block_on(async {
-                let mut results: Vec<App> = Vec::new();
-                for app in chunk {
-                    let icon = query_app_icon(app.executable.clone());
-                    let mut name = query_app_name(app.executable.clone());
-                    if name == "" {
-                        name = app.name.clone();
-                    }
-                    if icon.len() > 0 {
-                        results.push(App {
-                            name,
-                            executable: app.executable,
-                            icon,
-                        });
-                    }
-                }
-                return results;
-            })
-        }));
-    }
-    let mut results: Vec<App> = Vec::new();
-    for future in futures {
-        let result = future.join().unwrap();
-        results.extend(result);
-    }
 
-    return results;
+    return apps;
 }
 
 fn query_epic_games() -> Vec<App> {
@@ -775,42 +740,207 @@ fn query_steam_games() -> Vec<App> {
     return apps;
 }
 
-fn query_app_icon(path: String) -> String {
-    // extrect I icon from a given path to a base64 string
-    // ExtractAssociatedIconA(hinst, psziconpath, piicon);
+// fn query_app_icon(path: String) -> String {
+//     // extrect I icon from a given path to a base64 string
+//     // ExtractAssociatedIconA(hinst, psziconpath, piicon);
 
-    let map_res = FileMap::open(&path);
-    if map_res.is_err() {
-        return "".to_string();
+//     // let map_res = FileMap::open(&path);
+//     // if map_res.is_err() {
+//     //     return "".to_string();
+//     // }
+//     // let map = map_res.unwrap();
+//     // let file_res = PeFile::from_bytes(&map);
+//     // if file_res.is_err() {
+//     //     return "".to_string();
+//     // }
+//     // let file = file_res.unwrap();
+//     // // let dest = PathBuf::from(path);
+//     // let resources = file.resources();
+//     // match resources {
+//     //     Ok(resource) => {
+//     //         for (_name, group) in resource.icons().filter_map(Result::ok) {
+//     //             // Write the ICO file
+//     //             let mut input = Vec::new();
+//     //             group.write(&mut input).unwrap();
+//     //             // decode the ico
+//     //             let img = image::load_from_memory(&input[..]).unwrap();
+//     //             let mut encoder_result = Vec::new();
+//     //             let encoder = ico::IcoEncoder::new(&mut encoder_result);
+//     //             println!("img: {:?}, {:?}", img.width(), img.height());
+//     //             let frame =
+//     //                 IcoFrame::as_png(&input, img.width(), img.height(), image::ColorType::Rgb16)
+//     //                     .unwrap();
+//     //             // let frames = vec![frame];
+//     //             encoder.encode_images(&[frame]).unwrap();
+//     //             // let decoder = ico::IcoDecoder::new().unwrap();
+//     //             // let res =
+//     //             // let res = encoder
+//     //             //     .encode(&input, 32, 32, image::ColorType::Rgb16)
+//     //             //     .unwrap();
+//     //             // img.as_bytes();
+//     //             // let decoder = ico::IcoDecoder::new(img).unwrap();
+
+//     //             // let mut encoder = zstd::Encoder::new(Vec::new(), 3).unwrap();
+//     //             // encoder.write_all(&input).unwrap();
+//     //             // let compressed_output = encoder.finish().unwrap();
+//     //             let data = base64::encode(encoder_result);
+//     //             // println!("{}", data);
+//     //             return data;
+//     //         }
+//     //     }
+//     //     Err(_e) => {
+//     //         return "".to_string();
+//     //     }
+//     // }
+
+//     // let path_wide: Vec<u16> = path.encode_utf16().chain(Some(0)).collect();
+//     // // convert path_wide to a 128bit wide [u16; 128]
+//     // let mut path_wide_128: [u16; 128] = [0; 128];
+//     // let hinst = windows::Win32::Foundation::HINSTANCE { 0: 0 };
+//     // unsafe {
+//     //     let hicon =
+//     //         Win32::UI::Shell::ExtractAssociatedIconExW(hinst, &mut path_wide_128, &mut 0, &mut 0);
+//     //     // convert the hicon
+//     //     let mut bitmap: BITMAP = std::mem::zeroed();
+//     //     let icon_bmp = unsafe {
+//     //         LoadImageW(
+//     //             hinst,
+//     //             PCWSTR::null(),
+//     //             IMAGE_BITMAP,
+//     //             0,
+//     //             0,
+//     //             LR_CREATEDIBSECTION,
+//     //         )
+//     //     };
+//     //     unsafe {
+//     //         GetDIBits(
+//     //             HDC { 0: 0 },
+//     //             HBITMAP { 0: 0 },
+//     //             0,
+//     //             0,
+//     //             ,
+//     //             0,
+//     //             DIB_USAGE,
+//     //         )
+//     //     };
+
+//     //     let pixel_data = unsafe {
+//     //         let data_ptr = bitmap.bmBits as *const u8;
+//     //         std::slice::from_raw_parts(
+//     //             data_ptr,
+//     //             bitmap.bmWidthBytes as usize * bitmap.bmHeight as usize,
+//     //         )
+//     //         .to_vec()
+//     //     };
+//     //     println!("pixel_data: {:?}", pixel_data);
+//     // }
+
+//     return "".to_string();
+// }
+
+fn query_app_icons(apps: Vec<App>) -> Vec<App> {
+    // get the paths of the apps and join them into a string, split by a ", "
+    // split the paths into a vector of paths, split by ", " with a max element length of 25000
+
+    // split the apps into chunks of 100
+    let chunks: Vec<Vec<App>> = apps.chunks(200).map(|x| x.to_vec()).collect();
+    let mut futures: Vec<_> = Vec::new();
+    // use the std::thread::spawn to spawn a thread for each chunk.
+    for chunk in chunks {
+        let chunk = chunk.clone();
+        let paths: String = "'".to_string()
+            + chunk
+                .iter()
+                .map(|x| x.executable.clone())
+                .collect::<Vec<String>>()
+                .join("', '")
+                .replace(r#"\\"#, r#"\"#)
+                .as_str()
+            + "'";
+        futures.push(std::thread::spawn(move || {
+            futures::executor::block_on(async {
+                let mut results: Vec<App> = Vec::new();
+                // println!("paths: {:?}", path_part);
+                let cmd_data = format!(
+                    "[void] [System.Reflection.Assembly]::LoadWithPartialName('System.Drawing');
+                    $result = [System.Collections.Generic.List[PSCustomObject]]::new();
+                    $paths = {};
+                    foreach ($app in $paths) {{
+                        try {{
+                            $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($app);
+                            $memoryStream = New-Object System.IO.MemoryStream;
+                            $icon.ToBitmap().Save($memoryStream, 'Png');
+                            $base64String = [Convert]::ToBase64String($memoryStream.ToArray());
+                            $result.Add([PSCustomObject]@{{executable = $app; icon = $base64String}});
+                        }} catch {{
+                        }}
+                    }}
+                    $result | Select-Object -Property executable, icon | ConvertTo-Json -Compress;",
+                    &paths.clone()
+                );
+
+                let cmd = Command::new("powershell")
+                    .args(&[
+                        cmd_data,
+                    ])
+                    .output()
+                    .unwrap()
+                    .stdout;
+                let data = String::from_utf8(cmd).unwrap().trim().to_string();
+                
+                #[derive(Deserialize, Debug)]
+                struct Icon {
+                    executable: String,
+                    icon: String,
+                }
+                let result = serde_json::from_str(data.as_str());
+                if result.is_err() {
+                    // println!("Received: {}", data);
+                    // println!("error: {:?}", result.err());
+                    return results;
+                }
+                let icons: Vec<Icon> = result.unwrap();
+                for icon in icons {
+                    results.push(App {
+                        name: "".to_string(),
+                        executable: icon.executable,
+                        icon: "data:image/png;base64,".to_string() + icon.icon.as_str(),
+                    });
+                }
+                return results;
+            })
+        }));
     }
-    let map = map_res.unwrap();
-    let file_res = PeFile::from_bytes(&map);
-    if file_res.is_err() {
-        return "".to_string();
+    let mut results: Vec<App> = Vec::new();
+    for future in futures {
+        let result = future.join().unwrap();
+        results.extend(result);
     }
-    let file = file_res.unwrap();
-    // let dest = PathBuf::from(path);
-    let resources = file.resources();
-    match resources {
-        Ok(resource) => {
-            for (_name, group) in resource.icons().filter_map(Result::ok) {
-                // Write the ICO file
-                let mut input = Vec::new();
-                group.write(&mut input).unwrap();
-                // let mut encoder = zstd::Encoder::new(Vec::new(), 3).unwrap();
-                // encoder.write_all(&input).unwrap();
-                // let compressed_output = encoder.finish().unwrap();
-                let data = base64::encode(&input);
-                // println!("{}", data);
-                return data;
+    let mut final_data: Vec<App> = Vec::new();
+    // loop through all "apps" and join the data from the results via the executable path
+    for app in apps {
+        let mut found = false;
+        let app2 = app.clone();
+        for result in results.clone() {
+            if result.executable == app.executable {
+                final_data.push(App {
+                    name: app.name,
+                    executable: app.executable,
+                    icon: result.icon,
+                });
+                found = true;
+                break;
             }
         }
-        Err(_e) => {
-            return "".to_string();
+        if !found {
+            final_data.push(App {
+                name: app2.name,
+                executable: app2.executable,
+                icon: app.icon,
+            });
         }
     }
-
-    return "".to_string();
+    return final_data;
 }
 
 fn query_app_name(path: String) -> String {

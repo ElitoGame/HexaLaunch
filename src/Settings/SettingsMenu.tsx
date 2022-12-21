@@ -47,6 +47,7 @@ const HexUIGrid = () => {
                     ?.split('/')
                     [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
                 }
+                icon={tile.getApp()}
                 action={tile.getAction()}
                 hasAnimation={false}
               ></HexTile>
@@ -56,33 +57,30 @@ const HexUIGrid = () => {
           <For each={getHexUiData()?.getTiles() ?? []}>
             {(tile: HexTileData, i) => (
               <Show when={i() !== 0}>
-                <For each={getHexUiData()?.getRadiantTiles(i())}>
-                  {(tile: HexTileData) => (
-                    <HexTile
-                      zIndex={10}
-                      x={tile.getX()}
-                      y={tile.getY()}
-                      radiant={tile.getRadiant()}
-                      onClick={() => {
-                        console.log(tile);
-                      }}
-                      title={
-                        tile
-                          .getApp()
-                          ?.split('.')[0]
-                          ?.split('/')
-                          [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
-                        tile
-                          .getUrl()
-                          ?.split('.')[0]
-                          ?.split('/')
-                          [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
-                      }
-                      action={tile.getAction()}
-                      hasAnimation={false}
-                    ></HexTile>
-                  )}
-                </For>
+                <HexTile
+                  zIndex={10}
+                  x={tile.getX()}
+                  y={tile.getY()}
+                  radiant={tile.getRadiant()}
+                  onClick={() => {
+                    console.log(tile);
+                  }}
+                  title={
+                    tile
+                      .getApp()
+                      ?.split('.')[0]
+                      ?.split('/')
+                      [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
+                    tile
+                      .getUrl()
+                      ?.split('.')[0]
+                      ?.split('/')
+                      [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
+                  }
+                  icon={tile.getApp()}
+                  action={tile.getAction()}
+                  hasAnimation={false}
+                ></HexTile>
               </Show>
             )}
           </For>
@@ -125,6 +123,7 @@ const HexUIPreview = () => {
                     ?.split('/')
                     [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
                 }
+                icon={tile.getApp()}
                 action={tile.getAction()}
                 hasAnimation={false}
               ></HexTile>
@@ -154,6 +153,7 @@ const HexUIPreview = () => {
                       ?.split('/')
                       [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
                   }
+                  icon={tile.getApp()}
                   action={tile.getAction()}
                   color={'bg-green-400'}
                 ></HexTile>

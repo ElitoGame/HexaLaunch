@@ -94,6 +94,26 @@ export class externalAppManager {
     return this.appDataRelevant.concat(this.appData);
   }
 
+  public static async getIconOfActionExe(executable: string): Promise<string> {
+    console.log('getIconOfActionExe', executable);
+    // check if the executable is in the appData or appDataRelevant array
+    const app = this.appData.find(
+      (x) => x.executable.replace(/\\+/g, '/') === executable.replace(/\\+/g, '/')
+    );
+    if (app !== undefined) {
+      return app.icon;
+    }
+    const appRelevant = this.appDataRelevant.find(
+      (x) => x.executable.replace(/\\+/g, '/') === executable.replace(/\\+/g, '/')
+    );
+    if (appRelevant !== undefined) {
+      return appRelevant.icon;
+    }
+    // if not, query the icon
+    const icon = ''; //queryIconOfExe(executable);
+    return icon;
+  }
+
   /**
    * Query all relevant apps on the system.
    * Relevant apps are apps that are relevant for quick access to the user and were queried from

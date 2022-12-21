@@ -1,8 +1,11 @@
-import { createSignal, Match, mergeProps, Show, Switch } from 'solid-js';
+import { createResource, createSignal, Match, mergeProps, Show, Switch } from 'solid-js';
 import { JSX } from 'solid-js/jsx-runtime';
 import { getCurrentMedia, getHexMargin, getHexSize } from '../../main';
 import { FaSolidPlay, FaSolidForwardStep, FaSolidPause } from 'solid-icons/fa';
 import { invoke } from '@tauri-apps/api';
+import { externalAppManager } from '../../externalAppManager';
+
+const HexIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
 
 const HexTile = (props: {
   x: number;
@@ -34,6 +37,9 @@ const HexTile = (props: {
     },
     props
   );
+
+  const [appIcon, setAppIcon] = createSignal(merged.icon);
+  const [icon] = createResource(appIcon, HexIcon);
 
   const [getHovered, setHovered] = createSignal(false);
 
@@ -78,9 +84,14 @@ const HexTile = (props: {
         left: `${
           merged.x * (getHexSize() + getHexMargin()) -
           (merged.y % 2 === 0 ? 0 : (getHexSize() + getHexMargin()) / 2) -
-          getHexSize() / 2
+          getHexSize() / 2 -
+          (getHexMargin() / 8) * 11.75
         }px`,
-        bottom: `${merged.y * (getHexSize() * 0.86 + getHexMargin()) - (getHexSize() / 13) * 8}px`,
+        bottom: `${
+          merged.y * (getHexSize() * 0.86 + getHexMargin()) -
+          (getHexSize() / 13) * 8 -
+          (getHexMargin() / 8) * 11.75
+        }px`,
         width: `${getHexSize() + getHexMargin()}px`,
         margin: `${getHexMargin()}px`,
         height: `${(getHexSize() + getHexMargin()) * 1.169}px`,
@@ -125,9 +136,19 @@ const HexTile = (props: {
           }
         >
           <Match when={merged.action === 'App'}>
-            <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-              {merged.title}
-            </span>
+            <Show
+              when={icon.loading || icon() === ''}
+              fallback={
+                <img
+                  class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                  src={icon()}
+                ></img>
+              }
+            >
+              <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                {merged.title}
+              </span>
+            </Show>
           </Match>
           <Match when={merged.action === 'MediaPlayer'}>
             <>

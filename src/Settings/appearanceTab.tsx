@@ -16,6 +16,7 @@ import {
   Button,
   createDisclosure,
   HStack,
+  Tooltip,
 } from '@hope-ui/solid';
 import { primaryMonitor } from '@tauri-apps/api/window';
 import { createSignal } from 'solid-js';
@@ -107,41 +108,45 @@ export const AppearanceTab = () => {
           class="flex-coljustify-end"
         >
           <p>Size</p>
-          <input
-            class="slider w-full"
-            style={`color:${getSettingsData()?.getSettingsAccentColor()}`}
-            type="range"
-            id="hexagon-size"
-            name="hexagon-size"
-            min="20"
-            max={Math.floor(getSize() / (9 * 1.169))}
-            value={getSettingsData()?.getHexagonSize()}
-            step="1"
-            onInput={(e: Event) => {
-              const inputElement = e.currentTarget as HTMLInputElement;
-              getSettingsData()!.setHexagonSize(inputElement.value);
-              updateSettingData();
-            }}
-          />
+          <Tooltip label={getSettingsData()?.getHexagonSize() + 'px'} withArrow placement="top">
+            <input
+              class="slider w-full"
+              style={`color:${getSettingsData()?.getSettingsAccentColor()}`}
+              type="range"
+              id="hexagon-size"
+              name="hexagon-size"
+              min="20"
+              max={Math.floor(getSize() / (9 * 1.169))}
+              value={getSettingsData()?.getHexagonSize()}
+              step="1"
+              onInput={(e: Event) => {
+                const inputElement = e.currentTarget as HTMLInputElement;
+                getSettingsData()!.setHexagonSize(inputElement.value);
+                updateSettingData();
+              }}
+            />
+          </Tooltip>
         </GridItem>
         <GridItem style="align-self: flex;" class="flex-col justify-end">
           <p>Margin</p>
-          <input
-            class="slider w-full"
-            style={`color:${getSettingsData()?.getSettingsAccentColor()}`}
-            type="range"
-            id="hexagon-size"
-            name="hexagon-size"
-            min="0"
-            max="50"
-            value={getSettingsData()?.getHexagonMargin()}
-            onInput={(e: Event) => {
-              const inputElement = e.currentTarget as HTMLInputElement;
-              getSettingsData()?.setHexagonMargin(inputElement.value);
-              updateSettingData();
-            }}
-            step="1"
-          />
+          <Tooltip label={getSettingsData()?.getHexagonMargin() + 'px'} withArrow placement="top">
+            <input
+              class="slider w-full"
+              style={`color:${getSettingsData()?.getSettingsAccentColor()}`}
+              type="range"
+              id="hexagon-size"
+              name="hexagon-size"
+              min="0"
+              max="50"
+              value={getSettingsData()?.getHexagonMargin()}
+              onInput={(e: Event) => {
+                const inputElement = e.currentTarget as HTMLInputElement;
+                getSettingsData()?.setHexagonMargin(inputElement.value);
+                updateSettingData();
+              }}
+              step="1"
+            />
+          </Tooltip>
         </GridItem>
       </Grid>
 
