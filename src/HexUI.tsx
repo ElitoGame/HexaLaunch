@@ -15,15 +15,96 @@ import {
   getCurrentRadiant,
   isHexUiVisible,
   setCurrentRadiant,
+  isKeyBoardNavigationEnabled,
+  selectedHexTile,
+  setSelectedHexTile,
 } from './main';
 import { BsSearch } from 'solid-icons/bs';
 import { externalAppManager } from './externalAppManager';
+import HexUiData from './DataModel/HexUiData';
 const HexUI = () => {
   let searchBar: HTMLInputElement | undefined;
   const [getPage, setPage] = createSignal<number>(0);
 
+  let changeTile = (x: number, y: number) => {
+    // no tile is selected
+    if (selectedHexTile().x === -99 || selectedHexTile().y === -99) {
+      if (getCurrentRadiant() === -1) {
+        setCurrentRadiant(0);
+      }
+      // set the current core tile to the first tile
+      setSelectedHexTile({
+        x: getHexUiData().getCoreTiles()[getCurrentRadiant()]?.getX() ?? 1,
+        y: getHexUiData().getCoreTiles()[getCurrentRadiant()]?.getY() ?? 0,
+      });
+    } else {
+      let currentTile = getHexUiData()
+        .getTiles()
+        .find((t) => t.getX() === selectedHexTile().x && t.getY() === selectedHexTile().y);
+      let newX = selectedHexTile().x + x;
+      let newY = selectedHexTile().y + y;
+      let newTile = getHexUiData()
+        .getTiles()
+        .find((t) => t.getX() === newX && t.getY() === newY);
+      // check if the new tile is valid
+      if (!newTile) {
+        let testX = newX - 1;
+        let testTile = getHexUiData()
+          .getTiles()
+          .find((t) => t.getX() === newX && t.getY() === newY);
+        if (
+          currentTile?.getRadiant() === testTile?.getRadiant() ||
+          currentTile?.getRadiant() === 0
+        ) {
+          newX = testX;
+          newTile = testTile;
+        }
+      }
+      if (!newTile) {
+        if (
+          currentTile?.getRadiant() === newTile?.getRadiant() ||
+          currentTile?.getRadiant() === 0
+        ) {
+          let testX = newX + 2;
+          let testTile = getHexUiData()
+            .getTiles()
+            .find((t) => t.getX() === newX && t.getY() === newY);
+          if (currentTile?.getRadiant() === testTile?.getRadiant()) {
+            newX = testX;
+            newTile = testTile;
+          }
+        }
+      }
+      if (newTile) {
+        if (newTile.getRadiant() === 0) {
+          // get the index of the current core tile
+          let index = getHexUiData()
+            .getCoreTiles()
+            .findIndex((t) => t.getX() === newX && t.getY() === newY);
+          if (index !== -1 && index !== getCurrentRadiant()) {
+            setCurrentRadiant(index + 1);
+          }
+        } else if (newTile.getRadiant() !== getCurrentRadiant()) {
+          setCurrentRadiant(newTile.getRadiant());
+        }
+        setSelectedHexTile({ x: newX, y: newY });
+      }
+    }
+    console.log(selectedHexTile());
+  };
+
   window.addEventListener('keydown', (e) => {
-    if (!isSearchVisible() && e.key !== ' ' && e.key.length === 1) {
+    if (e.key === 'Escape') {
+      setIsSearchVisible(false);
+    }
+    // open the search bar only if the input is one character long and not a space.
+    // if the keyboard navigation is enabled, then only open the search bar if the input is not a number.
+    if (
+      !isSearchVisible() &&
+      e.key !== ' ' &&
+      e.key.length === 1 &&
+      ((isKeyBoardNavigationEnabled() && !e.key.match(/^[0-9]$/)) || !isKeyBoardNavigationEnabled())
+    ) {
       setIsSearchVisible(true);
       setCurrentRadiant(-1);
       if (searchBar) {
@@ -37,6 +118,30 @@ const HexUI = () => {
           }
           console.log('search bar is visible', searchBar);
         }, 100);
+      }
+    }
+    if (isKeyBoardNavigationEnabled()) {
+      if (e.key.match(/^[1-6]$/)) {
+        setCurrentRadiant(parseInt(e.key));
+      } else if (e.key.match(/^[0,7-9]$/)) {
+        setCurrentRadiant(-1);
+      } else if (e.key === 'ArrowUp') {
+        changeTile(0, 1);
+      } else if (e.key === 'ArrowDown') {
+        changeTile(0, -1);
+      } else if (e.key === 'ArrowLeft') {
+        changeTile(-1, 0);
+      } else if (e.key === 'ArrowRight') {
+        changeTile(1, 0);
+      } else if (e.key === 'Enter') {
+        let tile = getHexUiData()
+          ?.getTiles()
+          .find((t) => t.getX() === selectedHexTile().x && t.getY() === selectedHexTile().y);
+        if (tile.getAction() === 'App') {
+          openApp(tile.getApp(), tile.getUrl());
+        } else if (tile.getAction() === 'PaperBin') {
+          runAction('PaperBin');
+        }
       }
     }
   });

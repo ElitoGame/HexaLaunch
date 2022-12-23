@@ -1,6 +1,12 @@
 import { createResource, createSignal, Match, mergeProps, Show, Switch } from 'solid-js';
 import { JSX } from 'solid-js/jsx-runtime';
-import { getCurrentMedia, getHexMargin, getHexSize } from '../../main';
+import {
+  getCurrentMedia,
+  getHexMargin,
+  getHexSize,
+  isFullLayout,
+  selectedHexTile,
+} from '../../main';
 import { FaSolidPlay, FaSolidForwardStep, FaSolidPause } from 'solid-icons/fa';
 import { invoke } from '@tauri-apps/api';
 import { externalAppManager } from '../../externalAppManager';
@@ -78,138 +84,145 @@ const HexTile = (props: {
   }
 
   return (
-    <div
-      class={`hexTile absolute bg-transparent cursor-pointer inline-block transition-transform`}
-      style={{
-        left: `${
-          merged.x * (getHexSize() + getHexMargin()) -
-          (merged.y % 2 === 0 ? 0 : (getHexSize() + getHexMargin()) / 2) -
-          getHexSize() / 2 -
-          (getHexMargin() / 8) * 11.75
-        }px`,
-        bottom: `${
-          merged.y * (getHexSize() * 0.86 + getHexMargin()) -
-          (getHexSize() / 13) * 8 -
-          (getHexMargin() / 8) * 11.75
-        }px`,
-        width: `${getHexSize() + getHexMargin()}px`,
-        margin: `${getHexMargin()}px`,
-        height: `${(getHexSize() + getHexMargin()) * 1.169}px`,
-        'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
-        'z-index': merged.zIndex ?? 0,
-        'transform-origin': 'center',
-        transform: `scale(${getScale() / 100})`,
-        'transition-duration': `${delay * 0.075}s`,
-      }}
-    >
+    <Show when={(!isFullLayout() && merged.action !== 'Unset') || isFullLayout()}>
       <div
-        class={
-          'absolute ' +
-          merged.color +
-          ` cursor-pointer inline-block ${
-            merged.hasHoverEffect ? 'hover:scale-97 transition-transform hover:brightness-95' : ''
-          }`
-        }
+        class={`hexTile absolute bg-transparent cursor-pointer inline-block transition-transform`}
         style={{
-          left: `${(getHexMargin() / 2) * -1}px`,
-          bottom: `${(getHexMargin() / 2) * -1}px`,
-          width: `${getHexSize()}px`,
+          left: `${
+            merged.x * (getHexSize() + getHexMargin()) -
+            (merged.y % 2 === 0 ? 0 : (getHexSize() + getHexMargin()) / 2) -
+            getHexSize() / 2 -
+            (getHexMargin() / 8) * 11.75
+          }px`,
+          bottom: `${
+            merged.y * (getHexSize() * 0.86 + getHexMargin()) -
+            (getHexSize() / 13) * 8 -
+            (getHexMargin() / 8) * 11.75
+          }px`,
+          width: `${getHexSize() + getHexMargin()}px`,
           margin: `${getHexMargin()}px`,
-          height: `${getHexSize() * 1.169}px`,
-          'transform-origin': 'center',
+          height: `${(getHexSize() + getHexMargin()) * 1.169}px`,
           'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
-          'z-index': (merged.zIndex ?? 0) + 1,
+          'z-index': merged.zIndex ?? 0,
+          'transform-origin': 'center',
+          transform: `scale(${getScale() / 100})`,
+          'transition-duration': `${delay * 0.075}s`,
         }}
-        onMouseOver={(e) => {
-          setHovered(true);
-        }}
-        onMouseLeave={(e) => {
-          setHovered(false);
-        }}
-        onClick={merged.onClick}
       >
-        <Switch
-          fallback={
-            <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-              {merged.title}
-            </span>
+        <div
+          class={
+            'absolute ' +
+            merged.color +
+            ` cursor-pointer inline-block ${
+              merged.hasHoverEffect ? 'hover:scale-97 transition-transform hover:brightness-95' : ''
+            }` +
+            ` ${
+              selectedHexTile().x === merged.x && selectedHexTile().y === merged.y
+                ? 'bg-red-500'
+                : ''
+            }`
           }
+          style={{
+            left: `${(getHexMargin() / 2) * -1}px`,
+            bottom: `${(getHexMargin() / 2) * -1}px`,
+            width: `${getHexSize()}px`,
+            margin: `${getHexMargin()}px`,
+            height: `${getHexSize() * 1.169}px`,
+            'transform-origin': 'center',
+            'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
+            'z-index': (merged.zIndex ?? 0) + 1,
+          }}
+          onMouseOver={(e) => {
+            setHovered(true);
+          }}
+          onMouseLeave={(e) => {
+            setHovered(false);
+          }}
+          onClick={merged.onClick}
         >
-          <Match when={merged.action === 'App'}>
-            <Show
-              when={icon.loading || icon() === ''}
-              fallback={
-                <img
-                  class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                  src={icon()}
-                ></img>
-              }
-            >
+          <Switch
+            fallback={
               <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 {merged.title}
               </span>
-            </Show>
-          </Match>
-          <Match when={merged.action === 'MediaPlayer'}>
-            <>
-              <span
-                class="absolute"
-                style={{
-                  left: '50%',
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: `${getHexSize() - merged.border}px`,
-                  height: `${(getHexSize() - merged.border) * 1.169}px`,
-                  'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
-                }}
+            }
+          >
+            <Match when={merged.action === 'App'}>
+              <Show
+                when={icon.loading || icon() === ''}
+                fallback={
+                  <img
+                    class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                    src={icon()}
+                  ></img>
+                }
               >
-                <img
-                  src={'data:image/png;base64,' + getCurrentMedia()?.thumbnail}
-                  class={`absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 ${
-                    getHovered() ? 'brightness-50' : ''
-                  }`}
+                <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                  {merged.title}
+                </span>
+              </Show>
+            </Match>
+            <Match when={merged.action === 'MediaPlayer'}>
+              <>
+                <span
+                  class="absolute"
                   style={{
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: `${getHexSize() - merged.border}px`,
                     height: `${(getHexSize() - merged.border) * 1.169}px`,
-                    'min-width': `min-content`,
+                    'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
                   }}
-                />
-                <Show when={getHovered()}>
-                  <span class="controls absolute text-base text-white flex flex-row top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-max gap-1">
-                    <FaSolidForwardStep
-                      class="rotate-180"
-                      onClick={() => {
-                        invoke('prev_media');
-                      }}
-                    />
-                    <Show
-                      when={getCurrentMedia()?.isPlaying}
-                      fallback={
-                        <FaSolidPlay
-                          onClick={() => {
+                >
+                  <img
+                    src={'data:image/png;base64,' + getCurrentMedia()?.thumbnail}
+                    class={`absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 ${
+                      getHovered() ? 'brightness-50' : ''
+                    }`}
+                    style={{
+                      height: `${(getHexSize() - merged.border) * 1.169}px`,
+                      'min-width': `min-content`,
+                    }}
+                  />
+                  <Show when={getHovered()}>
+                    <span class="controls absolute text-base text-white flex flex-row top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-max gap-1">
+                      <FaSolidForwardStep
+                        class="rotate-180"
+                        onClick={() => {
+                          invoke('prev_media');
+                        }}
+                      />
+                      <Show
+                        when={getCurrentMedia()?.isPlaying}
+                        fallback={
+                          <FaSolidPlay
+                            onClick={() => {
+                              invoke('toggle_media');
+                            }}
+                          />
+                        }
+                      >
+                        <FaSolidPause
+                          onClick={async () => {
                             invoke('toggle_media');
                           }}
                         />
-                      }
-                    >
-                      <FaSolidPause
-                        onClick={async () => {
-                          invoke('toggle_media');
+                      </Show>
+                      <FaSolidForwardStep
+                        onClick={() => {
+                          console.log(invoke('next_media'));
                         }}
                       />
-                    </Show>
-                    <FaSolidForwardStep
-                      onClick={() => {
-                        console.log(invoke('next_media'));
-                      }}
-                    />
-                  </span>
-                </Show>
-              </span>
-            </>
-          </Match>
-        </Switch>
+                    </span>
+                  </Show>
+                </span>
+              </>
+            </Match>
+          </Switch>
+        </div>
       </div>
-    </div>
+    </Show>
   );
 };
 

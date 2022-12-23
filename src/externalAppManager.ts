@@ -73,6 +73,15 @@ export class externalAppManager {
           return x.toJSONwithTypes();
         })
       );
+      await insertBatch(
+        this.appDB,
+        this.appDataRelevant.map((x) => {
+          if (!x.icon.startsWith('data:image/png;base64,')) {
+            x.icon = convertFileSrc(x.icon);
+          }
+          return x.toJSONwithTypes();
+        })
+      );
     }
     return this.appDB;
   }

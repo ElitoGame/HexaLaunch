@@ -16,9 +16,13 @@ export const [getHexUiData, setHexUiData] = createSignal<HexUiData>();
 export const [getCurrentRadiant, setCurrentRadiant] = createSignal(-1);
 export const [getHexSize, setHexSize] = createSignal(66); //66
 export const [getHexMargin, setHexMargin] = createSignal(4); //4
+export const [isKeyBoardNavigationEnabled, setKeyBoardNavigationEnabled] = createSignal(true);
+export const [isFullLayout, setFullLayout] = createSignal(true);
+export const [isMoveToCursor, setMoveToCursor] = createSignal(true);
 export const [isSearchVisible, setIsSearchVisible] = createSignal(false);
 export const [isHexUiVisible, setIsHexUiVisible] = createSignal(false);
 export const [getCurrentMedia, setCurrentMedia] = createSignal<MediaObject>();
+export const [selectedHexTile, setSelectedHexTile] = createSignal({ x: -99, y: -99 });
 
 // let lastSwitch = true;
 // setInterval(async () => {
@@ -32,9 +36,9 @@ await listen('updateSettings', (event) => {
     borderWidth: string;
     borderStyle: string;
     borderRadius: string;
-    keyboardNavigation: string;
-    fullLayout: string;
-    moveToCursor: string;
+    keyboardNavigation: boolean;
+    fullLayout: boolean;
+    moveToCursor: boolean;
     hotkeys: string;
     settingsBgColor: string;
     settingsAccentColor: string;
@@ -42,9 +46,11 @@ await listen('updateSettings', (event) => {
     hexagonSize: string;
     hexagonMargin: string;
   };
-  console.log('updateSettings', settings.hexagonMargin, settings.hexagonSize);
   setHexMargin(parseInt(settings.hexagonMargin));
   setHexSize(parseInt(settings.hexagonSize));
+  setKeyBoardNavigationEnabled(settings.keyboardNavigation);
+  setFullLayout(settings.fullLayout);
+  setMoveToCursor(settings.moveToCursor);
 });
 
 // value =  // for some reason, the type is not recognized, so I am doing some casting magic and it works - wooooow

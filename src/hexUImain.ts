@@ -4,11 +4,13 @@ import { currentMonitor, getAll, LogicalPosition } from '@tauri-apps/api/window'
 import { createEffect, createSignal } from 'solid-js';
 import { UserSettings } from './datastore';
 import {
+  getCurrentRadiant,
   getCursorPosition,
   getHexMargin,
   getHexSize,
   getShowPosition,
   isHexUiVisible,
+  isMoveToCursor,
   isSearchVisible,
   setCurrentRadiant,
   setCursorPosition,
@@ -16,6 +18,7 @@ import {
   setHexSize,
   setIsHexUiVisible,
   setIsSearchVisible,
+  setSelectedHexTile,
   setShowPosition,
 } from './main';
 import SettingsData from './Settings/SettingsData';
@@ -145,19 +148,28 @@ await listen('toggleUI', async (event) => {
   // invoke('print_debug');
 });
 
+let hider: NodeJS.Timeout | null = null;
+let shower: NodeJS.Timeout | null = null;
+
 export async function toggleUI(hide: boolean) {
   const body = document.querySelector('body') as HTMLElement;
   // if (await invoke('is_changing_hotkey')) return;
   if (hide) {
     console.log('hiding');
-    appWindow.hide();
     body.classList.add('hidden');
     setIsHexUiVisible(false);
     setIsSearchVisible(false);
     setCurrentRadiant(-1);
+    clearTimeout(shower);
+    clearTimeout(hider);
+    hider = setTimeout(() => {
+      appWindow.hide();
+    }, 100);
   } else {
     console.log('showing');
-    setTimeout(() => {
+    clearTimeout(shower);
+    clearTimeout(hider);
+    shower = setTimeout(() => {
       appWindow.show();
       appWindow.setFocus();
     }, 100);
@@ -187,6 +199,11 @@ export async function toggleUI(hide: boolean) {
       y: getShowAbsolutePosition().y - getWindowPosition().y,
     });
     let { x, y } = getCursorPosition();
+    if (!isMoveToCursor()) {
+      let size = monitor.size;
+      x = size.width / 2;
+      y = size.height / 2;
+    }
     // modify the x and y values so they won't cause the hex grid to be cut off
     x = Math.min(
       Math.max(x, 0 + getHexSize() / 2 + maxTiles * (getHexSize() + getHexMargin())),
@@ -289,3 +306,9 @@ export const runAction = async (action: string, option?: string) => {
   }
   // window.electronAPI.runAction(action, option);
 };
+
+createEffect(() => {
+  if (getCurrentRadiant() === -1) {
+    setSelectedHexTile({ x: -99, y: -99 });
+  }
+});
