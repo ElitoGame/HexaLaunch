@@ -1,0 +1,90 @@
+=C:: C:\Users\ElitoGame\Documents\GitHub\RadialHexUI
+ALLUSERSPROFILE: C:\ProgramData
+AMDRMSDKPATH: C:\Program Files\AMD\RyzenMasterSDK\
+APPDATA: C:\Users\ElitoGame\AppData\Roaming
+ChocolateyInstall: C:\ProgramData\chocolatey
+ChocolateyLastPathUpdate: 132644539987342077
+CHROME_CRASHPAD_PIPE_NAME: \\.\pipe\LOCAL\crashpad_9640_DWQOKJAIGKOZMFTT
+COLOR: 1
+COLORTERM: truecolor
+CommonProgramFiles: C:\Program Files\Common Files
+CommonProgramFiles(x86): C:\Program Files (x86)\Common Files
+CommonProgramW6432: C:\Program Files\Common Files
+COMPUTERNAME: DESKTOP-4CMAOCL
+ComSpec: C:\Windows\system32\cmd.exe
+DriverData: C:\Windows\System32\Drivers\DriverData
+EDITOR: notepad.exe
+FPS_BROWSER_APP_PROFILE_STRING: Internet Explorer
+FPS_BROWSER_USER_PROFILE_STRING: Default
+GIT_ASKPASS: c:\Users\ElitoGame\AppData\Local\Programs\Microsoft VS Code\resources\app\extensions\git\dist\askpass.sh
+HOME: C:\Users\ElitoGame
+HOMEDRIVE: C:
+HOMEPATH: \Users\ElitoGame
+INIT_CWD: C:\Users\ElitoGame\Documents\GitHub\RadialHexUI
+INTEL_DEV_REDIST: C:\Program Files (x86)\Common Files\Intel\Shared Libraries\
+JAVA_HOME: C:\Program Files\Java\jdk-17.0.1
+LANG: en_GB.UTF-8
+LOCALAPPDATA: C:\Users\ElitoGame\AppData\Local
+LOCAL_GIT_DIRECTORY: C:\Users\ElitoGame\AppData\Local\GitHubDesktop\app-3.1.2\resources\app\git
+LOGONSERVER: \\DESKTOP-4CMAOCL
+MACOSX_DEPLOYMENT_TARGET: 10.13
+MIC_LD_LIBRARY_PATH: C:\Program Files (x86)\Common Files\Intel\Shared Libraries\compiler\lib\mic
+NODE: C:\Program Files\nodejs\node.exe
+NODE_EXE: C:\Program Files\nodejs\\node.exe
+NPM_CLI_JS: C:\Program Files\nodejs\\node_modules\npm\bin\npm-cli.js
+npm_command: run-script
+npm_config_cache: C:\Users\ElitoGame\AppData\Local\npm-cache
+npm_config_globalconfig: C:\Users\ElitoGame\AppData\Roaming\npm\etc\npmrc
+npm_config_global_prefix: C:\Users\ElitoGame\AppData\Roaming\npm
+npm_config_init_module: C:\Users\ElitoGame\.npm-init.js
+npm_config_local_prefix: C:\Users\ElitoGame\Documents\GitHub\RadialHexUI
+npm_config_metrics_registry: https://registry.npmjs.org/
+npm_config_msvs_version: 2017
+npm_config_node_gyp: C:\Program Files\nodejs\node_modules\npm\node_modules\node-gyp\bin\node-gyp.js
+npm_config_noproxy:
+npm_config_prefix: C:\Users\ElitoGame\AppData\Roaming\npm
+npm_config_userconfig: C:\Users\ElitoGame\.npmrc
+npm_config_user_agent: npm/8.3.0 node/v17.3.0 win32 x64 workspaces/false
+npm_execpath: C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+npm_lifecycle_event: tauri
+npm_lifecycle_script: tauri "dev"
+npm_node_execpath: C:\Program Files\nodejs\node.exe
+npm_package_json: C:\Users\ElitoGame\Documents\GitHub\RadialHexUI\package.json
+npm_package_name: RadialHexUI_Tauri
+npm_package_version: 0.0.0
+NPM_PREFIX_NPM_CLI_JS: C:\Users\ElitoGame\AppData\Roaming\npm\node_modules\npm\bin\npm-cli.js
+NUMBER_OF_PROCESSORS: 24
+OneDrive: C:\Users\ElitoGame\OneDrive
+ORIGINAL_XDG_CURRENT_DESKTOP: undefined
+OS: Windows_NT
+Path: C:\Users\ElitoGame\Documents\GitHub\RadialHexUI\node_modules\.bin;C:\Users\ElitoGame\Documents\GitHub\node_modules\.bin;C:\Users\ElitoGame\Documents\node_modules\.bin;C:\Users\ElitoGame\node_modules\.bin;C:\Users\node_modules\.bin;C:\node_modules\.bin;C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\run-script\lib\node-gyp-bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\Program Files (x86)\Razer\ChromaBroadcast\bin;C:\Program Files\Razer\ChromaBroadcast\bin;C:\Program Files (x86)\Razer Chroma SDK\bin;C:\Program Files\Razer Chroma SDK\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\dotnet\;C:\Program Files\PuTTY\;C:\Windows\system32\config\systemprofile\AppData\Local\Microsoft\WindowsApps;C:\Users\ElitoGame\AppData\Local\Microsoft\WindowsApps;C:\Users\ElitoGame\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\ElitoGame\AppData\Local\GitHubDesktop\bin;C:\Users\ElitoGame\AppData\Roaming\npm;C:\ProgramData\chocolatey\bin;C:\Program Files\dotnet\;C:\HashiCorp\Vagrant\bin;C:\Program Files\nodejs\;C:\Program Files\Docker\Docker\resources\bin;C:\ProgramData\DockerDesktop\version-bin;C:\Program Files (x86)\Gpg4win\..\GnuPG\bin;C:\Users\ElitoGame\Documents\GitHub\JEnv-for-Windows;C:\Program Files (x86)\WinSCP\;C:\Program Files\Git\cmd;C:\Users\ElitoGame\.cargo\bin;C:\Users\ElitoGame\AppData\Local\Microsoft\WindowsApps;C:\Users\ElitoGame\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\ElitoGame\AppData\Local\GitHubDesktop\bin;C:\Users\ElitoGame\.dotnet\tools;C:\Users\ElitoGame\AppData\Roaming\npm;C:\Users\ElitoGame\AppData\Local\JetBrains\Toolbox\scripts;C:\Users\ElitoGame\.dotnet\tools;C:\Users\ElitoGame\Documents\GitHub\Flutter\flutter\bin;C:\Users\ElitoGame\.vscode-server-launcher\bin;C:\Users\ElitoGame\SurrealDB;C:\Users\ElitoGame\.deno\bin;C:\Users\ElitoGame\.dotnet\tools
+PATHEXT: .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.CPL
+PROCESSOR_ARCHITECTURE: AMD64
+PROCESSOR_IDENTIFIER: AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD
+PROCESSOR_LEVEL: 23
+PROCESSOR_REVISION: 7100
+ProgramData: C:\ProgramData
+ProgramFiles: C:\Program Files
+ProgramFiles(x86): C:\Program Files (x86)
+ProgramW6432: C:\Program Files
+PROMPT: $P$G
+PSModulePath: C:\Users\ElitoGame\Documents\WindowsPowerShell\Modules;C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules;C:\Program Files\Intel\Wired Networking\
+PUBLIC: C:\Users\Public
+SESSIONNAME: Console
+SystemDrive: C:
+SystemRoot: C:\Windows
+TEMP: C:\Users\ELITOG~1\AppData\Local\Temp
+TERM_PROGRAM: vscode
+TERM_PROGRAM_VERSION: 1.74.0
+TMP: C:\Users\ELITOG~1\AppData\Local\Temp
+USERDOMAIN: DESKTOP-4CMAOCL
+USERDOMAIN_ROAMINGPROFILE: DESKTOP-4CMAOCL
+USERNAME: ElitoGame
+USERPROFILE: C:\Users\ElitoGame
+VBOX_MSI_INSTALL_PATH: C:\Program Files\Oracle\VirtualBox\
+VSCODE_GIT_ASKPASS_EXTRA_ARGS: --ms-enable-electron-run-as-node
+VSCODE_GIT_ASKPASS_MAIN: c:\Users\ElitoGame\AppData\Local\Programs\Microsoft VS Code\resources\app\extensions\git\dist\askpass-main.js
+VSCODE_GIT_ASKPASS_NODE: C:\Users\ElitoGame\AppData\Local\Programs\Microsoft VS Code\Code.exe
+VSCODE_GIT_IPC_HANDLE: \\.\pipe\vscode-git-c20f1c0344-sock
+VSCODE_INJECTION: 1
+windir: C:\Windows

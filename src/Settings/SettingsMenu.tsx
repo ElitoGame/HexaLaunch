@@ -1,11 +1,21 @@
-import { getNewTheme} from '../settings';
-import { Grid, GridItem, Divider, Tabs, TabList, Tab, TabPanel, VStack } from '@hope-ui/solid';
+import { getNewTheme, isDraggingTiles, setIsDraggingTiles, wasDraggingTiles } from '../settings';
+import {
+  Grid,
+  GridItem,
+  Divider,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanel,
+  VStack,
+  Center,
+} from '@hope-ui/solid';
 
-import { batch, createResource, For, lazy, Show } from 'solid-js';
+import { batch, createResource, For, lazy, onMount, Show } from 'solid-js';
 
 //import '../../assets/index.css';
 import HexTile from '../HexUI/Components/HexTile';
-import HexTileData from '../DataModel/HexTileData';
+import HexTileData, { actionType } from '../DataModel/HexTileData';
 import { getCurrentRadiant, getHexUiData, getShowPosition, setSearchResults } from '../main';
 import { NewThemeTab } from './newThemeTab';
 import { AppearanceTab } from './appearanceTab';
@@ -13,198 +23,92 @@ import { LayoutTab } from './layoutTab';
 import { PreferencesTab } from './preferencesTab';
 import { setCurrentTab, getCurrentTab } from '../settings';
 import { RetrievedDoc, search, SearchResult } from '@lyrasearch/lyra';
-import {
-  DragDropProvider,
-  DragDropSensors,
-  DragEventHandler,
-  createDraggable,
-  createDroppable,
-  SortableProvider,
-  createSortable,
-} from "@thisbeyond/solid-dnd";
-import { createSignal} from "solid-js";
+
+import { createSignal } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { getSearchResults } from '../main';
-import {
-  DragOverlay,
-  closestCenter,
-} from "@thisbeyond/solid-dnd";
 import HexUiData from '../DataModel/HexUiData';
+import { appWindow } from '@tauri-apps/api/window';
+import { VsChromeMaximize, VsChromeMinimize, VsChromeRestore, VsClose } from 'solid-icons/vs';
+import { UserSettings } from '../datastore';
+import { externalApp, externalAppManager } from '../externalAppManager';
+import { IoTrashBin } from 'solid-icons/io';
+
 //import { MultipleListsExample } from './App';
+let dragElement: HTMLImageElement | undefined;
 
+const [getHexTileData, setHexTileData] = createSignal<dragHexData | null>(null);
 
-declare module 'solid-js' {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace JSX {
-    interface Directives {
-      draggable: boolean;
-      droppable: boolean;
-      sortable: boolean;
+window.addEventListener('mouseup', (e) => {
+  setIsDraggingTiles(false);
+  const element = document
+    .elementsFromPoint(e.clientX, e.clientY)
+    .filter((x) => x.classList.contains('hexTile'))[0] as HTMLDivElement;
+
+  const binelement = document
+    .elementsFromPoint(e.clientX, e.clientY)
+    .filter((x) => x.classList.contains('bin'))[0] as HTMLDivElement;
+  if (element) {
+    const data: any = JSON.parse(element.id);
+    if (data.action === 'Unset') {
+      const newData = getHexTileData() ?? new dragHexData('Unset', '', '', '', 0, 0, 0);
+      const newTile = new HexTileData(
+        parseInt(data.x),
+        parseInt(data.y),
+        parseInt(data.radiant),
+        newData.type,
+        newData.executable,
+        newData.url
+      );
+      UserSettings.setHexTileData(newTile);
+      console.log('Unset', data, newData, newTile);
+    } else {
+      console.log(data, dragHexData);
+    }
+  } else if (binelement) {
+    console.log('no element');
+    // remove tile
+    const oldTile = new HexTileData(
+      getHexTileData()?.x ?? 0,
+      getHexTileData()?.y ?? 0,
+      getHexTileData()?.radiant ?? 0,
+      'Unset',
+      '',
+      ''
+    );
+    console.log('oldTile', oldTile, getHexTileData());
+    UserSettings.setHexTileData(oldTile);
+  }
+  setHexTileData(null);
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (isDraggingTiles()) {
+    dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
+    dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
+
+    const element = document
+      .elementsFromPoint(e.clientX, e.clientY)
+      .filter((x) => x.classList.contains('hexTile'))[0] as HTMLDivElement;
+    if (element) {
     }
   }
-}
-export const Sortable = (props) => {
-  const sortable = createSortable(props.item);
-  return (
-    <div
-      use:sortable
-      class="sortable"
-      classList={{ "opacity-25": sortable.isActiveDraggable }}
-    > 
-      1
-    </div>
-  );
-};
+});
 
-
-export const Column = (props) => {
-  const droppable = createDroppable(props.id);
-  console.log(JSON.stringify(props.id));
-  // const map1 = props.items.map(x => x.document.icon);
-  // console.log(JSON.stringify(map1 )+ "map");
-  console.log(JSON.stringify(props))
-  return (
-    <div use:droppable >
-      <SortableProvider ids={props.items}>
-        
-        <For each={props.items}>{(item : string) => <div class ="bg-gray w-10 h-10"><Sortable item={item} /> <img src={item}/></div>}</For>
-      </SortableProvider>
-    </div>
-  );
-};
-
-export const MultipleListsExample = () => {
- 
- const [containers, setContainers] = createStore<Record<string, any[]>>({
-  A: getSearchResults()?.hits.map(x => x.document.executable) ?? [],
-  });
-  const containerIds = () =>  Object.keys(containers);
-
-  const isContainer = (id) => containerIds().includes(id);
-
-  const getContainer = (id) => {
-    for (const [key, items] of Object.entries(containers)) {
-      if (items.includes(id)) {
-        return key;
-      }
-    }
-  };
-
-  const closestContainerOrItem = (draggable, droppables, context) => {
-    console.log(JSON.stringify(droppables));
-    const closestContainer = closestCenter(
-      draggable,
-      droppables.filter((droppable) => isContainer(droppable.id)),
-      context
-    );
-    if (closestContainer) {
-      const containerItemIds = containers[closestContainer.id];
-      console.log(JSON.stringify(containerItemIds));
-      console.log(JSON.stringify(Object.keys(containers)));
-      console.log(JSON.stringify(droppables));
-       
-      const closestItem = closestCenter(
-        draggable,
-        droppables.filter((droppable) =>
-          containerItemIds.includes(droppable.id)
-        ),
-        context
-      );
-      if (!closestItem) {
-        return closestContainer;
-      }
-
-      if (getContainer(draggable.id) !== closestContainer.id) {
-        const isLastItem =
-          containerItemIds.indexOf(closestItem.id as Object) ===
-          containerItemIds.length - 1;
-
-        if (isLastItem) {
-          const belowLastItem =
-            draggable.transformed.center.y > closestItem.transformed.center.y;
-
-          if (belowLastItem) {
-            return closestContainer;
-          }
-        }
-      }
-      return closestItem;
-    }
-  };
-
-  const move = (draggable, droppable, onlyWhenChangingContainer = true) => {
-    const draggableContainer = getContainer(draggable.id);
-    const droppableContainer = isContainer(droppable.id)
-      ? droppable.id
-      : getContainer(droppable.id);
-
-    if (
-      draggableContainer != droppableContainer ||
-      !onlyWhenChangingContainer
-    ) {
-      const containerItemIds = containers[droppableContainer];
-      let index = containerItemIds.indexOf(droppable.id);
-      if (index === -1) index = containerItemIds.length;
-
-      batch(() => {
-        setContainers(draggableContainer, (items) =>
-          items.filter((item) => item !== draggable.id)
-        );
-        setContainers(droppableContainer, (items) => [
-          ...items.slice(0, index),
-          draggable.id,
-          ...items.slice(index),
-        ]);
-      });
-    }
-  };
-
- const onDragOver = ({ draggable, droppable }) => {
-    if (draggable && droppable) {
-      move(draggable, droppable);
-    }
-  };
-
-  const onDragEnd = ({ draggable, droppable }) => {
-    if (draggable && droppable) {
-      move(draggable, droppable, false);
-    }
-  };
-
-  return (
-    <div class="flex flex-col flex-1 mt-5 self-stretch">
-      <DragDropProvider
-        onDragOver={onDragOver}
-        onDragEnd={onDragEnd}
-        collisionDetector={closestContainerOrItem}
-      >
-        <DragDropSensors />
-        <div class="columns">
-          <For each={containerIds()}>
-            {(key) => <Column id={key} items={containers[key]} />}
-          </For>
-        </div>
-        <DragOverlay>
-          
-        </DragOverlay>
-      </DragDropProvider>
-    </div>
-  );
-};
-
-
-
-
-
-
-
+const HexAppIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
+const [hexAppIcon, setHexAppIcon] = createSignal('');
+const [hexIcon] = createResource(hexAppIcon, HexAppIcon);
 
 const HexUIGrid = () => {
   console.log('found hexUIData: ', getHexUiData());
+
+  let tileList: HTMLDivElement | undefined;
+
   return (
     <>
-      <div class="relative w-full h-screen">
+      <div class="relative w-full h-full">
         <div
+          ref={tileList}
           style={{
             position: 'absolute',
             top: `50%`,
@@ -212,117 +116,32 @@ const HexUIGrid = () => {
             'font-size': '0',
           }}
         >
-          <For each={getHexUiData()?.getCoreTiles()}>
-            {(tile: HexTileData) => (
-              
-              
-              <HexTile
-                x={tile.getX()}
-                y={tile.getY()}
-                radiant={0}
-                onClick={() => {
-                  console.log(tile);
-                }}
-                title={
-                  tile
-                    .getApp()
-                    ?.split('.')[0]
-                    ?.split('/')
-                    [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
-                  tile
-                    .getUrl()
-                    ?.split('.')[0]
-                    ?.split('/')
-                    [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
-                }
-                action={tile.getAction()}
-                hasAnimation={false}
-              ></HexTile>
-             
-            )}
-          </For>
-
           <For each={getHexUiData()?.getTiles() ?? []}>
             {(tile: HexTileData, i) => (
-              <Show when={i() !== 0}>
-                <For each={getHexUiData()?.getRadiantTiles(i())}>
-                  {(tile: HexTileData) => (
-                    <HexTile
-                      zIndex={10}
-                      x={tile.getX()}
-                      y={tile.getY()}
-                      radiant={tile.getRadiant()}
-                      onClick={() => {
-                        console.log(tile);
-                      }}
-                      title={
-                        tile
-                          .getApp()
-                          ?.split('.')[0]
-                          ?.split('/')
-                          [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
-                        tile
-                          .getUrl()
-                          ?.split('.')[0]
-                          ?.split('/')
-                          [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
-                      }
-                      action={tile.getAction()}
-                      hasAnimation={false}
-                    ></HexTile>
-                  )}
-                </For>
-              </Show>
-            )}
-          </For>
-        </div>
-      </div>
-    </>
-  );
-};
-
-const HexUIPreview = () => {
-  return (
-    <>
-      <div class="relative w-full h-screen">
-        <div
-          style={{
-            position: 'absolute',
-            top: `50%`,
-            left: `50%`,
-            'font-size': '0',
-          }}
-        >
-          <For each={getHexUiData()?.getCoreTiles()}>
-            {(tile: HexTileData) => (
-              <HexTile
-                x={tile.getX()}
-                y={tile.getY()}
-                radiant={0}
-                onClick={() => {
-                  console.log(tile);
+              <span
+                onMouseDown={(e) => {
+                  if (tile.getAction() === 'Unset') return;
+                  console.log('mouse down');
+                  setIsDraggingTiles(true);
+                  // setHexTileData(dragData.fromExternalApp(tile));
+                  setHexTileData(
+                    new dragHexData(
+                      tile.getAction() as actionType,
+                      tile.getApp(),
+                      tile.getUrl(),
+                      tile.getIcon(),
+                      tile.getX(),
+                      tile.getY(),
+                      tile.getRadiant()
+                    )
+                  );
+                  dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
+                  dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
+                  setHexAppIcon(tile.getApp());
+                  e.preventDefault();
                 }}
-                title={
-                  tile
-                    .getApp()
-                    ?.split('.')[0]
-                    ?.split('/')
-                    [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
-                  tile
-                    .getUrl()
-                    ?.split('.')[0]
-                    ?.split('/')
-                    [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
-                }
-                action={tile.getAction()}
-                hasAnimation={false}
-              ></HexTile>
-            )}
-          </For>
-
-          <Show when={getCurrentRadiant() !== -1}>
-            <For each={getHexUiData()?.getRadiantTiles(getCurrentRadiant())}>
-              {(tile: HexTileData) => (
+                draggable={false}
+              >
                 <HexTile
                   zIndex={10}
                   x={tile.getX()}
@@ -344,39 +163,124 @@ const HexUIPreview = () => {
                       [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
                   }
                   action={tile.getAction()}
-                  color={'bg-green-400'}
+                  icon={tile.getApp()}
+                  hasAnimation={false}
+                  isSettings={true}
                 ></HexTile>
-              )}
-            </For>
-          </Show>
+              </span>
+            )}
+          </For>
+        </div>
+      </div>
+      <Show when={isDraggingTiles()}>
+        <img class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement} src={hexIcon()}></img>
+      </Show>
+    </>
+  );
+};
+
+const HexUIPreview = () => {
+  return (
+    <>
+      <div class="relative w-full h-full">
+        <div
+          style={{
+            position: 'absolute',
+            top: `50%`,
+            left: `50%`,
+            'font-size': '0',
+          }}
+        >
+          <For each={getHexUiData()?.getCoreTiles()}>
+            {(tile: HexTileData) => (
+              <HexTile
+                x={tile.getX()}
+                y={tile.getY()}
+                radiant={0}
+                onClick={() => {
+                  console.log(tile);
+                }}
+                title={
+                  tile
+                    .getApp()
+                    ?.split('.')[0]
+                    ?.split('/')
+                    [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
+                  tile
+                    .getUrl()
+                    ?.split('.')[0]
+                    ?.split('/')
+                    [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
+                }
+                action={tile.getAction()}
+                icon={tile.getApp()}
+                hasAnimation={false}
+                isSettings={true}
+              ></HexTile>
+            )}
+          </For>
         </div>
       </div>
     </>
   );
 };
 const SettingsMenu = () => {
+  const [isMaximized, setMaximized] = createSignal(false);
+  const [getMaxStatus] = createResource(isMaximized, async () => await appWindow.isMaximized());
   // console.log(getHexUiData()?.getCoreTiles());
   const tabStyle =
-    'w-100 text-text h-30 focus:bg-accent focus:hover:brightness-125 focus:text-white aria-selected:hover:bg-accent aria-selected:bg-accent aria-selected:text-white hover:bg-accent select:text-gray select:bg-accent';
+    'w-100 text-text text-base h-30 focus:bg-accent focus:hover:brightness-125 focus:text-white aria-selected:hover:bg-accent aria-selected:bg-accent aria-selected:text-white hover:bg-accent select:text-gray select:bg-accent';
   return (
     <>
-    
+      <div data-tauri-drag-region class="h-5 w-full absolute z-20">
+        <Center class="absolute top-0 right-0 w-max inline h-full">
+          <button
+            class="text-text h-full px-2 focus:outline-none hover:bg-background"
+            onClick={() => {
+              appWindow.minimize();
+            }}
+          >
+            <VsChromeMinimize />
+          </button>
+
+          <button
+            class="text-text h-full px-2 focus:outline-none hover:bg-background"
+            onClick={() => {
+              appWindow.toggleMaximize();
+            }}
+          >
+            <Show when={getMaxStatus()} fallback={<VsChromeMaximize />}>
+              <VsChromeRestore />
+            </Show>
+          </button>
+
+          <button
+            class="text-text h-full px-2 focus:outline-none hover:bg-red-500"
+            onClick={() => {
+              appWindow.hide();
+            }}
+          >
+            <VsClose />
+          </button>
+        </Center>
+      </div>
       <Grid
         h="100%"
         templateColumns="repeat(3, 1fr)"
         onDragOver={(e: DragEvent) => {
           e.preventDefault();
+          console.log(e);
           if (e?.dataTransfer?.dropEffect) {
             e.dataTransfer.dropEffect = 'copy';
           }
           return false;
         }}
       >
-        <GridItem class="bg-background" id="leftPanelWindow">
+        <GridItem class="bg-background rounded-r-md pt-5" id="leftPanelWindow">
           <VStack alignItems="left" spacing="$4">
             <Tabs keepAlive variant="pills" defaultIndex={0}>
-              <TabList borderWidth="1px">
-                <h1 class="pl-3">Settings</h1>
+              <TabList borderWidth="0px" gap="$8">
+                <h1 class="pl-3 text-2xl">Settings</h1>
                 <Tab
                   class={tabStyle}
                   onClick={() => {
@@ -433,15 +337,15 @@ const SettingsMenu = () => {
             </Tabs>
           </VStack>
         </GridItem>
-        <GridItem rowSpan={1} colSpan={2} bg="#EAEAEA" h="100%">
+        <GridItem rowSpan={1} colSpan={2} h="100%">
           <Show when={getCurrentTab() == 'Layout'}>
-            <MultipleListsExample></MultipleListsExample>
             <HexUIGrid></HexUIGrid>
-            
           </Show>
           <Show when={getCurrentTab() == 'Appearance'}>
             <HexUIPreview></HexUIPreview>
-           
+          </Show>
+          <Show when={wasDraggingTiles()}>
+            <IoTrashBin class="bin absolute right-2 bottom-2 p-3 w-12 h-12 fill-text" />
           </Show>
         </GridItem>
       </Grid>
@@ -450,3 +354,28 @@ const SettingsMenu = () => {
 };
 
 export default SettingsMenu;
+
+class dragHexData {
+  // include the type, executable (app), url and icon
+  type: actionType;
+  executable: string;
+  url: string;
+  icon: string;
+  x: number;
+  y: number;
+  radiant: number;
+  constructor(
+    type: actionType,
+    executable: string,
+    url: string,
+    icon: string,
+    x: number,
+    y: number,
+    radiant: number
+  ) {
+    this.type = type;
+    this.executable = executable;
+    this.url = url;
+    this.icon = icon;
+  }
+}

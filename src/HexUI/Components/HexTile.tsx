@@ -7,6 +7,7 @@ import {
   isFullLayout,
   selectedHexTile,
 } from '../../main';
+
 import { FaSolidPlay, FaSolidForwardStep, FaSolidPause } from 'solid-icons/fa';
 import { invoke } from '@tauri-apps/api';
 import { externalAppManager } from '../../externalAppManager';
@@ -25,6 +26,7 @@ const HexTile = (props: {
   icon?: string;
   hasAnimation?: boolean;
   hasHoverEffect?: boolean;
+  isSettings?: boolean;
 }) => {
   const merged = mergeProps(
     {
@@ -40,6 +42,7 @@ const HexTile = (props: {
       hasAnimation: true,
       hasHoverEffect: true,
       border: 5,
+      isSettings: false,
     },
     props
   );
@@ -87,6 +90,12 @@ const HexTile = (props: {
     <Show when={(!isFullLayout() && merged.action !== 'Unset') || isFullLayout()}>
       <div
         class={`hexTile absolute bg-transparent cursor-pointer inline-block transition-transform`}
+        id={`{"x":"${merged.x}", "y":"${merged.y}", "radiant":"${merged.radiant}", "action":"${
+          merged.action
+        }", "icon":"${merged.icon.replaceAll('\\', '\\\\')}", "title":"${merged.title.replace(
+          '\\',
+          ''
+        )}"}`}
         style={{
           left: `${
             merged.x * (getHexSize() + getHexMargin()) -
@@ -164,59 +173,68 @@ const HexTile = (props: {
             </Match>
             <Match when={merged.action === 'MediaPlayer'}>
               <>
-                <span
-                  class="absolute"
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: `${getHexSize() - merged.border}px`,
-                    height: `${(getHexSize() - merged.border) * 1.169}px`,
-                    'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
-                  }}
+                <Show
+                  when={!merged.isSettings || getCurrentMedia()?.title === undefined}
+                  fallback={
+                    <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                      🎵
+                    </span>
+                  }
                 >
-                  <img
-                    src={'data:image/png;base64,' + getCurrentMedia()?.thumbnail}
-                    class={`absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 ${
-                      getHovered() ? 'brightness-50' : ''
-                    }`}
+                  <span
+                    class="absolute"
                     style={{
+                      left: '50%',
+                      top: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: `${getHexSize() - merged.border}px`,
                       height: `${(getHexSize() - merged.border) * 1.169}px`,
-                      'min-width': `min-content`,
+                      'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
                     }}
-                  />
-                  <Show when={getHovered()}>
-                    <span class="controls absolute text-base text-white flex flex-row top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-max gap-1">
-                      <FaSolidForwardStep
-                        class="rotate-180"
-                        onClick={() => {
-                          invoke('prev_media');
-                        }}
-                      />
-                      <Show
-                        when={getCurrentMedia()?.isPlaying}
-                        fallback={
-                          <FaSolidPlay
-                            onClick={() => {
+                  >
+                    <img
+                      src={'data:image/png;base64,' + getCurrentMedia()?.thumbnail}
+                      class={`absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 ${
+                        getHovered() ? 'brightness-50' : ''
+                      }`}
+                      style={{
+                        height: `${(getHexSize() - merged.border) * 1.169}px`,
+                        'min-width': `min-content`,
+                      }}
+                    />
+                    <Show when={getHovered()}>
+                      <span class="controls absolute text-base text-white flex flex-row top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-max gap-1">
+                        <FaSolidForwardStep
+                          class="rotate-180"
+                          onClick={() => {
+                            invoke('prev_media');
+                          }}
+                        />
+                        <Show
+                          when={getCurrentMedia()?.isPlaying}
+                          fallback={
+                            <FaSolidPlay
+                              onClick={() => {
+                                invoke('toggle_media');
+                              }}
+                            />
+                          }
+                        >
+                          <FaSolidPause
+                            onClick={async () => {
                               invoke('toggle_media');
                             }}
                           />
-                        }
-                      >
-                        <FaSolidPause
-                          onClick={async () => {
-                            invoke('toggle_media');
+                        </Show>
+                        <FaSolidForwardStep
+                          onClick={() => {
+                            invoke('next_media');
                           }}
                         />
-                      </Show>
-                      <FaSolidForwardStep
-                        onClick={() => {
-                          console.log(invoke('next_media'));
-                        }}
-                      />
-                    </span>
-                  </Show>
-                </span>
+                      </span>
+                    </Show>
+                  </span>
+                </Show>
               </>
             </Match>
           </Switch>

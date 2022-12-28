@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js';
+import { createEffect, createSignal } from 'solid-js';
 import SettingsData from './Settings/SettingsData';
 import { externalApp, externalAppManager } from './externalAppManager';
 import { getAll } from '@tauri-apps/api/window';
@@ -27,6 +27,21 @@ export const [getHotkeys, setHotkeys] = createSignal('');
 export const [getColor, setColor] = createSignal('#FFFFFF');
 
 export const [getRelevantApps, setRelevantApps] = createSignal<Array<externalApp>>();
+
+export const [isDraggingTiles, setIsDraggingTiles] = createSignal<boolean>(false);
+export const [wasDraggingTiles, setWassDraggingTiles] = createSignal<boolean>(false);
+
+let dragChangerTimeout: NodeJS.Timeout;
+createEffect(() => {
+  if (!isDraggingTiles()) {
+    dragChangerTimeout = setTimeout(() => {
+      setWassDraggingTiles(false);
+    }, 100);
+  } else {
+    clearTimeout(dragChangerTimeout);
+    setWassDraggingTiles(true);
+  }
+});
 
 export const changeColor = () => {};
 

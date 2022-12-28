@@ -4,6 +4,7 @@ import HexTileData from './DataModel/HexTileData';
 import HexUiData from './DataModel/HexUiData';
 import SettingsData from './Settings/SettingsData';
 import { invoke } from '@tauri-apps/api/tauri';
+import { setHexUiData } from './main';
 
 export class UserSettings {
   public static settings: UserSettings; // Using a Singleton here to ensure that the settings are only loaded once.
@@ -160,5 +161,24 @@ export class UserSettings {
     // );
     // console.log(UserSettings.settings.hexUI.getCoreTiles());
     return UserSettings.settings;
+  }
+
+  public static setHexTileData(hexTileData: HexTileData) {
+    let tileThere = UserSettings.settings
+      .getHexUI()
+      .getTiles()
+      .find(
+        (tile) =>
+          tile.getX() === hexTileData.getX() &&
+          tile.getY() === hexTileData.getY() &&
+          tile.getRadiant() === hexTileData.getRadiant()
+      );
+    let index = UserSettings.settings.hexUI.getTiles().indexOf(tileThere);
+    console.log(tileThere, index, hexTileData.getX(), hexTileData.getY(), hexTileData.getRadiant());
+    if (index !== -1) {
+      UserSettings.settings.hexUI.getTiles()[index] = hexTileData;
+      UserSettings.settings.save();
+      setHexUiData(UserSettings.settings.hexUI);
+    }
   }
 }

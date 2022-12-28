@@ -50,16 +50,14 @@ export class externalAppManager {
         // this.queryOtherApps();
         const data = await fs.readTextFile('appData.json', { dir: BaseDirectory.AppData });
         const parsed = JSON.parse(data);
-        this.appData = parsed.map(
-          (x) => new externalApp(x.executable, x.name, x.icon, 'Application')
-        );
+        this.appData = parsed.map((x) => new externalApp(x.executable, x.name, x.icon, 'App'));
 
         const relevantData = await fs.readTextFile('appDataRelevant.json', {
           dir: BaseDirectory.AppData,
         });
         const parsedRelevant = JSON.parse(relevantData);
         this.appDataRelevant = parsedRelevant.map(
-          (x) => new externalApp(x.executable, x.name, x.icon, 'Application')
+          (x) => new externalApp(x.executable, x.name, x.icon, 'App')
         );
         setRelevantApps(this.appDataRelevant);
         console.log('Querying apps finished', this.appDataRelevant);
@@ -118,6 +116,7 @@ export class externalAppManager {
     if (appRelevant !== undefined) {
       return appRelevant.icon;
     }
+    console.log('getIconOfActionExe', executable, 'not found');
     // if not, query the icon
     const icon = ''; //queryIconOfExe(executable);
     return icon;
@@ -646,7 +645,7 @@ export class externalApp {
     this.executable = executable;
     this.name = name;
     this.icon = icon;
-    this.type = type ?? 'Application';
+    this.type = type ?? 'App';
   }
 
   public setExecutable(executable: string) {

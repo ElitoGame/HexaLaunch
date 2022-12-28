@@ -94,4 +94,8 @@ export default class HexUiData {
   public getTiles() {
     return this.tiles;
   }
+
+  public setTiles(tiles: Array<HexTileData>) {
+    this.tiles = tiles;
+  }
 }

@@ -82,21 +82,7 @@
           },
           {
             "name": "queryRunningProcesses",
-            "args": [
-              "-Command",
-              "Get-Process",
-              "|",
-              "Where-Object",
-              "{$_.MainWindowTitle -ne \"\"}",
-              "|",
-              "Select-Object",
-              "-Expand",
-              "MainModule",
-              "|",
-              "Select-Object",
-              "-Property",
-              "FileName"
-            ],
+            "args": true,
             "cmd": "powershell.exe"
           },
           {
@@ -123,6 +109,11 @@
             "name": "queryAppName",
             "args": true,
             "cmd": "powershell.exe"
+          },
+          {
+            "name": "binaries/CSharpIntegration",
+            "args": true,
+            "sidecar": true
           }
         ]
       },
@@ -161,7 +152,8 @@
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
         "timestampUrl": ""
-      }
+      },
+      "externalBin": ["binaries/CSharpIntegration"]
     },
     "security": {
       "csp": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; asset: https://asset.localhost"

@@ -1,11 +1,20 @@
 import { render } from 'solid-js/web';
 import SettingsMenu from './Settings/SettingsMenu';
-import { HopeProvider } from '@hope-ui/solid';
+import { HopeProvider, HopeThemeConfig } from '@hope-ui/solid';
 import './settings.css';
 
 render(() => {
+  const config: HopeThemeConfig = {
+    initialColorMode: 'dark',
+    darkTheme: {
+      colors: {
+        background: '#00000000',
+      },
+    },
+  };
+
   return (
-    <HopeProvider>
+    <HopeProvider config={config}>
       <SettingsMenu />
     </HopeProvider>
   );
