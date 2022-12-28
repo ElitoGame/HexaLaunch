@@ -88,7 +88,7 @@ h1 {
 }
 
 .hope-switch__control {
-  color: theme('colors.accent');
+  color: theme('colors.accent') !important;
 }
 
 #theme-color {

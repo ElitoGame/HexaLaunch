@@ -1,6 +1,15 @@
 import { updateSettingData, handleHotkeyEvent, getSettingsData } from '../settings';
 import { Grid, GridItem, Input, Switch } from '@hope-ui/solid';
 import { invoke } from '@tauri-apps/api';
+import { createSignal } from 'solid-js';
+import { UserSettings } from '../datastore';
+
+const [isAutoStartEnabled, setAutoStartEnabled] = createSignal(
+  UserSettings.settings.getAutoLaunch()
+);
+
+// const [isDev, setDev] = createSignal(true);
+// invoke('is_dev').then((res) => setDev(res as boolean));
 
 export const PreferencesTab = () => {
   return (
@@ -74,6 +83,30 @@ export const PreferencesTab = () => {
         </GridItem>
       </Grid>
       <p>The Layout will open where your mouse is located when you open the Application</p>
+      <br></br>
+      <Grid h="100%" templateRows="repeat(, 1fr)" templateColumns="repeat(2, 1fr)" gap="$1">
+        <p class="font-medium">Autostart</p>
+        <GridItem class="flex justify-end">
+          <Switch
+            onChange={() => {
+              if (isAutoStartEnabled()) {
+                invoke('plugin:autostart|disable');
+                setAutoStartEnabled(false);
+                UserSettings.settings.setAutoLaunch(false);
+                updateSettingData();
+              } else {
+                invoke('plugin:autostart|enable');
+                setAutoStartEnabled(true);
+                UserSettings.settings.setAutoLaunch(true);
+                updateSettingData();
+              }
+            }}
+            class="flex-end"
+            checked={isAutoStartEnabled()}
+          ></Switch>
+        </GridItem>
+      </Grid>
+      <p>Toggle if the App should automatically start together with Windows.</p>
     </>
   );
 };

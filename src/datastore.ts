@@ -144,6 +144,7 @@ export class UserSettings {
       } catch (e) {
         console.log('No user-settings.json found. Using default settings.');
         UserSettings.settings.save();
+        invoke('plugin:autostart|enable');
         // No data has been setup yet, so set default values here:
       }
       // Make sure to set the auto-launch value. This needs to happen regardless of if data is present or not,

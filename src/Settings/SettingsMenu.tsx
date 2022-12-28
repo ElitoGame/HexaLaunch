@@ -228,8 +228,10 @@ const SettingsMenu = () => {
   const [isMaximized, setMaximized] = createSignal(false);
   const [getMaxStatus] = createResource(isMaximized, async () => await appWindow.isMaximized());
   // console.log(getHexUiData()?.getCoreTiles());
-  const tabStyle =
-    'w-100 text-text text-base h-30 focus:bg-accent focus:hover:brightness-125 focus:text-white aria-selected:hover:bg-accent aria-selected:bg-accent aria-selected:text-white hover:bg-accent select:text-gray select:bg-accent';
+  const tabStyle = `w-100 text-text text-base h-30 py-0 mt-0
+                    focus:bg-accent focus:hover:brightness-125 focus:text-white 
+                    aria-selected:hover:bg-accent aria-selected:bg-accent aria-selected:text-white
+                    hover:bg-accent select:text-gray select:bg-accent`;
   return (
     <>
       <div data-tauri-drag-region class="h-5 w-full absolute z-20">

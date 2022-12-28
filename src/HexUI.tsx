@@ -120,7 +120,7 @@ const HexUI = () => {
         }, 100);
       }
     }
-    if (isKeyBoardNavigationEnabled()) {
+    if (isKeyBoardNavigationEnabled() && !isSearchVisible()) {
       if (e.key.match(/^[1-6]$/)) {
         setCurrentRadiant(parseInt(e.key));
       } else if (e.key.match(/^[0,7-9]$/)) {
@@ -161,7 +161,7 @@ const HexUI = () => {
           <Input
             type="text"
             ref={searchBar}
-            class="p-2 rounded-md "
+            class="p-2 rounded-md pl-12"
             style={{ 'background-color': '#595959', color: '#C3C2C2' }}
             onInput={(e) => {
               searchAppDB((e.target as HTMLInputElement).value);
@@ -173,19 +173,6 @@ const HexUI = () => {
           />
         </InputGroup>
 
-        {/* <input
-          type="text"
-          ref={searchBar}
-          class="z-40 w-full p-2 rounded-md "
-          style={{ 'background-color': '#595959' }}
-          onInput={(e) => {
-            searchAppDB((e.target as HTMLInputElement).value);
-            setPage(0);
-            if (searchBar?.value === '') {
-              setIsSearchVisible(false);
-            }
-          }}
-        /> */}
         <ul>
           <For
             each={getSearchResults()?.hits ?? []}
@@ -205,7 +192,7 @@ const HexUI = () => {
             {(res) => (
               <>
                 <Box
-                  class="my-2 p-2"
+                  class="my-2 p-2 overflow-x-hidden"
                   style={{
                     'background-color': '#343434',
                     color: '#FFFFFF',

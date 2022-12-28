@@ -5,8 +5,8 @@ import './settings.css';
 
 render(() => {
   const config: HopeThemeConfig = {
-    initialColorMode: 'dark',
-    darkTheme: {
+    initialColorMode: 'light',
+    lightTheme: {
       colors: {
         background: '#00000000',
       },

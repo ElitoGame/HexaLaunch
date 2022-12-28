@@ -121,7 +121,7 @@ fn main() {
         })
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
-            Some(vec![]),
+            None,
         ))
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             println!("{}, {argv:?}, {cwd}", app.package_info().name);
@@ -169,7 +169,8 @@ fn main() {
             get_current_media,
             is_changing_hotkey,
             set_changing_hotkey,
-            print_debug
+            print_debug,
+            is_dev,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -1071,4 +1072,9 @@ fn set_changing_hotkey(changing: bool) {
 #[tauri::command]
 fn print_debug() {
     println!("debug!");
+}
+
+#[tauri::command]
+fn is_dev() -> bool {
+    cfg!(debug_assertions)
 }
