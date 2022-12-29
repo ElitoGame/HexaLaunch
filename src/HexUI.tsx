@@ -265,7 +265,8 @@ const HexUI = () => {
                   }
                 }}
                 action={tile.getAction()}
-                icon={tile.getApp()}
+                app={tile.getApp()}
+                url={tile.getUrl()}
                 title={
                   tile
                     .getApp()
@@ -298,7 +299,8 @@ const HexUI = () => {
                   }
                 }}
                 action={tile.getAction()}
-                icon={tile.getApp()}
+                app={tile.getApp()}
+                url={tile.getUrl()}
                 title={
                   tile
                     .getApp()

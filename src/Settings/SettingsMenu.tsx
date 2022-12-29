@@ -9,6 +9,8 @@ import {
   TabPanel,
   VStack,
   Center,
+  HStack,
+  Button,
 } from '@hope-ui/solid';
 
 import { batch, createEffect, createResource, For, lazy, onMount, Show } from 'solid-js';
@@ -22,6 +24,7 @@ import {
   getHexSize,
   getHexUiData,
   getShowPosition,
+  isValidUrl,
   setSearchResults,
 } from '../main';
 import { NewThemeTab } from './newThemeTab';
@@ -39,7 +42,7 @@ import { appWindow } from '@tauri-apps/api/window';
 import { VsChromeMaximize, VsChromeMinimize, VsChromeRestore, VsClose } from 'solid-icons/vs';
 import { UserSettings } from '../datastore';
 import { externalApp, externalAppManager } from '../externalAppManager';
-import { IoTrashBin } from 'solid-icons/io';
+import { IoArrowForward, IoTrashBin } from 'solid-icons/io';
 import { invoke } from '@tauri-apps/api';
 import { emit } from '@tauri-apps/api/event';
 
@@ -48,8 +51,26 @@ let dragElement: HTMLImageElement | undefined;
 
 const [getHexTileData, setHexTileData] = createSignal<dragHexData | null>(null);
 
+export const [getOverWriteWarning, setOverWriteWarning] = createSignal({
+  visible: false,
+  targetTile: null,
+  newTile: null,
+});
+const iconGetter = async (app: string) => await externalAppManager.getIconOfActionExe(app);
+const [overwriteTargetSignal, setOverwriteTargetSignal] = createSignal<string | null>(null);
+const [overwriteNewSignal, setOverwriteNewSignal] = createSignal<string | null>(null);
+const [overwriteTargetIcon] = createResource(overwriteTargetSignal, iconGetter);
+const [overwriteNewIcon] = createResource(overwriteNewSignal, iconGetter);
+
+createEffect(() => {
+  if (getOverWriteWarning().visible) {
+    setOverwriteTargetSignal(getOverWriteWarning().targetTile.app);
+    setOverwriteNewSignal(getOverWriteWarning().newTile.app);
+  }
+});
+
 window.addEventListener('mouseup', (e) => {
-  if (wasDraggingTiles() && dragElement) {
+  if (wasDraggingTiles() && dragElement && isDraggingFromGrid()) {
     // hide the drag element
     setIsDraggingTiles(false);
     setIsDraggingFromGrid(false);
@@ -60,10 +81,11 @@ window.addEventListener('mouseup', (e) => {
 
     if (element) {
       // extract the data from the hexTile's id
-      const data: any = JSON.parse(element.id);
+      const data: any = JSON.parse(element.id.replaceAll('\n', ''));
       const newData = getHexTileData() ?? new dragHexData('Unset', '', '', '', 0, 0, 0);
       // If the tile is the same, don't do anything
       if (data.x == newData.x && data.y == newData.y && data.radiant == newData.radiant) {
+        setHexTileData(null);
         return;
       }
       // Create the tiledata of the orginal tile (the one that was dragged)
@@ -76,16 +98,14 @@ window.addEventListener('mouseup', (e) => {
         newData.url
       );
       // Create the tiledata of the target tile (the one that was dropped on)
-      const targetTile =
-        getHexUiData()
-          ?.getTiles()
-          .find(
-            (x) => x.getX() === data.x && x.getY() === data.y && x.getRadiant() === data.radiant
-          ) ?? new HexTileData(newData.x, newData.y, newData.radiant, data.action, data.icon, '');
-
-      // Save the data on the file.
-      UserSettings.setHexTileData(originTile);
-      UserSettings.setHexTileData(targetTile);
+      const targetTile = new HexTileData(
+        newData.x,
+        newData.y,
+        newData.radiant,
+        data.action,
+        data.app,
+        data.url.replace('        ', '')
+      );
       // Update the UI
       // create a map of the tiles, and replace the old tile with the new one, and the new one with the old one. (swap)
       let tiles = getHexUiData()
@@ -93,18 +113,24 @@ window.addEventListener('mouseup', (e) => {
         .map((x) => {
           // If the tile is the old tile, set it to the current target tile
           if (
-            x.getX() === newData.x &&
-            x.getY() === newData.y &&
-            x.getRadiant() === newData.radiant
+            x.getX() === originTile.getX() &&
+            x.getY() === originTile.getY() &&
+            x.getRadiant() === originTile.getRadiant()
           ) {
-            return targetTile ?? x;
+            return targetTile;
           }
           // If the tile is the current target tile, set it to the old tile (new now.)
-          if (x.getX() === data.x && x.getY() === data.y && x.getRadiant() === data.radiant) {
+          if (
+            x.getX() === targetTile.getX() &&
+            x.getY() === targetTile.getY() &&
+            x.getRadiant() === targetTile.getRadiant()
+          ) {
             return originTile;
           }
           return x;
         });
+      // Save the data on the file.
+      UserSettings.setHexTileDataArray(tiles);
       // Set the tiles to update the UI
       setSettingsGridTiles(tiles);
       // Set the tiles to update the data model
@@ -286,7 +312,8 @@ const HexUIGrid = () => {
                           [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
                   }
                   action={tile.getAction()}
-                  icon={tile.getApp()}
+                  app={tile.getApp()}
+                  url={tile.getUrl()?.trim() ?? ''}
                   hasAnimation={false}
                   isSettings={true}
                 ></HexTile>
@@ -294,9 +321,118 @@ const HexUIGrid = () => {
             )}
           </For>
         </div>
+        <Show when={getOverWriteWarning().visible}>
+          <div
+            ref={tileList}
+            style={{
+              position: 'absolute',
+              top: `50%`,
+              left: `50%`,
+              transform: `translate(-50%, -50%)`,
+            }}
+            class="text-base"
+          >
+            <div class="bg-background p-4 px-8 rounded-md">
+              <VStack>
+                <HStack>
+                  <Show
+                    when={
+                      overwriteTargetIcon.loading ||
+                      overwriteTargetIcon() === '' ||
+                      !overwriteTargetIcon()
+                    }
+                    fallback={<img src={overwriteTargetIcon()} alt="" class="w-10 h-10" />}
+                  >
+                    <span class="">{'Image Unavailable'}</span>
+                  </Show>
+                  <IoArrowForward class="mx-5 fill-text text-text" />
+                  <Show
+                    when={
+                      overwriteNewIcon.loading || overwriteNewIcon() === '' || !overwriteNewIcon()
+                    }
+                    fallback={<img src={overwriteNewIcon()} alt="" class="w-10 h-10" />}
+                  >
+                    <span class="">{'Image Unavailable'}</span>
+                  </Show>
+                </HStack>
+                <p>
+                  This Hexagon is already filled.
+                  <br />
+                  If you continue the asset will be replaced!
+                </p>
+                <HStack>
+                  <Button
+                    class="text-accent underline hover:bg-transparent hover:text-accent hover:brightness-125"
+                    onClick={() =>
+                      setOverWriteWarning({ visible: false, targetTile: null, newTile: null })
+                    }
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    class="bg-accent hover:bg-accent hover:brightness-125 text-text"
+                    onClick={() => {
+                      // overwrite tile
+                      UserSettings.setHexTileData(getOverWriteWarning().newTile);
+                      let tiles = getHexUiData()
+                        ?.getTiles()
+                        .map((x) => {
+                          if (
+                            x.getX() === getOverWriteWarning().newTile.getX() &&
+                            x.getY() === getOverWriteWarning().newTile.getY() &&
+                            x.getRadiant() === getOverWriteWarning().newTile.getRadiant()
+                          ) {
+                            return getOverWriteWarning().newTile;
+                          }
+                          return x;
+                        });
+                      setSettingsGridTiles(tiles);
+                      getHexUiData()?.setTiles(tiles);
+                      setOptionsVisible({
+                        visible: false,
+                        x: getOverWriteWarning().newTile.getX(),
+                        y: getOverWriteWarning().newTile.getY(),
+                      });
+                      setOverWriteWarning({ visible: false, targetTile: null, newTile: null });
+                    }}
+                  >
+                    Continue
+                  </Button>
+                </HStack>
+              </VStack>
+            </div>
+          </div>
+        </Show>
       </div>
       <Show when={isDraggingTiles() && isDraggingFromGrid()}>
-        <img class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement} src={hexIcon()}></img>
+        <Show
+          when={isValidUrl(getHexTileData()?.url ?? '')}
+          fallback={
+            // No URL or not http show this:
+            <img
+              ref={dragElement}
+              class="w-8 h-8 absolute z-40 cursor-pointer"
+              src={hexIcon()}
+            ></img>
+          }
+        >
+          <div class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
+            <img
+              src={`https://www.google.com/s2/favicons?domain=${
+                getHexTileData()?.url ?? ''
+              }&sz=${128}`}
+            ></img>
+            <img
+              src={hexIcon()}
+              class={`absolute`}
+              style={{
+                width: `${getHexSize() / 66}rem`,
+                top: `${getHexSize() / 66}rem`,
+                left: `${(getHexSize() * 1.3) / 66}rem`,
+              }}
+            ></img>
+          </div>
+        </Show>
       </Show>
     </>
   );
@@ -337,7 +473,8 @@ const HexUIPreview = () => {
                     [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
                 }
                 action={tile.getAction()}
-                icon={tile.getApp()}
+                app={tile.getApp()}
+                url={tile.getUrl()?.trim() ?? ''}
                 hasAnimation={false}
                 isSettings={true}
               ></HexTile>

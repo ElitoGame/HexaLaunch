@@ -1,10 +1,19 @@
-import { createResource, createSignal, Match, mergeProps, Show, Switch } from 'solid-js';
+import {
+  createEffect,
+  createResource,
+  createSignal,
+  Match,
+  mergeProps,
+  Show,
+  Switch,
+} from 'solid-js';
 import { JSX } from 'solid-js/jsx-runtime';
 import {
   getCurrentMedia,
   getHexMargin,
   getHexSize,
   isFullLayout,
+  isValidUrl,
   selectedHexTile,
 } from '../../main';
 
@@ -24,7 +33,8 @@ const HexTile = (props: {
   color?: string;
   title?: string;
   action?: string;
-  icon?: string;
+  app?: string;
+  url?: string;
   hasAnimation?: boolean;
   hasHoverEffect?: boolean;
   isSettings?: boolean;
@@ -39,7 +49,8 @@ const HexTile = (props: {
       color: 'bg-neutral-600',
       title: '',
       action: '',
-      icon: '',
+      app: '',
+      url: '',
       hasAnimation: true,
       hasHoverEffect: true,
       border: 5,
@@ -48,8 +59,7 @@ const HexTile = (props: {
     props
   );
 
-  const [appIcon, setAppIcon] = createSignal(merged.icon);
-  const [icon] = createResource(appIcon, HexIcon);
+  const [icon] = createResource(merged.app, HexIcon);
 
   const [getHovered, setHovered] = createSignal(false);
 
@@ -87,16 +97,18 @@ const HexTile = (props: {
     }, 100);
   }
 
+  const [isBrokenImage, setBrokenImage] = createSignal(false);
+
   return (
     <Show when={(!isFullLayout() && merged.action !== 'Unset') || isFullLayout()}>
       <div
         class={`hexTile absolute bg-transparent cursor-pointer inline-block transition-transform`}
         id={`{"x":"${merged.x}", "y":"${merged.y}", "radiant":"${merged.radiant}", "action":"${
           merged.action
-        }", "icon":"${merged.icon.replaceAll('\\', '\\\\')}", "title":"${merged.title.replace(
-          '\\',
-          ''
-        )}"}`}
+        }", "app":"${merged.app.replaceAll('\\', '\\\\')}", "url":"${merged.url
+          .trim()
+          .replaceAll('\\', '\\\\')}
+        ", "title":"${merged.title.replace('\\', '')}"}`}
         style={{
           left: `${
             merged.x * (getHexSize() + getHexMargin()) -
@@ -159,17 +171,48 @@ const HexTile = (props: {
           >
             <Match when={merged.action === 'App'}>
               <Show
-                when={icon.loading || icon() === ''}
+                when={isValidUrl(merged.url)}
                 fallback={
-                  <img
-                    class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                    src={icon()}
-                  ></img>
+                  // No URL or not http show this:
+                  <Show
+                    when={icon.loading || icon() === ''}
+                    fallback={
+                      <img
+                        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                        src={icon()}
+                      ></img>
+                    }
+                  >
+                    <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                      {merged.title}
+                    </span>
+                  </Show>
                 }
               >
-                <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                  {merged.title}
-                </span>
+                <Show
+                  // URL show this:
+                  when={icon.loading || icon() === ''}
+                  fallback={
+                    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                      <img
+                        src={`https://www.google.com/s2/favicons?domain=${merged.url}&sz=${128}`}
+                      ></img>
+                      <img
+                        src={icon()}
+                        class={`absolute`}
+                        style={{
+                          width: `${getHexSize() / 66}rem`,
+                          top: `${getHexSize() / 66}rem`,
+                          left: `${(getHexSize() * 1.3) / 66}rem`,
+                        }}
+                      ></img>
+                    </div>
+                  }
+                >
+                  <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                    {merged.title}
+                  </span>
+                </Show>
               </Show>
             </Match>
             <Match when={merged.action === 'MediaPlayer'}>
@@ -201,8 +244,20 @@ const HexTile = (props: {
                       style={{
                         height: `${(getHexSize() - merged.border) * 1.169}px`,
                         'min-width': `min-content`,
+                        display: isBrokenImage() ? 'none' : 'block',
+                      }}
+                      onError={() => {
+                        setBrokenImage(true);
+                      }}
+                      onLoad={() => {
+                        setBrokenImage(false);
                       }}
                     />
+                    <Show when={isBrokenImage()}>
+                      <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                        🎵
+                      </span>
+                    </Show>
                     <Show when={getHovered()}>
                       <span class="controls absolute text-base text-white flex flex-row top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-max gap-1">
                         <FaSolidForwardStep

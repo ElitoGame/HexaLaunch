@@ -203,4 +203,10 @@ export class UserSettings {
       setHexUiData(UserSettings.settings.hexUI);
     }
   }
+
+  public static setHexTileDataArray(hexTileDataArray: HexTileData[]) {
+    UserSettings.settings.hexUI.setTiles(hexTileDataArray);
+    UserSettings.settings.save();
+    setHexUiData(UserSettings.settings.hexUI);
+  }
 }

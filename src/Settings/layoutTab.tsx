@@ -7,7 +7,7 @@ import HexTile from '../HexUI/Components/HexTile';
 import HexTileData, { actionType } from '../DataModel/HexTileData';
 import { externalApp } from '../externalAppManager';
 import { UserSettings } from '../datastore';
-import { setSettingsGridTiles, setOptionsVisible } from './SettingsMenu';
+import { setSettingsGridTiles, setOptionsVisible, setOverWriteWarning } from './SettingsMenu';
 
 export const LayoutTab = () => {
   const [getPage, setPage] = createSignal<number>(0);
@@ -19,14 +19,14 @@ export const LayoutTab = () => {
   const [getHexTileData, setHexTileData] = createSignal<dragData | null>(null);
 
   window.addEventListener('mouseup', (e) => {
-    setIsDraggingTiles(false);
-    setIsDraggingFromSidebar(false);
-    const element = document
-      .elementsFromPoint(e.clientX, e.clientY)
-      .filter((x) => x.classList.contains('hexTile'))[0] as HTMLDivElement;
-    if (element) {
-      const data: any = JSON.parse(element.id);
-      if (data.action === 'Unset') {
+    if (isDraggingFromSidebar()) {
+      setIsDraggingTiles(false);
+      setIsDraggingFromSidebar(false);
+      const element = document
+        .elementsFromPoint(e.clientX, e.clientY)
+        .filter((x) => x.classList.contains('hexTile'))[0] as HTMLDivElement;
+      if (element) {
+        const data: any = JSON.parse(element.id.replaceAll('\n', '').replace('        ', ''));
         const newData = getHexTileData() ?? new dragData('Unset', '', '', '');
         const newTile = new HexTileData(
           parseInt(data.x),
@@ -36,29 +36,42 @@ export const LayoutTab = () => {
           newData.executable,
           newData.url
         );
-        UserSettings.setHexTileData(newTile);
-        let tiles = getHexUiData()
-          ?.getTiles()
-          .map((x) => {
-            if (
-              x.getX() === newTile.getX() &&
-              x.getY() === newTile.getY() &&
-              x.getRadiant() === newTile.getRadiant()
-            ) {
-              return newTile;
-            }
-            return x;
-          });
-        setSettingsGridTiles(tiles);
-        getHexUiData()?.setTiles(tiles);
-        setOptionsVisible({ visible: false, x: newTile.getX(), y: newTile.getY() });
+        // Only place tiles on an empty tile, otherwise show a warning to overwrite, except if shift is pressed.
+        if (data.action === 'Unset' || e.shiftKey) {
+          UserSettings.setHexTileData(newTile);
+          let tiles = getHexUiData()
+            ?.getTiles()
+            .map((x) => {
+              if (
+                x.getX() === newTile.getX() &&
+                x.getY() === newTile.getY() &&
+                x.getRadiant() === newTile.getRadiant()
+              ) {
+                return newTile;
+              }
+              return x;
+            });
+          setSettingsGridTiles(tiles);
+          getHexUiData()?.setTiles(tiles);
+          setOptionsVisible({ visible: false, x: newTile.getX(), y: newTile.getY() });
+        } else {
+          const targetTile = new HexTileData(
+            parseInt(data.x),
+            parseInt(data.y),
+            parseInt(data.radiant),
+            data.action,
+            data.app,
+            data.url
+          );
+          setOverWriteWarning({ visible: true, targetTile: targetTile, newTile: newTile });
+        }
       }
+      setHexTileData(null);
     }
-    setHexTileData(null);
   });
 
   window.addEventListener('mousemove', (e) => {
-    if (isDraggingTiles()) {
+    if (isDraggingTiles() && dragElement) {
       dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
       dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
 
