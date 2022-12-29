@@ -41,30 +41,33 @@ import { UserSettings } from '../datastore';
 import { externalApp, externalAppManager } from '../externalAppManager';
 import { IoTrashBin } from 'solid-icons/io';
 import { invoke } from '@tauri-apps/api';
+import { emit } from '@tauri-apps/api/event';
 
 //import { MultipleListsExample } from './App';
 let dragElement: HTMLImageElement | undefined;
-
-const [isDev, setDev] = createSignal(true);
-invoke('is_dev').then((res) => setDev(res as boolean));
 
 const [getHexTileData, setHexTileData] = createSignal<dragHexData | null>(null);
 
 window.addEventListener('mouseup', (e) => {
   if (wasDraggingTiles() && dragElement) {
+    // hide the drag element
     setIsDraggingTiles(false);
     setIsDraggingFromGrid(false);
+    // get the hexTile at the mouse position
     const element = document
       .elementsFromPoint(e.clientX, e.clientY)
       .filter((x) => x.classList.contains('hexTile'))[0] as HTMLDivElement;
 
     if (element) {
+      // extract the data from the hexTile's id
       const data: any = JSON.parse(element.id);
       const newData = getHexTileData() ?? new dragHexData('Unset', '', '', '', 0, 0, 0);
+      // If the tile is the same, don't do anything
       if (data.x == newData.x && data.y == newData.y && data.radiant == newData.radiant) {
         return;
       }
-      const newTile = new HexTileData(
+      // Create the tiledata of the orginal tile (the one that was dragged)
+      const originTile = new HexTileData(
         parseInt(data.x),
         parseInt(data.y),
         parseInt(data.radiant),
@@ -72,14 +75,19 @@ window.addEventListener('mouseup', (e) => {
         newData.executable,
         newData.url
       );
+      // Create the tiledata of the target tile (the one that was dropped on)
       const targetTile =
         getHexUiData()
           ?.getTiles()
           .find(
             (x) => x.getX() === data.x && x.getY() === data.y && x.getRadiant() === data.radiant
           ) ?? new HexTileData(newData.x, newData.y, newData.radiant, data.action, data.icon, '');
-      console.log('Target? ', targetTile, newTile);
-      UserSettings.setHexTileData(newTile);
+
+      // Save the data on the file.
+      UserSettings.setHexTileData(originTile);
+      UserSettings.setHexTileData(targetTile);
+      // Update the UI
+      // create a map of the tiles, and replace the old tile with the new one, and the new one with the old one. (swap)
       let tiles = getHexUiData()
         ?.getTiles()
         .map((x) => {
@@ -93,14 +101,16 @@ window.addEventListener('mouseup', (e) => {
           }
           // If the tile is the current target tile, set it to the old tile (new now.)
           if (x.getX() === data.x && x.getY() === data.y && x.getRadiant() === data.radiant) {
-            return newTile;
+            return originTile;
           }
           return x;
         });
-      console.log('Add new tile!', data, newData, newTile, targetTile, tiles);
+      // Set the tiles to update the UI
       setSettingsGridTiles(tiles);
+      // Set the tiles to update the data model
       getHexUiData()?.setTiles(tiles);
     }
+    // Clear the drag data
     setHexTileData(null);
   }
 });
@@ -133,6 +143,7 @@ const [isDraggingFromGrid, setIsDraggingFromGrid] = createSignal(false);
 
 createEffect(() => {
   console.log('Tiles changed!', getSettingsGridTiles());
+  emit('hexTilesChanged', getSettingsGridTiles());
 });
 
 const HexUIGrid = () => {
@@ -149,6 +160,7 @@ const HexUIGrid = () => {
             position: 'absolute',
             top: `50%`,
             left: `50%`,
+            transform: `translate(-50%, -50%)`,
             'font-size': '0',
           }}
         >
@@ -199,9 +211,7 @@ const HexUIGrid = () => {
                   }
                 >
                   <div
-                    class={`hexOptions absolute bg-accent rounded-full h-6 w-${
-                      isDev() ? '32' : '6'
-                    } flex items-center justify-center z-50 text-base -translate-x-1/2 translate-y-1/2`}
+                    class={`hexOptions absolute bg-accent rounded-full h-6 w-6 flex items-center justify-center z-50 text-base -translate-x-1/2 translate-y-1/2`}
                     style={{
                       left: `${
                         getOptionsVisible().x * (getHexSize() + getHexMargin()) -
@@ -254,11 +264,6 @@ const HexUIGrid = () => {
                         setOptionsVisible({ visible: false, x: tile.getX(), y: tile.getY() });
                       }}
                     />
-                    <Show when={isDev()}>
-                      <span class="ml-2">
-                        x:{tile.getX()}, y:{tile.getY()}, r:{tile.getRadiant()}
-                      </span>
-                    </Show>
                   </div>
                 </Show>
                 <HexTile
@@ -306,6 +311,7 @@ const HexUIPreview = () => {
             position: 'absolute',
             top: `50%`,
             left: `50%`,
+            transform: `translate(-50%, -50%)`,
             'font-size': '0',
           }}
         >
@@ -396,7 +402,7 @@ const SettingsMenu = () => {
           return false;
         }}
       >
-        <GridItem class="bg-background rounded-r-md pt-5" id="leftPanelWindow">
+        <GridItem class="bg-background rounded-r-md pt-5 h-screen" id="leftPanelWindow">
           <VStack alignItems="left" spacing="$4">
             <Tabs keepAlive variant="pills" defaultIndex={0}>
               <TabList borderWidth="0px" gap="$8">

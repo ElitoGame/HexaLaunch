@@ -12,7 +12,7 @@ export const [getCursorPosition, setCursorPosition] = createSignal({
   y: 0,
 });
 
-export const [getHexUiData, setHexUiData] = createSignal<HexUiData>();
+export const [getHexUiData, setHexUiData] = createSignal<HexUiData>(null, { equals: false });
 export const [getCurrentRadiant, setCurrentRadiant] = createSignal(-1);
 export const [getHexSize, setHexSize] = createSignal(66); //66
 export const [getHexMargin, setHexMargin] = createSignal(4); //4
@@ -23,12 +23,6 @@ export const [isSearchVisible, setIsSearchVisible] = createSignal(false);
 export const [isHexUiVisible, setIsHexUiVisible] = createSignal(false);
 export const [getCurrentMedia, setCurrentMedia] = createSignal<MediaObject>();
 export const [selectedHexTile, setSelectedHexTile] = createSignal({ x: -99, y: -99 });
-
-// let lastSwitch = true;
-// setInterval(async () => {
-//   setHexSize(getHexSize() + (lastSwitch ? 40 : -40));
-//   lastSwitch = !lastSwitch;
-// }, 1000);
 
 await listen('updateSettings', (event) => {
   const settings = event.payload as {

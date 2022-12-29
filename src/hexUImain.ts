@@ -2,12 +2,15 @@ import { listen } from '@tauri-apps/api/event';
 import { Command } from '@tauri-apps/api/shell';
 import { currentMonitor, getAll, LogicalPosition } from '@tauri-apps/api/window';
 import { createEffect, createSignal } from 'solid-js';
+import HexTileData from './DataModel/HexTileData';
+import HexUiData from './DataModel/HexUiData';
 import { UserSettings } from './datastore';
 import {
   getCurrentRadiant,
   getCursorPosition,
   getHexMargin,
   getHexSize,
+  getHexUiData,
   getShowPosition,
   isHexUiVisible,
   isMoveToCursor,
@@ -16,6 +19,7 @@ import {
   setCursorPosition,
   setHexMargin,
   setHexSize,
+  setHexUiData,
   setIsHexUiVisible,
   setIsSearchVisible,
   setSelectedHexTile,
@@ -311,4 +315,13 @@ createEffect(() => {
   if (getCurrentRadiant() === -1) {
     setSelectedHexTile({ x: -99, y: -99 });
   }
+});
+
+await listen('hexTilesChanged', (e) => {
+  let dataArray = e.payload as any[];
+  let hexTiles: HexTileData[] = dataArray.map((data) => {
+    return HexTileData.fromJSON(data);
+  });
+  UserSettings.settings.getHexUI().setTiles(hexTiles);
+  setHexUiData(UserSettings.settings.getHexUI());
 });

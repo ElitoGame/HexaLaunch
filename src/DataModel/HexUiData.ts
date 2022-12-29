@@ -97,5 +97,12 @@ export default class HexUiData {
 
   public setTiles(tiles: Array<HexTileData>) {
     this.tiles = tiles;
+    this.coreTiles = tiles.filter((tile) => tile.getRadiant() === 0);
+    this.radiantTile1 = tiles.filter((tile) => tile.getRadiant() === 1);
+    this.radiantTile2 = tiles.filter((tile) => tile.getRadiant() === 2);
+    this.radiantTile3 = tiles.filter((tile) => tile.getRadiant() === 3);
+    this.radiantTile4 = tiles.filter((tile) => tile.getRadiant() === 4);
+    this.radiantTile5 = tiles.filter((tile) => tile.getRadiant() === 5);
+    this.radiantTile6 = tiles.filter((tile) => tile.getRadiant() === 6);
   }
 }
