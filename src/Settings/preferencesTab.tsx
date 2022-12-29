@@ -8,9 +8,6 @@ const [isAutoStartEnabled, setAutoStartEnabled] = createSignal(
   UserSettings.settings.getAutoLaunch()
 );
 
-// const [isDev, setDev] = createSignal(true);
-// invoke('is_dev').then((res) => setDev(res as boolean));
-
 export const PreferencesTab = () => {
   return (
     <>
@@ -18,7 +15,7 @@ export const PreferencesTab = () => {
 
       <Input
         size="md"
-        class="w-60 text-text"
+        class="w-60 text-text mb-4"
         id="hello"
         onKeyDown={handleHotkeyEvent}
         onfocusout={(e: Event) => {

@@ -11,12 +11,19 @@ import {
   Center,
 } from '@hope-ui/solid';
 
-import { batch, createResource, For, lazy, onMount, Show } from 'solid-js';
+import { batch, createEffect, createResource, For, lazy, onMount, Show } from 'solid-js';
 
 //import '../../assets/index.css';
 import HexTile from '../HexUI/Components/HexTile';
 import HexTileData, { actionType } from '../DataModel/HexTileData';
-import { getCurrentRadiant, getHexUiData, getShowPosition, setSearchResults } from '../main';
+import {
+  getCurrentRadiant,
+  getHexMargin,
+  getHexSize,
+  getHexUiData,
+  getShowPosition,
+  setSearchResults,
+} from '../main';
 import { NewThemeTab } from './newThemeTab';
 import { AppearanceTab } from './appearanceTab';
 import { LayoutTab } from './layoutTab';
@@ -33,25 +40,30 @@ import { VsChromeMaximize, VsChromeMinimize, VsChromeRestore, VsClose } from 'so
 import { UserSettings } from '../datastore';
 import { externalApp, externalAppManager } from '../externalAppManager';
 import { IoTrashBin } from 'solid-icons/io';
+import { invoke } from '@tauri-apps/api';
 
 //import { MultipleListsExample } from './App';
 let dragElement: HTMLImageElement | undefined;
 
+const [isDev, setDev] = createSignal(true);
+invoke('is_dev').then((res) => setDev(res as boolean));
+
 const [getHexTileData, setHexTileData] = createSignal<dragHexData | null>(null);
 
 window.addEventListener('mouseup', (e) => {
-  setIsDraggingTiles(false);
-  const element = document
-    .elementsFromPoint(e.clientX, e.clientY)
-    .filter((x) => x.classList.contains('hexTile'))[0] as HTMLDivElement;
+  if (wasDraggingTiles() && dragElement) {
+    setIsDraggingTiles(false);
+    setIsDraggingFromGrid(false);
+    const element = document
+      .elementsFromPoint(e.clientX, e.clientY)
+      .filter((x) => x.classList.contains('hexTile'))[0] as HTMLDivElement;
 
-  const binelement = document
-    .elementsFromPoint(e.clientX, e.clientY)
-    .filter((x) => x.classList.contains('bin'))[0] as HTMLDivElement;
-  if (element) {
-    const data: any = JSON.parse(element.id);
-    if (data.action === 'Unset') {
+    if (element) {
+      const data: any = JSON.parse(element.id);
       const newData = getHexTileData() ?? new dragHexData('Unset', '', '', '', 0, 0, 0);
+      if (data.x == newData.x && data.y == newData.y && data.radiant == newData.radiant) {
+        return;
+      }
       const newTile = new HexTileData(
         parseInt(data.x),
         parseInt(data.y),
@@ -60,30 +72,41 @@ window.addEventListener('mouseup', (e) => {
         newData.executable,
         newData.url
       );
+      const targetTile =
+        getHexUiData()
+          ?.getTiles()
+          .find(
+            (x) => x.getX() === data.x && x.getY() === data.y && x.getRadiant() === data.radiant
+          ) ?? new HexTileData(newData.x, newData.y, newData.radiant, data.action, data.icon, '');
+      console.log('Target? ', targetTile, newTile);
       UserSettings.setHexTileData(newTile);
-      console.log('Unset', data, newData, newTile);
-    } else {
-      console.log(data, dragHexData);
+      let tiles = getHexUiData()
+        ?.getTiles()
+        .map((x) => {
+          // If the tile is the old tile, set it to the current target tile
+          if (
+            x.getX() === newData.x &&
+            x.getY() === newData.y &&
+            x.getRadiant() === newData.radiant
+          ) {
+            return targetTile ?? x;
+          }
+          // If the tile is the current target tile, set it to the old tile (new now.)
+          if (x.getX() === data.x && x.getY() === data.y && x.getRadiant() === data.radiant) {
+            return newTile;
+          }
+          return x;
+        });
+      console.log('Add new tile!', data, newData, newTile, targetTile, tiles);
+      setSettingsGridTiles(tiles);
+      getHexUiData()?.setTiles(tiles);
     }
-  } else if (binelement) {
-    console.log('no element');
-    // remove tile
-    const oldTile = new HexTileData(
-      getHexTileData()?.x ?? 0,
-      getHexTileData()?.y ?? 0,
-      getHexTileData()?.radiant ?? 0,
-      'Unset',
-      '',
-      ''
-    );
-    console.log('oldTile', oldTile, getHexTileData());
-    UserSettings.setHexTileData(oldTile);
+    setHexTileData(null);
   }
-  setHexTileData(null);
 });
 
 window.addEventListener('mousemove', (e) => {
-  if (isDraggingTiles()) {
+  if (isDraggingTiles() && dragElement) {
     dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
     dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
 
@@ -98,6 +121,19 @@ window.addEventListener('mousemove', (e) => {
 const HexAppIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
 const [hexAppIcon, setHexAppIcon] = createSignal('');
 const [hexIcon] = createResource(hexAppIcon, HexAppIcon);
+
+export const [getOptionsVisible, setOptionsVisible] = createSignal({ visible: false, x: 0, y: 0 });
+
+export const [getSettingsGridTiles, setSettingsGridTiles] = createSignal<HexTileData[]>(
+  getHexUiData()?.getTiles() ?? [],
+  { equals: false }
+);
+
+const [isDraggingFromGrid, setIsDraggingFromGrid] = createSignal(false);
+
+createEffect(() => {
+  console.log('Tiles changed!', getSettingsGridTiles());
+});
 
 const HexUIGrid = () => {
   console.log('found hexUIData: ', getHexUiData());
@@ -116,13 +152,19 @@ const HexUIGrid = () => {
             'font-size': '0',
           }}
         >
-          <For each={getHexUiData()?.getTiles() ?? []}>
+          <For each={getSettingsGridTiles()}>
             {(tile: HexTileData, i) => (
               <span
                 onMouseDown={(e) => {
+                  if (
+                    e.target.classList.contains('hexOptions') ||
+                    e.target.parentElement.classList.contains('hexOptions')
+                  ) {
+                    return;
+                  }
                   if (tile.getAction() === 'Unset') return;
-                  console.log('mouse down');
                   setIsDraggingTiles(true);
+                  setIsDraggingFromGrid(true);
                   // setHexTileData(dragData.fromExternalApp(tile));
                   setHexTileData(
                     new dragHexData(
@@ -141,26 +183,102 @@ const HexUIGrid = () => {
                   e.preventDefault();
                 }}
                 draggable={false}
+                onMouseOver={() => {
+                  if (tile.getAction() === 'Unset') return;
+                  setOptionsVisible({ visible: true, x: tile.getX(), y: tile.getY() });
+                }}
+                onMouseLeave={(e) => {
+                  setOptionsVisible({ visible: false, x: tile.getX(), y: tile.getY() });
+                }}
               >
+                <Show
+                  when={
+                    getOptionsVisible().visible &&
+                    getOptionsVisible().x === tile.getX() &&
+                    getOptionsVisible().y === tile.getY()
+                  }
+                >
+                  <div
+                    class={`hexOptions absolute bg-accent rounded-full h-6 w-${
+                      isDev() ? '32' : '6'
+                    } flex items-center justify-center z-50 text-base -translate-x-1/2 translate-y-1/2`}
+                    style={{
+                      left: `${
+                        getOptionsVisible().x * (getHexSize() + getHexMargin()) -
+                        (getOptionsVisible().y % 2 === 0
+                          ? 0
+                          : (getHexSize() + getHexMargin()) / 2) -
+                        getHexSize() / 2 -
+                        (getHexMargin() / 8) * 11.75 +
+                        getHexSize() / 2 +
+                        (getHexMargin() / 8) * 11.75
+                      }px`,
+                      bottom: `${
+                        getOptionsVisible().y * (getHexSize() * 0.86 + getHexMargin()) -
+                        (getHexSize() / 13) * 8 -
+                        (getHexMargin() / 8) * 11.75 +
+                        getHexSize() +
+                        (getHexMargin() / 8) * 11.75
+                      }px`,
+                    }}
+                  >
+                    <IoTrashBin
+                      class="hexOptions bin fill-text"
+                      onClick={() => {
+                        console.log('remove tile');
+                        // remove tile
+                        const oldTile = new HexTileData(
+                          tile.getX(),
+                          tile.getY(),
+                          tile.getRadiant(),
+                          'Unset',
+                          '',
+                          ''
+                        );
+                        console.log('oldTile', oldTile, getHexTileData());
+                        UserSettings.setHexTileData(oldTile);
+                        let tiles = getHexUiData()
+                          ?.getTiles()
+                          .map((x) => {
+                            if (
+                              x.getX() === tile.getX() &&
+                              x.getY() === tile.getY() &&
+                              x.getRadiant() === tile.getRadiant()
+                            ) {
+                              return oldTile;
+                            }
+                            return x;
+                          });
+                        setSettingsGridTiles(tiles);
+                        getHexUiData()?.setTiles(tiles);
+                        setOptionsVisible({ visible: false, x: tile.getX(), y: tile.getY() });
+                      }}
+                    />
+                    <Show when={isDev()}>
+                      <span class="ml-2">
+                        x:{tile.getX()}, y:{tile.getY()}, r:{tile.getRadiant()}
+                      </span>
+                    </Show>
+                  </div>
+                </Show>
                 <HexTile
                   zIndex={10}
                   x={tile.getX()}
                   y={tile.getY()}
                   radiant={tile.getRadiant()}
-                  onClick={() => {
-                    console.log(tile);
-                  }}
                   title={
-                    tile
-                      .getApp()
-                      ?.split('.')[0]
-                      ?.split('/')
-                      [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
-                    tile
-                      .getUrl()
-                      ?.split('.')[0]
-                      ?.split('/')
-                      [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
+                    tile.getAction() === 'Unset'
+                      ? '+'
+                      : tile
+                          .getApp()
+                          ?.split('.')[0]
+                          ?.split('/')
+                          [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
+                        tile
+                          .getUrl()
+                          ?.split('.')[0]
+                          ?.split('/')
+                          [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
                   }
                   action={tile.getAction()}
                   icon={tile.getApp()}
@@ -172,7 +290,7 @@ const HexUIGrid = () => {
           </For>
         </div>
       </div>
-      <Show when={isDraggingTiles()}>
+      <Show when={isDraggingTiles() && isDraggingFromGrid()}>
         <img class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement} src={hexIcon()}></img>
       </Show>
     </>
@@ -346,9 +464,6 @@ const SettingsMenu = () => {
           <Show when={getCurrentTab() == 'Appearance'}>
             <HexUIPreview></HexUIPreview>
           </Show>
-          <Show when={wasDraggingTiles()}>
-            <IoTrashBin class="bin absolute right-2 bottom-2 p-3 w-12 h-12 fill-text" />
-          </Show>
         </GridItem>
       </Grid>
     </>
@@ -379,5 +494,8 @@ class dragHexData {
     this.executable = executable;
     this.url = url;
     this.icon = icon;
+    this.x = x;
+    this.y = y;
+    this.radiant = radiant;
   }
 }

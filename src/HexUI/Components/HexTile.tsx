@@ -11,6 +11,7 @@ import {
 import { FaSolidPlay, FaSolidForwardStep, FaSolidPause } from 'solid-icons/fa';
 import { invoke } from '@tauri-apps/api';
 import { externalAppManager } from '../../externalAppManager';
+import { IoTrashBin } from 'solid-icons/io';
 
 const HexIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
 
@@ -36,7 +37,7 @@ const HexTile = (props: {
       onClick: () => {},
       zIndex: 10,
       color: 'bg-neutral-600',
-      title: '✨',
+      title: '',
       action: '',
       icon: '',
       hasAnimation: true,
@@ -236,6 +237,9 @@ const HexTile = (props: {
                   </span>
                 </Show>
               </>
+            </Match>
+            <Match when={merged.action === 'PaperBin'}>
+              <IoTrashBin class="hexOptions bin fill-text text-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
             </Match>
           </Switch>
         </div>

@@ -114,16 +114,37 @@ export class UserSettings {
     ]);
   }
 
-  public save() {
+  public async save() {
+    this.hexUI.setTiles(
+      this.hexUI.getTiles().sort((a, b) => {
+        if (a.getRadiant() < b.getRadiant()) {
+          return -1;
+        } else if (a.getRadiant() > b.getRadiant()) {
+          return 1;
+        }
+        return 0;
+      })
+    );
     const data = {
       autoLaunch: this.autoLaunch,
       language: this.language,
       settingsData: this.settingsData.toJSON(),
       hexUI: this.hexUI.toJSON(),
     };
-    fs.writeTextFile('user-settings.json', JSON.stringify(data), {
-      dir: fs.BaseDirectory.AppConfig,
-    });
+    // check if the changes are actually changes
+    if (
+      JSON.stringify(data) !==
+      JSON.stringify(
+        JSON.parse(await fs.readTextFile('user-settings.json', { dir: fs.BaseDirectory.AppConfig }))
+      )
+    ) {
+      fs.writeTextFile('user-settings.json', JSON.stringify(data), {
+        dir: fs.BaseDirectory.AppConfig,
+      });
+      console.log('Settings saved');
+    } else {
+      console.log('No changes to settings');
+    }
     // getHexUiWindow()?.webContents.send("hexUI:getHexUiData", this.hexUI);
   }
 

@@ -7,17 +7,20 @@ import HexTile from '../HexUI/Components/HexTile';
 import HexTileData, { actionType } from '../DataModel/HexTileData';
 import { externalApp } from '../externalAppManager';
 import { UserSettings } from '../datastore';
+import { setSettingsGridTiles, setOptionsVisible } from './SettingsMenu';
 
 export const LayoutTab = () => {
   const [getPage, setPage] = createSignal<number>(0);
   let searchBar: HTMLInputElement | undefined;
   let dragElement: HTMLImageElement | undefined;
 
+  const [isDraggingFromSidebar, setIsDraggingFromSidebar] = createSignal<boolean>(false);
+
   const [getHexTileData, setHexTileData] = createSignal<dragData | null>(null);
 
   window.addEventListener('mouseup', (e) => {
-    console.log('mouse up');
     setIsDraggingTiles(false);
+    setIsDraggingFromSidebar(false);
     const element = document
       .elementsFromPoint(e.clientX, e.clientY)
       .filter((x) => x.classList.contains('hexTile'))[0] as HTMLDivElement;
@@ -33,17 +36,22 @@ export const LayoutTab = () => {
           newData.executable,
           newData.url
         );
-        // UserSettings.setHexTileData(newTile);
-        let uiData = getHexUiData();
-        let tiles = uiData.getTiles();
-        // remove old tile
-        tiles = tiles.filter((x) => x.getX() !== newTile.getX() || x.getY() !== newTile.getY());
-        tiles.push(newTile);
-        uiData.setTiles(tiles);
-        setHexUiData(uiData);
-        console.log('Unset', data, newData, newTile);
-      } else {
-        console.log(data, dragData);
+        UserSettings.setHexTileData(newTile);
+        let tiles = getHexUiData()
+          ?.getTiles()
+          .map((x) => {
+            if (
+              x.getX() === newTile.getX() &&
+              x.getY() === newTile.getY() &&
+              x.getRadiant() === newTile.getRadiant()
+            ) {
+              return newTile;
+            }
+            return x;
+          });
+        setSettingsGridTiles(tiles);
+        getHexUiData()?.setTiles(tiles);
+        setOptionsVisible({ visible: false, x: newTile.getX(), y: newTile.getY() });
       }
     }
     setHexTileData(null);
@@ -177,6 +185,7 @@ export const LayoutTab = () => {
                 onMouseDown={(e) => {
                   console.log('mouse down');
                   setIsDraggingTiles(true);
+                  setIsDraggingFromSidebar(true);
                   setHexTileData(dragData.fromExternalApp(res));
                   e.preventDefault();
                   dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
@@ -209,7 +218,7 @@ export const LayoutTab = () => {
       </Box>
       <p>Actions</p>
       <Box bg="#C3C2C2" h="200px" borderRadius="$lg"></Box>
-      <Show when={isDraggingTiles()}>
+      <Show when={isDraggingTiles() && isDraggingFromSidebar()}>
         <img
           class="w-8 h-8 absolute z-40 cursor-pointer"
           ref={dragElement}
