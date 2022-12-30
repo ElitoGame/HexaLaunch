@@ -72,12 +72,12 @@ let isIgnoringEvents = false;
 const unlisten = await listen('mouse_move', (event) => {
   // Handle Window Intractable
   setShowAbsolutePosition({
-    x: event.payload[0] - 3,
-    y: event.payload[1] + 3,
+    x: (event.payload[0] - 3) / monitor.scaleFactor,
+    y: (event.payload[1] + 3) / monitor.scaleFactor,
   });
   setCursorPosition({
-    x: event.payload[0] - getWindowPosition().x,
-    y: event.payload[1] - getWindowPosition().y,
+    x: (event.payload[0] - getWindowPosition().x) / monitor.scaleFactor,
+    y: (event.payload[1] - getWindowPosition().y) / monitor.scaleFactor,
   });
   const hoverElement = document.elementFromPoint(getCursorPosition().x, getCursorPosition().y);
   if (hoverElement === document.documentElement || hoverElement.classList.contains('root')) {
