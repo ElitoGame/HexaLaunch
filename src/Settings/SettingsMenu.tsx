@@ -44,7 +44,7 @@ import { UserSettings } from '../datastore';
 import { externalApp, externalAppManager } from '../externalAppManager';
 import { IoArrowForward, IoTrashBin } from 'solid-icons/io';
 import { invoke } from '@tauri-apps/api';
-import { emit } from '@tauri-apps/api/event';
+import { emit, listen } from '@tauri-apps/api/event';
 
 //import { MultipleListsExample } from './App';
 let dragElement: HTMLImageElement | undefined;
@@ -170,6 +170,10 @@ const [isDraggingFromGrid, setIsDraggingFromGrid] = createSignal(false);
 createEffect(() => {
   console.log('Tiles changed!', getSettingsGridTiles());
   emit('hexTilesChanged', getSettingsGridTiles());
+});
+
+listen('hexUiDataLoaded', () => {
+  setSettingsGridTiles(getHexUiData().getTiles());
 });
 
 const HexUIGrid = () => {

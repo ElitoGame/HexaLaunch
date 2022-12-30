@@ -3,8 +3,7 @@ import { createSignal } from 'solid-js';
 import HexUiData from './DataModel/HexUiData';
 import { fs, invoke } from '@tauri-apps/api';
 import { externalAppManager } from './externalAppManager';
-import { BaseDirectory } from '@tauri-apps/api/fs';
-import { listen } from '@tauri-apps/api/event';
+import { emit, listen } from '@tauri-apps/api/event';
 
 export const [getShowPosition, setShowPosition] = createSignal({ x: 0, y: 0 });
 export const [getCursorPosition, setCursorPosition] = createSignal({
@@ -47,12 +46,31 @@ await listen('updateSettings', (event) => {
   setMoveToCursor(settings.moveToCursor);
 });
 
-// value =  // for some reason, the type is not recognized, so I am doing some casting magic and it works - wooooow
-setHexUiData(
-  HexUiData.fromJSON(
-    JSON.parse(await fs.readTextFile('user-settings.json', { dir: BaseDirectory.AppData })).hexUI
-  )
-);
+try {
+  // check if the user-settings.json file exists
+  if (await fs.exists('user-settings.json', { dir: fs.BaseDirectory.AppData })) {
+    setHexUiData(
+      HexUiData.fromJSON(
+        JSON.parse(await fs.readTextFile('user-settings.json', { dir: fs.BaseDirectory.AppData }))
+          .hexUI
+      )
+    );
+  } else {
+    // if the file does not exist, wait for the settings to be loaded,
+    // so we are sure the user-settings.json file exists and has been set up correctly.
+    listen('settingsLoaded', async () => {
+      setHexUiData(
+        HexUiData.fromJSON(
+          JSON.parse(await fs.readTextFile('user-settings.json', { dir: fs.BaseDirectory.AppData }))
+            .hexUI
+        )
+      );
+      // emit the event that the UserSettings have been applied
+      emit('hexUiDataLoaded');
+      console.log('settings loaded', getHexUiData());
+    });
+  }
+} catch (e) {}
 
 export const searchAppDB = async (query: string, offset = 0) => {
   if (query.length == 0) {

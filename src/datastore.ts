@@ -5,6 +5,7 @@ import HexUiData from './DataModel/HexUiData';
 import SettingsData from './Settings/SettingsData';
 import { invoke } from '@tauri-apps/api/tauri';
 import { setHexUiData } from './main';
+import { emit } from '@tauri-apps/api/event';
 
 export class UserSettings {
   public static settings: UserSettings; // Using a Singleton here to ensure that the settings are only loaded once.
@@ -44,12 +45,12 @@ export class UserSettings {
       true,
       true,
       true,
-      ['STRG', 'Shift', ' '],
-      '#505050',
+      ['CONTROL', 'SHIFT', 'SPACE'],
+      '#343434',
       '#5A6AFC',
       '#DFDFDF',
-      50,
-      5
+      66,
+      4
     );
     this.hexUI = new HexUiData([
       new HexTileData(1, 0, 0, 'Unset', '', ''),
@@ -131,19 +132,22 @@ export class UserSettings {
       settingsData: this.settingsData.toJSON(),
       hexUI: this.hexUI.toJSON(),
     };
-    // check if the changes are actually changes
+    // check if the file exists and if the changes are actually changes
     if (
-      JSON.stringify(data) !==
-      JSON.stringify(
-        JSON.parse(await fs.readTextFile('user-settings.json', { dir: fs.BaseDirectory.AppConfig }))
-      )
+      (await fs.exists('user-settings.json', { dir: fs.BaseDirectory.AppConfig })) &&
+      JSON.stringify(data) ===
+        JSON.stringify(
+          JSON.parse(
+            await fs.readTextFile('user-settings.json', { dir: fs.BaseDirectory.AppConfig })
+          )
+        )
     ) {
+      console.log('No changes to settings');
+    } else {
       fs.writeTextFile('user-settings.json', JSON.stringify(data), {
         dir: fs.BaseDirectory.AppConfig,
       });
       console.log('Settings saved');
-    } else {
-      console.log('No changes to settings');
     }
     // getHexUiWindow()?.webContents.send("hexUI:getHexUiData", this.hexUI);
   }
@@ -152,6 +156,12 @@ export class UserSettings {
     if (UserSettings.settings === undefined || force) {
       UserSettings.settings = new UserSettings();
       console.log('Loading settings');
+      if (!(await fs.exists('user-settings.json', { dir: fs.BaseDirectory.AppConfig }))) {
+        // No data has been setup yet, so set default values here:
+        console.log('No user-settings.json found. Using default settings.');
+        UserSettings.settings.save();
+        invoke('plugin:autostart|enable');
+      }
       try {
         const data = JSON.parse(
           await fs.readTextFile('user-settings.json', {
@@ -162,12 +172,7 @@ export class UserSettings {
         UserSettings.settings.language = data.language;
         UserSettings.settings.hexUI = HexUiData.fromJSON(data.hexUI);
         UserSettings.settings.settingsData = SettingsData.fromJSON(data.settingsData);
-      } catch (e) {
-        console.log('No user-settings.json found. Using default settings.');
-        UserSettings.settings.save();
-        invoke('plugin:autostart|enable');
-        // No data has been setup yet, so set default values here:
-      }
+      } catch (e) {}
       // Make sure to set the auto-launch value. This needs to happen regardless of if data is present or not,
       // because the settings file can be generated in dev mode too, but the autolaunch will never be activated in dev mode.
       // TODO autoLaunch
@@ -182,6 +187,7 @@ export class UserSettings {
     // 	UserSettings.settings.hexUI
     // );
     // console.log(UserSettings.settings.hexUI.getCoreTiles());
+    emit('settingsLoaded');
     return UserSettings.settings;
   }
 
