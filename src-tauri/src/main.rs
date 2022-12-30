@@ -317,24 +317,48 @@ fn query_current_media_emitter(
 // HOMEPATH: \Users\ElitoGame - HOMEPATH
 
 fn query_apps(handle: AppHandle) {
-    let other_handle = handle.clone();
-    std::thread::spawn(|| {
-        futures::executor::block_on(async {
-            query_other_apps(other_handle).await;
-        })
-    });
-    let relevant_handle = handle.clone();
-    std::thread::spawn(move || {
-        futures::executor::block_on(async {
-            query_relevant_apps(relevant_handle).await;
-        })
-    });
-    std::thread::spawn(move || {
-        loop {
-            query_current_apps();
-            std::thread::sleep(std::time::Duration::from_secs(300)); //every 5 mins
+    // read the user-settings.json file and check if autoQueryApps is true
+    // if it is or if the file doesn't even exist, then query the apps
+    let mut auto_query_apps = true;
+    let app_dir = resolve_path(
+        &handle.config(),
+        handle.package_info(),
+        &handle.env(),
+        "",
+        Some(BaseDirectory::AppData),
+    )
+    .unwrap_or_default();
+    let _file = match File::open(app_dir.join("user-settings.json")) {
+        Ok(file) => {
+            // file exists
+            let reader = BufReader::new(file);
+            let json: Value = serde_json::from_reader(reader).unwrap();
+            if json["autoQueryApps"] == false {
+                auto_query_apps = false;
+            }
         }
-    });
+        Err(_) => {}
+    };
+    if auto_query_apps {
+        let other_handle = handle.clone();
+        std::thread::spawn(|| {
+            futures::executor::block_on(async {
+                query_other_apps(other_handle).await;
+            })
+        });
+        let relevant_handle = handle.clone();
+        std::thread::spawn(move || {
+            futures::executor::block_on(async {
+                query_relevant_apps(relevant_handle).await;
+            })
+        });
+        std::thread::spawn(move || {
+            loop {
+                query_current_apps();
+                std::thread::sleep(std::time::Duration::from_secs(300)); //every 5 mins
+            }
+        });
+    }
 }
 
 async fn query_relevant_apps(handle: AppHandle) {
