@@ -108,7 +108,7 @@ const HexTile = (props: {
   return (
     <Show when={(!isFullLayout() && merged.action !== 'Unset') || isFullLayout()}>
       <div
-        class={`hexTile absolute bg-transparent cursor-pointer inline-block transition-transform`}
+        class={`hexTile absolute bg-transparent cursor-pointer inline-block`}
         id={`{"x":"${merged.x}", "y":"${merged.y}", "radiant":"${merged.radiant}", "action":"${
           merged.action
         }", "app":"${merged.app.replaceAll('\\', '\\\\')}", "url":"${merged.url
@@ -133,6 +133,7 @@ const HexTile = (props: {
           'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
           'z-index': merged.zIndex ?? 0,
           'transform-origin': 'center',
+          'transition-property': 'transform',
           transform: `scale(${getScale() / 100})`,
           'transition-duration': `${delay * 0.075}s`,
         }}

@@ -94,6 +94,8 @@ createEffect(() => {
 });
 let urlInput: HTMLInputElement | undefined;
 
+let rightPanelWindow: HTMLDivElement | undefined;
+
 window.addEventListener('mouseup', (e) => {
   if (wasDraggingTiles() && dragElement && isDraggingFromGrid()) {
     // hide the drag element
@@ -206,6 +208,19 @@ const HexUIGrid = () => {
 
   let tileList: HTMLDivElement | undefined;
 
+  const [getGridScale, setGridScale] = createSignal(
+    getHexSize() * 9 + getHexMargin() * 7 > rightPanelWindow.clientWidth
+      ? rightPanelWindow.clientWidth / (getHexSize() * 9 + getHexMargin() * 7 + 20)
+      : 1
+  );
+
+  window.onresize = () =>
+    setGridScale(() =>
+      getHexSize() * 9 + getHexMargin() * 7 > rightPanelWindow.clientWidth
+        ? rightPanelWindow.clientWidth / (getHexSize() * 9 + getHexMargin() * 7 + 20)
+        : 1
+    );
+
   return (
     <>
       <div class="relative w-full h-full">
@@ -215,7 +230,7 @@ const HexUIGrid = () => {
             position: 'absolute',
             top: `50%`,
             left: `50%`,
-            transform: `translate(-50%, -50%)`,
+            transform: `translate(-50%, -50%) scale(${getGridScale()})`,
             'font-size': '0',
           }}
         >
@@ -418,7 +433,7 @@ const HexUIGrid = () => {
                   </div>
                   <HStack class="mt-2">
                     <Button
-                      class="text-accent underline hover:bg-transparent hover:text-accent hover:brightness-125"
+                      class="text-accent underline bg-transparent hover:bg-transparent hover:text-accent hover:brightness-125"
                       onClick={() => setEditDialog({ visible: false, targetTile: null })}
                     >
                       Cancel
@@ -539,7 +554,7 @@ const HexUIGrid = () => {
                 </p>
                 <HStack>
                   <Button
-                    class="text-accent underline hover:bg-transparent hover:text-accent hover:brightness-125"
+                    class="text-accent underline bg-transparent hover:bg-transparent hover:text-accent hover:brightness-125"
                     onClick={() =>
                       setOverWriteWarning({ visible: false, targetTile: null, newTile: null })
                     }
@@ -579,6 +594,11 @@ const HexUIGrid = () => {
               </VStack>
             </div>
           </div>
+        </Show>
+        <Show when={getGridScale() !== 1}>
+          <span class="absolute bottom-2 right-2 text-text brightness-50">
+            Scaled to {Math.floor(getGridScale() * 100)}%
+          </span>
         </Show>
       </div>
       <Show when={isDraggingTiles() && isDraggingFromGrid()}>
@@ -737,8 +757,8 @@ const SettingsMenu = () => {
         }}
       >
         <GridItem class="bg-background rounded-r-md pt-5 h-screen" id="leftPanelWindow">
-          <VStack alignItems="left" spacing="$4">
-            <Tabs keepAlive variant="pills" defaultIndex={0}>
+          <VStack alignItems="left" spacing="$4" class="h-full">
+            <Tabs keepAlive variant="pills" defaultIndex={0} class="h-full pb-8">
               <TabList borderWidth="0px" gap="$8">
                 <h1 class="pl-3 text-2xl">Settings</h1>
                 <Tab
@@ -782,7 +802,7 @@ const SettingsMenu = () => {
                   setCurrentTab('Layout');
                 }}
                 id="tp_layout"
-                class="overflow-y-auto h-screen"
+                class="overflow-y-auto h-full"
               >
                 <LayoutTab></LayoutTab>
               </TabPanel>
@@ -797,7 +817,7 @@ const SettingsMenu = () => {
             </Tabs>
           </VStack>
         </GridItem>
-        <GridItem rowSpan={1} colSpan={2} h="100%">
+        <GridItem rowSpan={1} colSpan={2} h="100%" ref={rightPanelWindow}>
           <Show when={getCurrentTab() == 'Layout'}>
             <HexUIGrid></HexUIGrid>
           </Show>

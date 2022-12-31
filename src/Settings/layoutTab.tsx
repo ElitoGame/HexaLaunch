@@ -1,5 +1,5 @@
 import { getRelevantApps, isDraggingTiles, setIsDraggingTiles } from '../settings';
-import { Box, Input, Center, HStack } from '@hope-ui/solid';
+import { Box, Input, Center, HStack, InputGroup, InputLeftElement } from '@hope-ui/solid';
 
 import { createSignal, For, Match, onMount, Show, Switch } from 'solid-js';
 import { getHexUiData, getSearchResults, searchAppDB, setHexUiData } from '../main';
@@ -9,6 +9,7 @@ import { externalApp } from '../externalAppManager';
 import { UserSettings } from '../datastore';
 import { setSettingsGridTiles, setOptionsVisible, setOverWriteWarning } from './SettingsMenu';
 import { IoTrashBin } from 'solid-icons/io';
+import { BsSearch } from 'solid-icons/bs';
 
 export const LayoutTab = () => {
   const [getPage, setPage] = createSignal<number>(0);
@@ -85,156 +86,180 @@ export const LayoutTab = () => {
   });
 
   return (
-    <>
+    <div class="flex flex-col h-full">
       <p>Drag & drop assets to your layout.</p>
       <h2>Search Assets</h2>
-      <Input
-        bg="#C3C2C2"
-        ref={searchBar}
-        class="text-text"
-        onInput={(e) => {
-          searchAppDB((e.target as HTMLInputElement).value);
-          setPage(0);
-        }}
-      ></Input>
-      <br></br>
-      <br></br>
+      <InputGroup>
+        <InputLeftElement>
+          <BsSearch />
+        </InputLeftElement>
+        <Input
+          bg="#C3C2C2"
+          ref={searchBar}
+          class="text-text"
+          onInput={(e) => {
+            searchAppDB((e.target as HTMLInputElement).value);
+            setPage(0);
+          }}
+          placeholder="Search all available apps"
+        />
+      </InputGroup>
+      <br />
 
-      <Box class="bg-gray mb-5" minH="100px" borderRadius="$lg">
-        <Show when={!((getSearchResults()?.hits?.length ?? 0) > 0)}>
-          <p class="text-base flex p-3 align-center justify-center">
-            {' '}
-            Search something to see results!
-          </p>
-        </Show>
-        <ul class="p-1">
-          <For each={getSearchResults()?.hits ?? []}>
-            {(res) => (
-              <>
-                <Box
-                  borderRadius="$lg"
-                  onClick={() => {
-                    if (searchBar) {
-                      if (searchBar.value.match(/^([a-z]:)?(\/|\\).*/gi)) {
-                        const newPath =
-                          res.document.executable.replaceAll('\\', '/') +
-                          (res.document.type === 'Folder' ? '/' : '');
-                        searchBar.value = newPath;
+      <Show
+        when={!((getSearchResults()?.hits?.length ?? 0) > 0)}
+        fallback={
+          <>
+            <Box
+              class="bg-gray mb-5"
+              minH="100px"
+              borderRadius="$lg"
+              style={{
+                'max-height': '60vh',
+                'overflow-y': 'auto',
+              }}
+            >
+              <ul class="p-1">
+                <For each={getSearchResults()?.hits ?? []}>
+                  {(res) => (
+                    <>
+                      <Box
+                        borderRadius="$lg"
+                        onClick={() => {
+                          if (searchBar) {
+                            if (searchBar.value.match(/^([a-z]:)?(\/|\\).*/gi)) {
+                              const newPath =
+                                res.document.executable.replaceAll('\\', '/') +
+                                (res.document.type === 'Folder' ? '/' : '');
+                              searchBar.value = newPath;
 
-                        searchAppDB(newPath);
-                        setPage(0);
-                        searchBar.focus();
-                      }
-                    }
-                  }}
-                >
-                  <li>
-                    <HStack>
-                      <Box class="my-2 bg-background p-3.5" borderRadius="$lg">
-                        <div class="w-25">
-                          <img src={res.document.icon} class="w-7"></img>
-                        </div>
+                              searchAppDB(newPath);
+                              setPage(0);
+                              searchBar.focus();
+                            }
+                          }
+                        }}
+                      >
+                        <li>
+                          <HStack>
+                            <Box class="my-2 bg-background p-3.5" borderRadius="$lg">
+                              <div class="w-25">
+                                <img src={res.document.icon} class="w-7"></img>
+                              </div>
+                            </Box>
+                            <div>
+                              <Box
+                                class="my-2 ml-3 p-2 bg-background whitespace-nowrap"
+                                maxW="280px"
+                                minW="280px"
+                                borderRadius="$lg"
+                              >
+                                <p class="truncate ...">{res.document.name}</p>
+                                <p class="truncate ...">{res.document.executable}</p>{' '}
+                              </Box>
+                            </div>
+                          </HStack>
+                        </li>
                       </Box>
-                      <div>
-                        <Box
-                          class="my-2 ml-3 p-2 bg-background whitespace-nowrap"
-                          maxW="280px"
-                          minW="280px"
-                          borderRadius="$lg"
-                        >
-                          <p class="truncate ...">{res.document.name}</p>
-                          <p class="truncate ...">{res.document.executable}</p>{' '}
-                        </Box>
-                      </div>
-                    </HStack>
-                  </li>
-                </Box>
-              </>
-            )}
-          </For>
-        </ul>
-      </Box>
-      <Show when={(getSearchResults()?.hits?.length ?? 0) > 0}>
-        <Center>
-          <button
-            class="bg-blue-300 rounded-sm px-2 py-1 m-2"
-            onClick={() => {
-              if (searchBar?.value !== '' && getPage() > 0) {
-                setPage((page) => page - 1);
-                searchAppDB(searchBar?.value ?? '', getPage() * 10);
-              }
-            }}
-          >
-            Prev
-          </button>
-          <span>{getPage() + 1}</span>
-          <button
-            class="bg-blue-300 rounded-sm px-2 py-1 m-2"
-            onClick={() => {
-              console.log(getSearchResults()?.count);
-              if (
-                searchBar?.value !== '' &&
-                (getSearchResults()?.count ?? 0) > (getPage() + 1) * 10
-              ) {
-                setPage((page) => page + 1);
-                searchAppDB(searchBar?.value ?? '', getPage() * 10);
-              }
-            }}
-          >
-            Next
-          </button>
-        </Center>
-
+                    </>
+                  )}
+                </For>
+              </ul>
+            </Box>
+            <Center>
+              <button
+                class="bg-blue-300 rounded-sm px-2 py-1 m-2"
+                onClick={() => {
+                  if (searchBar?.value !== '' && getPage() > 0) {
+                    setPage((page) => page - 1);
+                    searchAppDB(searchBar?.value ?? '', getPage() * 10);
+                  }
+                }}
+              >
+                Prev
+              </button>
+              <span>{getPage() + 1}</span>
+              <button
+                class="bg-blue-300 rounded-sm px-2 py-1 m-2"
+                onClick={() => {
+                  console.log(getSearchResults()?.count);
+                  if (
+                    searchBar?.value !== '' &&
+                    (getSearchResults()?.count ?? 0) > (getPage() + 1) * 10
+                  ) {
+                    setPage((page) => page + 1);
+                    searchAppDB(searchBar?.value ?? '', getPage() * 10);
+                  }
+                }}
+              >
+                Next
+              </button>
+            </Center>
+          </>
+        }
+      >
         <h2>Apps</h2>
         <p>
           This list only contains the most important Apps. If you do not find the App you are
           looking for you can use the search function above.{' '}
         </p>
-      </Show>
-      <Box class="bg-gray overflow-auto" maxH="60vh" minH="100px" borderRadius="$lg">
-        <ul class="p-1">
-          <For each={getRelevantApps() ?? []}>
-            {(res) => (
-              <li
-                onMouseDown={(e) => {
-                  console.log('mouse down');
-                  setIsDraggingTiles(true);
-                  setIsDraggingFromSidebar(true);
-                  setHexTileData(dragData.fromExternalApp(res));
-                  e.preventDefault();
-                  dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
-                  dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
-                }}
-                draggable={false}
-              >
-                <HStack>
-                  <Box class="my-2 p-3.5 bg-background" borderRadius="$lg">
-                    <div class="w-25">
-                      <img src={res.icon} class="w-7"></img>
-                    </div>
-                  </Box>
-                  <div>
-                    <Box
-                      class="my-2 ml-3 p-2 bg-background whitespace-nowrap"
-                      maxW="280px"
-                      minW="280px"
-                      borderRadius="$lg"
-                    >
-                      <p class="truncate ...">{res.name}</p>
-                      <p class="truncate ...">{res.executable}</p>{' '}
+        <br />
+        <Box
+          class="bg-gray mb-5"
+          minH="100px"
+          borderRadius="$lg"
+          style={{
+            'overflow-y': 'auto',
+          }}
+        >
+          <ul class="p-1">
+            <For each={getRelevantApps() ?? []}>
+              {(res) => (
+                <li
+                  onMouseDown={(e) => {
+                    console.log('mouse down');
+                    setIsDraggingTiles(true);
+                    setIsDraggingFromSidebar(true);
+                    setHexTileData(dragData.fromExternalApp(res));
+                    e.preventDefault();
+                    dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
+                    dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
+                  }}
+                  draggable={false}
+                >
+                  <HStack>
+                    <Box class="my-2 p-3.5 bg-background" borderRadius="$lg">
+                      <div class="w-25">
+                        <img src={res.icon} class="w-7"></img>
+                      </div>
                     </Box>
-                  </div>
-                </HStack>
-              </li>
-            )}
-          </For>
-        </ul>
-      </Box>
+                    <div>
+                      <Box
+                        class="my-2 ml-3 p-2 bg-background whitespace-nowrap"
+                        maxW="280px"
+                        minW="280px"
+                        borderRadius="$lg"
+                      >
+                        <p class="truncate ...">{res.name}</p>
+                        <p class="truncate ...">{res.executable}</p>{' '}
+                      </Box>
+                    </div>
+                  </HStack>
+                </li>
+              )}
+            </For>
+          </ul>
+        </Box>
+      </Show>
+
+      {/* <Box class="bg-gray overflow-auto" maxH="60vh" minH="100px" borderRadius="$lg">
+        
+      </Box> */}
       <p>Actions</p>
-      <Box borderRadius="$lg" class="p-2 bg-gray">
+      <Box borderRadius="$lg" class="p-2 py-2 bg-gray">
         <HStack gap={'$2'}>
           <Box
-            class="my-2 p-3.5 bg-background cursor-pointer"
+            class="p-3.5 bg-background cursor-pointer"
             borderRadius="$lg"
             onMouseDown={(e) => {
               console.log('mouse down');
@@ -250,7 +275,7 @@ export const LayoutTab = () => {
             <div class="w-25">🎵</div>
           </Box>
           <Box
-            class="my-2 p-3.5 bg-background cursor-pointer"
+            class="p-3.5 bg-background cursor-pointer"
             borderRadius="$lg"
             onMouseDown={(e) => {
               console.log('mouse down');
@@ -266,21 +291,21 @@ export const LayoutTab = () => {
             <div class="w-25">🗑</div>
           </Box>
           {/* <Box
-            class="my-2 p-3.5 bg-background"
-            borderRadius="$lg"
-            onMouseDown={(e) => {
-              console.log('mouse down');
-              setIsDraggingTiles(true);
-              setIsDraggingFromSidebar(true);
-              setHexTileData(new dragData('Web', '', '', ''));
-              e.preventDefault();
-              dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
-              dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
-            }}
-            draggable={false}
-          >
-            <div class="w-25">🌐</div>
-          </Box> */}
+              class="my-2 p-3.5 bg-background"
+              borderRadius="$lg"
+              onMouseDown={(e) => {
+                console.log('mouse down');
+                setIsDraggingTiles(true);
+                setIsDraggingFromSidebar(true);
+                setHexTileData(new dragData('Web', '', '', ''));
+                e.preventDefault();
+                dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
+                dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
+              }}
+              draggable={false}
+            >
+              <div class="w-25">🌐</div>
+            </Box> */}
         </HStack>
       </Box>
       <Show when={isDraggingTiles() && isDraggingFromSidebar()}>
@@ -304,13 +329,13 @@ export const LayoutTab = () => {
             </span>
           </Match>
           {/* <Match when={getHexTileData()?.type === 'Web'}>
-            <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
-              🌐
-            </span>
-          </Match> */}
+              <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
+                🌐
+              </span>
+            </Match> */}
         </Switch>
       </Show>
-    </>
+    </div>
   );
 };
 
