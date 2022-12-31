@@ -1,13 +1,14 @@
 import { getRelevantApps, isDraggingTiles, setIsDraggingTiles } from '../settings';
 import { Box, Input, Center, HStack } from '@hope-ui/solid';
 
-import { createSignal, For, onMount, Show } from 'solid-js';
+import { createSignal, For, Match, onMount, Show, Switch } from 'solid-js';
 import { getHexUiData, getSearchResults, searchAppDB, setHexUiData } from '../main';
 import HexTile from '../HexUI/Components/HexTile';
 import HexTileData, { actionType } from '../DataModel/HexTileData';
 import { externalApp } from '../externalAppManager';
 import { UserSettings } from '../datastore';
 import { setSettingsGridTiles, setOptionsVisible, setOverWriteWarning } from './SettingsMenu';
+import { IoTrashBin } from 'solid-icons/io';
 
 export const LayoutTab = () => {
   const [getPage, setPage] = createSignal<number>(0);
@@ -230,13 +231,84 @@ export const LayoutTab = () => {
         </ul>
       </Box>
       <p>Actions</p>
-      <Box bg="#C3C2C2" h="200px" borderRadius="$lg"></Box>
+      <Box borderRadius="$lg" class="p-2 bg-gray">
+        <HStack gap={'$2'}>
+          <Box
+            class="my-2 p-3.5 bg-background cursor-pointer"
+            borderRadius="$lg"
+            onMouseDown={(e) => {
+              console.log('mouse down');
+              setIsDraggingTiles(true);
+              setIsDraggingFromSidebar(true);
+              setHexTileData(new dragData('MediaPlayer', '', '', ''));
+              e.preventDefault();
+              dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
+              dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
+            }}
+            draggable={false}
+          >
+            <div class="w-25">🎵</div>
+          </Box>
+          <Box
+            class="my-2 p-3.5 bg-background cursor-pointer"
+            borderRadius="$lg"
+            onMouseDown={(e) => {
+              console.log('mouse down');
+              setIsDraggingTiles(true);
+              setIsDraggingFromSidebar(true);
+              setHexTileData(new dragData('PaperBin', '', '', ''));
+              e.preventDefault();
+              dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
+              dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
+            }}
+            draggable={false}
+          >
+            <div class="w-25">🗑</div>
+          </Box>
+          {/* <Box
+            class="my-2 p-3.5 bg-background"
+            borderRadius="$lg"
+            onMouseDown={(e) => {
+              console.log('mouse down');
+              setIsDraggingTiles(true);
+              setIsDraggingFromSidebar(true);
+              setHexTileData(new dragData('Web', '', '', ''));
+              e.preventDefault();
+              dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
+              dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
+            }}
+            draggable={false}
+          >
+            <div class="w-25">🌐</div>
+          </Box> */}
+        </HStack>
+      </Box>
       <Show when={isDraggingTiles() && isDraggingFromSidebar()}>
-        <img
-          class="w-8 h-8 absolute z-40 cursor-pointer"
-          ref={dragElement}
-          src={getHexTileData()?.icon ?? ''}
-        ></img>
+        <Switch
+          fallback={
+            <img
+              class="w-8 h-8 absolute z-40 cursor-pointer"
+              ref={dragElement}
+              src={getHexTileData()?.icon ?? ''}
+            ></img>
+          }
+        >
+          <Match when={getHexTileData()?.type === 'MediaPlayer'}>
+            <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
+              🎵
+            </span>
+          </Match>
+          <Match when={getHexTileData()?.type === 'PaperBin'}>
+            <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
+              🗑
+            </span>
+          </Match>
+          {/* <Match when={getHexTileData()?.type === 'Web'}>
+            <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
+              🌐
+            </span>
+          </Match> */}
+        </Switch>
       </Show>
     </>
   );

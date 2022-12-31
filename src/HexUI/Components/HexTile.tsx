@@ -4,6 +4,7 @@ import {
   createSignal,
   Match,
   mergeProps,
+  onMount,
   Show,
   Switch,
 } from 'solid-js';
@@ -59,6 +60,11 @@ const HexTile = (props: {
     props
   );
 
+  onMount(() => {
+    if (merged.url) {
+      console.log('mounted: ', merged.url);
+    }
+  });
   const [icon] = createResource(merged.app, HexIcon);
 
   const [getHovered, setHovered] = createSignal(false);
@@ -197,6 +203,7 @@ const HexTile = (props: {
                       <img
                         src={`https://www.google.com/s2/favicons?domain=${merged.url}&sz=${128}`}
                       ></img>
+                      <span class="hidden">{merged.url}</span>
                       <img
                         src={icon()}
                         class={`absolute`}
@@ -294,7 +301,7 @@ const HexTile = (props: {
               </>
             </Match>
             <Match when={merged.action === 'PaperBin'}>
-              <IoTrashBin class="hexOptions bin fill-text text-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+              <IoTrashBin class="bin fill-text text-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none" />
             </Match>
           </Switch>
         </div>

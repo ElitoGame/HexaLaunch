@@ -11,9 +11,20 @@ import {
   Center,
   HStack,
   Button,
+  Input,
 } from '@hope-ui/solid';
 
-import { batch, createEffect, createResource, For, lazy, onMount, Show } from 'solid-js';
+import {
+  batch,
+  createEffect,
+  createResource,
+  For,
+  lazy,
+  Match,
+  onMount,
+  Show,
+  Switch,
+} from 'solid-js';
 
 //import '../../assets/index.css';
 import HexTile from '../HexUI/Components/HexTile';
@@ -45,6 +56,8 @@ import { externalApp, externalAppManager } from '../externalAppManager';
 import { IoArrowForward, IoTrashBin } from 'solid-icons/io';
 import { invoke } from '@tauri-apps/api';
 import { emit, listen } from '@tauri-apps/api/event';
+import { BsPen } from 'solid-icons/bs';
+import { FaSolidPen } from 'solid-icons/fa';
 
 //import { MultipleListsExample } from './App';
 let dragElement: HTMLImageElement | undefined;
@@ -61,13 +74,25 @@ const [overwriteTargetSignal, setOverwriteTargetSignal] = createSignal<string | 
 const [overwriteNewSignal, setOverwriteNewSignal] = createSignal<string | null>(null);
 const [overwriteTargetIcon] = createResource(overwriteTargetSignal, iconGetter);
 const [overwriteNewIcon] = createResource(overwriteNewSignal, iconGetter);
-
 createEffect(() => {
   if (getOverWriteWarning().visible) {
     setOverwriteTargetSignal(getOverWriteWarning().targetTile.app);
     setOverwriteNewSignal(getOverWriteWarning().newTile.app);
   }
 });
+
+export const [getEditDialog, setEditDialog] = createSignal({
+  visible: false,
+  targetTile: null,
+});
+const [editTargetSignal, setEditTargetSignal] = createSignal<string | null>(null);
+const [editTargetIcon] = createResource(editTargetSignal, iconGetter);
+createEffect(() => {
+  if (getEditDialog().visible) {
+    setEditTargetSignal(getEditDialog().targetTile.getApp());
+  }
+});
+let urlInput: HTMLInputElement | undefined;
 
 window.addEventListener('mouseup', (e) => {
   if (wasDraggingTiles() && dragElement && isDraggingFromGrid()) {
@@ -197,6 +222,7 @@ const HexUIGrid = () => {
           <For each={getSettingsGridTiles()}>
             {(tile: HexTileData, i) => (
               <span
+                class="select-none"
                 onMouseDown={(e) => {
                   if (
                     e.target.classList.contains('hexOptions') ||
@@ -204,6 +230,7 @@ const HexUIGrid = () => {
                   ) {
                     return;
                   }
+                  console.log('mouse down');
                   if (tile.getAction() === 'Unset') return;
                   setIsDraggingTiles(true);
                   setIsDraggingFromGrid(true);
@@ -241,7 +268,7 @@ const HexUIGrid = () => {
                   }
                 >
                   <div
-                    class={`hexOptions absolute bg-accent rounded-full h-6 w-6 flex items-center justify-center z-50 text-base -translate-x-1/2 translate-y-1/2`}
+                    class={`hexOptions absolute bg-accent rounded-full h-6 w-max p-1 flex items-center justify-center z-50 text-base -translate-x-1/2 translate-y-1/2 gap-1`}
                     style={{
                       left: `${
                         getOptionsVisible().x * (getHexSize() + getHexMargin()) -
@@ -263,7 +290,7 @@ const HexUIGrid = () => {
                     }}
                   >
                     <IoTrashBin
-                      class="hexOptions bin fill-text"
+                      class="hexOptions bin fill-text w-6"
                       onClick={() => {
                         console.log('remove tile');
                         // remove tile
@@ -294,6 +321,14 @@ const HexUIGrid = () => {
                         setOptionsVisible({ visible: false, x: tile.getX(), y: tile.getY() });
                       }}
                     />
+                    <Show when={tile.getAction() === 'App'}>
+                      <FaSolidPen
+                        class="hexOptions bin fill-text"
+                        onClick={() => {
+                          setEditDialog({ visible: true, targetTile: tile });
+                        }}
+                      />
+                    </Show>
                   </div>
                 </Show>
                 <HexTile
@@ -325,6 +360,114 @@ const HexUIGrid = () => {
             )}
           </For>
         </div>
+        <Show when={getEditDialog().visible}>
+          <div
+            ref={tileList}
+            style={{
+              position: 'absolute',
+              top: `50%`,
+              left: `50%`,
+              transform: `translate(-50%, -50%)`,
+            }}
+            class="text-base text-text"
+          >
+            <div class="bg-background p-4 rounded-md">
+              <HStack>
+                <VStack class="justify-center mr-4">
+                  <span>
+                    <Switch
+                      fallback={
+                        <Show
+                          when={
+                            editTargetIcon.loading || editTargetIcon() === '' || !editTargetIcon()
+                          }
+                          fallback={<img src={editTargetIcon()} alt="" class="w-10 h-10" />}
+                        >
+                          <span class="">{'Image Unavailable'}</span>
+                        </Show>
+                      }
+                    >
+                      <Match when={getEditDialog().targetTile.action === 'MediaPlayer'}>
+                        <span class="">🎵</span>
+                      </Match>
+                      <Match when={getEditDialog().targetTile.action === 'PaperBin'}>
+                        <span class="">🗑</span>
+                      </Match>
+                      {/* <Match when={getEditDialog().targetTile.action === 'Web'}>
+                      <span class="">🌐</span>
+                    </Match> */}
+                    </Switch>
+                  </span>
+                  {/* <Button
+                    class="text-accent text-sm underline hover:bg-transparent hover:text-accent hover:brightness-125"
+                    onClick={() => setEditDialog({ visible: false, targetTile: null })}
+                  >
+                    Change Icon
+                  </Button> */}
+                </VStack>
+                <VStack class="justify-end items-end">
+                  <div class="flex justify-start flex-col">
+                    <label for="urlInput">URL</label>
+                    <Input
+                      type="text"
+                      class="rounded-md text-text w-64"
+                      id="urlInput"
+                      value={getEditDialog().targetTile.getUrl()}
+                      ref={urlInput}
+                    ></Input>
+                  </div>
+                  <HStack class="mt-2">
+                    <Button
+                      class="text-accent underline hover:bg-transparent hover:text-accent hover:brightness-125"
+                      onClick={() => setEditDialog({ visible: false, targetTile: null })}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      class="bg-accent hover:bg-accent hover:brightness-125 text-text"
+                      onClick={() => {
+                        // update the tile's url
+                        // (need to recreate the tile to update the For loop in the SettingsGrid)
+                        let updateTile = new HexTileData(
+                          getEditDialog().targetTile.getX(),
+                          getEditDialog().targetTile.getY(),
+                          getEditDialog().targetTile.getRadiant(),
+                          getEditDialog().targetTile.getAction(),
+                          getEditDialog().targetTile.getApp(),
+                          urlInput.value
+                        );
+                        UserSettings.setHexTileData(updateTile);
+                        let tiles = getHexUiData()
+                          ?.getTiles()
+                          .map((x) => {
+                            if (
+                              x.getX() === updateTile.getX() &&
+                              x.getY() === updateTile.getY() &&
+                              x.getRadiant() === updateTile.getRadiant()
+                            ) {
+                              return updateTile;
+                            }
+                            return x;
+                          });
+                        console.log(tiles);
+                        setSettingsGridTiles(tiles);
+                        getHexUiData()?.setTiles(tiles);
+                        setOptionsVisible({
+                          visible: false,
+                          x: updateTile.getX(),
+                          y: updateTile.getY(),
+                        });
+                        setEditDialog({ visible: false, targetTile: null });
+                      }}
+                    >
+                      Save
+                    </Button>
+                  </HStack>
+                </VStack>
+              </HStack>
+            </div>
+          </div>
+        </Show>
         <Show when={getOverWriteWarning().visible}>
           <div
             ref={tileList}
@@ -339,25 +482,55 @@ const HexUIGrid = () => {
             <div class="bg-background p-4 px-8 rounded-md">
               <VStack>
                 <HStack>
-                  <Show
-                    when={
-                      overwriteTargetIcon.loading ||
-                      overwriteTargetIcon() === '' ||
-                      !overwriteTargetIcon()
+                  <Switch
+                    fallback={
+                      <Show
+                        when={
+                          overwriteTargetIcon.loading ||
+                          overwriteTargetIcon() === '' ||
+                          !overwriteTargetIcon()
+                        }
+                        fallback={<img src={overwriteTargetIcon()} alt="" class="w-10 h-10" />}
+                      >
+                        <span class="">{'Image Unavailable'}</span>
+                      </Show>
                     }
-                    fallback={<img src={overwriteTargetIcon()} alt="" class="w-10 h-10" />}
                   >
-                    <span class="">{'Image Unavailable'}</span>
-                  </Show>
+                    <Match when={getOverWriteWarning().targetTile.action === 'MediaPlayer'}>
+                      <span class="">🎵</span>
+                    </Match>
+                    <Match when={getOverWriteWarning().targetTile.action === 'PaperBin'}>
+                      <span class="">🗑</span>
+                    </Match>
+                    {/* <Match when={getOverWriteWarning().targetTile.action === 'Web'}>
+                      <span class="">🌐</span>
+                    </Match> */}
+                  </Switch>
                   <IoArrowForward class="mx-5 fill-text text-text" />
-                  <Show
-                    when={
-                      overwriteNewIcon.loading || overwriteNewIcon() === '' || !overwriteNewIcon()
+                  <Switch
+                    fallback={
+                      <Show
+                        when={
+                          overwriteNewIcon.loading ||
+                          overwriteNewIcon() === '' ||
+                          !overwriteNewIcon()
+                        }
+                        fallback={<img src={overwriteNewIcon()} alt="" class="w-10 h-10" />}
+                      >
+                        <span class="">{'Image Unavailable'}</span>
+                      </Show>
                     }
-                    fallback={<img src={overwriteNewIcon()} alt="" class="w-10 h-10" />}
                   >
-                    <span class="">{'Image Unavailable'}</span>
-                  </Show>
+                    <Match when={getOverWriteWarning().newTile.action === 'MediaPlayer'}>
+                      <span class="">🎵</span>
+                    </Match>
+                    <Match when={getOverWriteWarning().newTile.action === 'PaperBin'}>
+                      <span class="">🗑</span>
+                    </Match>
+                    {/* <Match when={getOverWriteWarning().newTile.action === 'Web'}>
+                      <span class="">🌐</span>
+                    </Match> */}
+                  </Switch>
                 </HStack>
                 <p>
                   This Hexagon is already filled.
@@ -409,34 +582,54 @@ const HexUIGrid = () => {
         </Show>
       </div>
       <Show when={isDraggingTiles() && isDraggingFromGrid()}>
-        <Show
-          when={isValidUrl(getHexTileData()?.url ?? '')}
+        <Switch
           fallback={
-            // No URL or not http show this:
-            <img
-              ref={dragElement}
-              class="w-8 h-8 absolute z-40 cursor-pointer"
-              src={hexIcon()}
-            ></img>
+            <Show
+              when={isValidUrl(getHexTileData()?.url ?? '')}
+              fallback={
+                // No URL or not http show this:
+                <img
+                  ref={dragElement}
+                  class="w-8 h-8 absolute z-40 cursor-pointer"
+                  src={hexIcon()}
+                ></img>
+              }
+            >
+              <div class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
+                <img
+                  src={`https://www.google.com/s2/favicons?domain=${
+                    getHexTileData()?.url ?? ''
+                  }&sz=${128}`}
+                ></img>
+                <img
+                  src={hexIcon()}
+                  class={`absolute`}
+                  style={{
+                    width: `${getHexSize() / 66}rem`,
+                    top: `${getHexSize() / 66}rem`,
+                    left: `${(getHexSize() * 1.3) / 66}rem`,
+                  }}
+                ></img>
+              </div>
+            </Show>
           }
         >
-          <div class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
-            <img
-              src={`https://www.google.com/s2/favicons?domain=${
-                getHexTileData()?.url ?? ''
-              }&sz=${128}`}
-            ></img>
-            <img
-              src={hexIcon()}
-              class={`absolute`}
-              style={{
-                width: `${getHexSize() / 66}rem`,
-                top: `${getHexSize() / 66}rem`,
-                left: `${(getHexSize() * 1.3) / 66}rem`,
-              }}
-            ></img>
-          </div>
-        </Show>
+          <Match when={getHexTileData()?.type === 'MediaPlayer'}>
+            <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
+              🎵
+            </span>
+          </Match>
+          <Match when={getHexTileData()?.type === 'PaperBin'}>
+            <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
+              🗑
+            </span>
+          </Match>
+          {/* <Match when={getHexTileData()?.type === 'Web'}>
+            <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
+              🌐
+            </span>
+          </Match> */}
+        </Switch>
       </Show>
     </>
   );
