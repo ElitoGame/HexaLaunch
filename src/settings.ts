@@ -16,7 +16,7 @@ import {
 import { actionType } from './DataModel/HexTileData';
 import { unregister, isRegistered, register } from '@tauri-apps/api/globalShortcut';
 import { emit, listen } from '@tauri-apps/api/event';
-import {theme} from './themes';
+import { theme } from './themes';
 
 const appWindow = getAll().find((w) => w.label === 'settings');
 export const userSettings: UserSettings = await UserSettings.load();
@@ -220,28 +220,7 @@ export const updateSettingData = () => {
   }
 
   console.log(userSettings.getSetting());
-  emit('updateSettings', userSettings.getSetting());
-
-  document.documentElement.style.setProperty(
-    '--accent',
-    userSettings.getSetting().getSettingsAccentColor()
-  );
-  document.documentElement.style.setProperty(
-    '--background',
-    userSettings.getSetting().getSettingsBgColor()
-  );
-  document.documentElement.style.setProperty(
-    '--text',
-    userSettings.getSetting().getSettingsTextColor()
-  );
-  document.documentElement.style.setProperty(
-    '--mainHexagonBg',
-    theme().getMainHexagonBg()
-  );
-  document.documentElement.style.setProperty(
-    '--hoverHexagonBg',
-    theme().getHoverHexagonBg()
-  );
+  emit('updateSettings', { settings: userSettings.getSetting(), theme: theme() });
 };
 
 let oldShortcut = getSettingsData()?.getHotkeys().join('+') ?? 'Control+Shift+Space';

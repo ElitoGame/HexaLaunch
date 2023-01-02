@@ -20,8 +20,8 @@ import {
 } from '@hope-ui/solid';
 import { primaryMonitor } from '@tauri-apps/api/window';
 import { createSignal } from 'solid-js';
-import {theme, setTheme} from '../themes';
-import {themes} from '../themes';
+import { theme, setTheme } from '../themes';
+import { themes } from '../themes';
 
 const [getSize, setSize] = createSignal<number>(0);
 setSize((await primaryMonitor()).size.height);
@@ -34,16 +34,30 @@ export const AppearanceTab = () => {
       <Box w="100%" pt="50px" pb="50px">
         {' '}
         <HStack spacing="$4">
-          <Radio defaultChecked colorScheme="primary"
-          onClick={(e: Event) => {
-            setTheme(themes[0]);
-            updateSettingData();
-          }} />
-          <Radio defaultChecked colorScheme="accent" onClick={(e: Event) => {
-            setTheme(themes[1]);
-            updateSettingData();
-          }}/>
-          <Radio defaultChecked colorScheme="neutral" />
+          <Radio
+            defaultChecked
+            colorScheme="primary"
+            onClick={(e: Event) => {
+              setTheme(themes[0]);
+              updateSettingData();
+            }}
+          />
+          <Radio
+            defaultChecked
+            colorScheme="accent"
+            onClick={(e: Event) => {
+              setTheme(themes[1]);
+              updateSettingData();
+            }}
+          />
+          <Radio
+            defaultChecked
+            colorScheme="neutral"
+            onClick={(e: Event) => {
+              setTheme(themes[2]);
+              updateSettingData();
+            }}
+          />
         </HStack>
       </Box>
 
