@@ -119,7 +119,7 @@ export const AppearanceTab = () => {
           <p>Size</p>
           <Tooltip label={getSettingsData()?.getHexagonSize() + 'px'} withArrow placement="top">
             <input
-              class="slider w-full"
+              class="slider w-full rounded-sm"
               style={`color:${getSettingsData()?.getSettingsAccentColor()}`}
               type="range"
               id="hexagon-size"
@@ -140,7 +140,7 @@ export const AppearanceTab = () => {
           <p>Margin</p>
           <Tooltip label={getSettingsData()?.getHexagonMargin() + 'px'} withArrow placement="top">
             <input
-              class="slider w-full"
+              class="slider w-full rounded-sm"
               style={`color:${getSettingsData()?.getSettingsAccentColor()}`}
               type="range"
               id="hexagon-size"
