@@ -16,13 +16,13 @@ import { IoTrashBin } from 'solid-icons/io';
 
 const HexIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
 
-const getHexagonPathData = () => {
+const getHexagonPathData = (scale = 1) => {
   const sin = (deg) => Math.sin((deg * Math.PI) / 180);
   const cos = (deg) => Math.cos((deg * Math.PI) / 180);
 
   // Modify this border radius via the themes.
   const borderRadius = 6;
-  const sideLength = (38.5 * getHexSize()) / 66;
+  const sideLength = ((38.5 * getHexSize()) / 66) * scale;
   const x0 = 0;
   const y0 = 0;
 
@@ -217,8 +217,39 @@ const HexTile = (props: {
           }}
           onClick={merged.onClick}
         >
-          <svg width={getHexSize()} height={getHexSize() * 1.169}>
-            <path d={`${getHexagonPathData()}`} />
+          <svg width={getHexSize() + getHexMargin() * 2} height={getHexSize() * 1.169}>
+            <clipPath id="hexClip">
+              {/* <circle cx="40" cy="35" r="35" /> */}
+              <path
+                d={`${getHexagonPathData()}`}
+                style={{
+                  transform: `translate(-0.1%, 5%)`,
+                }}
+              />
+            </clipPath>
+            {/* This path will act as the border or if the same color as the main content*/}
+            <path
+              d={`${getHexagonPathData(0.99)}`}
+              class="fill-mainHexagonBorder"
+              style={{
+                transform: `translate(0.9%, 0.9%)`,
+              }}
+            />
+            {/* The main hexagon content if a border is present, otherwise hide it via a Show component*/}
+            <path
+              d={`${getHexagonPathData(0.9)}`}
+              style={{
+                transform: `translate(5%, 5%)`,
+              }}
+            />
+            {/* Path to only show the bottom border */}
+            <path
+              clip-path="url(#hexClip)"
+              d={`${getHexagonPathData()}`}
+              style={{
+                transform: `translate(-0.1%, -5%)`,
+              }}
+            />
           </svg>
           <Switch
             fallback={
