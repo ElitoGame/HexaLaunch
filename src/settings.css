@@ -39,10 +39,12 @@ p {
 
 :root {
   height: 100%;
-  --input: rgb(92, 92, 92, 0.5) !important;
+  
   --accent: #5a6afc;
   --background: #343434;
-  --text: '#DFDFDF';
+  --text: #DFDFDF;
+  --neutral: #5C5C5C;
+  --input: #5C5C5C;
   --mainHexagonBg: "#414141";
   --mainHexagonIcon: "#DFDFDF";
   --mainHexagonBorder: "#DFDFDF";
@@ -146,8 +148,8 @@ h1 {
 input,
 #borderStyle-trigger {
   border-radius: none !important;
-  background-color: var(--input) !important;
-  border-color: var(--input) !important;
+  background-color: var(--neutral) !important;
+  border-color: var(--neutral) !important;
   border-radius: var(--hope-radii-sm);
   border-top-left-radius: 0 !important;
   border-top-right-radius: 3% !important;
@@ -158,8 +160,8 @@ input,
 
 input[type='color'] {
   -webkit-appearance: none;
-  border-color: var(--input) !important;
-  background-color: var(--input) !important;
+  border-color: var(--neutral) !important;
+  background-color: var(--neutral) !important;
   border: none;
   border-radius: var(--hope-radii-sm);
   border-top-left-radius: 3%;
@@ -170,11 +172,11 @@ input[type='color'] {
 
 input[type='color']::-webkit-color-swatch-wrapper {
   padding: 0;
-  border-color: var(--input) !important;
+  border-color: var(--neutral) !important;
 }
 
 input[type='color']::-webkit-color-swatch {
-  border-color: var(--input) !important;
+  border-color: var(--neutral) !important;
   border-radius: var(--hope-radii-sm);
   border-top-left-radius: 3%;
   border-top-right-radius: 3%;

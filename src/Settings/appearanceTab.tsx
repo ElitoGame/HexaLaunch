@@ -54,7 +54,7 @@ export const AppearanceTab = () => {
         </GridItem>
         <GridItem style="align-self: flex;" class="flex justify-end">
           <Button
-            class="text-gray-600 bg-gray mr-2 hover:bg-gray hover:brightness-125 text-text"
+            class="bg-neutral mr-2 hover:bg-neutral hover:brightness-125 text-text"
             size="xs"
             onClick={onOpen}
           >
@@ -64,7 +64,7 @@ export const AppearanceTab = () => {
             <ModalOverlay />
             <ModalContent class="bg-background">
               <ModalHeader>
-                <h2 class="text-center text-gray text-[16px]">Import a new Theme</h2>
+                <h2 class="text-center text-neutral text-[16px]">Import a new Theme</h2>
               </ModalHeader>
               <ModalBody>
                 <p>Path</p>{' '}
@@ -74,7 +74,7 @@ export const AppearanceTab = () => {
                   </Input>
                   <Button
                     size="xs"
-                    class="h-8 ml-5 w-1/5 text-gray-600 bg-gray mr-2 hover:bg-gray hover:brightness-125 text-text"
+                    class="h-8 ml-5 w-1/5  bg-neutral mr-2 hover:bg-neutral hover:brightness-125 text-text"
                   >
                     Browse
                   </Button>
@@ -160,7 +160,43 @@ export const AppearanceTab = () => {
       </Grid>
 
       <Grid h="100%" templateRows="repeat(1, 1fr)" templateColumns="repeat(2, 1fr)" gap="$4">
-        <GridItem rowStart={2} rowEnd={2} colStart={2} colEnd={2} style="align-self: flex-end;">
+      <GridItem  rowStart={2} rowEnd={2} colStart={2} colEnd={2} style="align-self: flex-end;">
+          <p>Neutral Color</p>
+          <div class="form-group row">
+            <label for="theme-color" class="col-sm-2 col-form-label font-weight-bold"></label>
+            <div class="col-sm">
+              <div id="demo">
+                <input
+                  value={getSettingsData()?.getSettingsNeutralColor()}
+                  onChange={(e: Event) => {
+                    const inputElement = e.currentTarget as HTMLInputElement;
+                    getSettingsData()?.setSettingsNeutralColor(inputElement.value);
+                    updateSettingData();
+                  }}
+                  class="colorPick"
+                  type="color"
+                  placeholder="#FFFFFF"
+                ></input>
+                <InputGroup size="xs">
+                  <Input
+                    type="text"
+                    id="theme-color"
+                    class="form-control @error('theme-color') is-invalid @enderror text-text"
+                    name="theme-color"
+                    value={getSettingsData()?.getSettingsTextColor()}
+                    onChange={(e: Event) => {
+                      const inputElement = e.currentTarget as HTMLInputElement;
+                      getSettingsData()?.setSettingsTextColor(inputElement.value);
+                      updateSettingData();
+                    }}
+                  />
+                  <InputRightElement pointerEvents="none">
+                    <p>hex</p>
+                  </InputRightElement>
+                </InputGroup>
+              </div>
+            </div>
+          </div>
           <p>Text</p>
           <div class="form-group row">
             <label for="theme-color" class="col-sm-2 col-form-label font-weight-bold"></label>

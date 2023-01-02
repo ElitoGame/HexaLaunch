@@ -96,7 +96,7 @@ export const LayoutTab = () => {
         <Input
           bg="#C3C2C2"
           ref={searchBar}
-          class="text-text"
+          class="text-text placeholder-text"
           onInput={(e) => {
             searchAppDB((e.target as HTMLInputElement).value);
             setPage(0);
@@ -111,7 +111,7 @@ export const LayoutTab = () => {
         fallback={
           <>
             <Box
-              class="bg-gray mb-5"
+              class="bg-neutral mb-5"
               minH="100px"
               borderRadius="$lg"
               style={{
@@ -205,7 +205,7 @@ export const LayoutTab = () => {
         </p>
         <br />
         <Box
-          class="bg-gray mb-5"
+          class="bg-neutral mb-5"
           minH="100px"
           borderRadius="$lg"
           style={{
@@ -252,11 +252,11 @@ export const LayoutTab = () => {
         </Box>
       </Show>
 
-      {/* <Box class="bg-gray overflow-auto" maxH="60vh" minH="100px" borderRadius="$lg">
+      {/* <Box class="bg-neutral overflow-auto" maxH="60vh" minH="100px" borderRadius="$lg">
         
       </Box> */}
       <p>Actions</p>
-      <Box borderRadius="$lg" class="p-2 py-2 bg-gray">
+      <Box borderRadius="$lg" class="p-2 py-2 bg-neutral">
         <HStack gap={'$2'}>
           <Box
             class="p-3.5 bg-background cursor-pointer"

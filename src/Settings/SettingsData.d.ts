@@ -10,6 +10,7 @@ export default class SettingsData {
   settingsBgColor: string;
   settingsAccentColor: string;
   settingsTextColor: string;
+  settingsNeutralColor: string;
   hexagonSize: number;
   hexagonMargin: number;
 
@@ -25,6 +26,7 @@ export default class SettingsData {
     settingsBgColor: string,
     settingsAccentColor: string,
     settingsTextColor: string,
+    settingsNeutralColor: string,
     hexagonSize: number,
     hexagonMargin: number
   );
@@ -51,6 +53,8 @@ export default class SettingsData {
   getSettingsAccentColor(): string;
   setSettingsTextColor(x: string): void;
   getSettingsTextColor(): string;
+  setSettingsNeutralColor(x: string): void;
+  getSettingsNeutralColor(): string;
   getHexagonMargin(): number;
   getHexagonSize(): number;
   setHexagonSize(x: number): void;
@@ -68,6 +72,7 @@ export default class SettingsData {
     settingsBgColor: string;
     settingsAccentColor: string;
     settingsTextColor: string;
+    settingsNeutralColor: string;
     hexagonSize: number;
     hexagonMargin: number;
   };
@@ -83,6 +88,7 @@ export default class SettingsData {
     settingsBgColor: string;
     settingsAccentColor: string;
     settingsTextColor: string;
+    settingsNeutralColor: string;
     hexagonSize: number;
     hexagonMargin: number;
   }): SettingsData;

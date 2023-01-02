@@ -227,6 +227,10 @@ export const updateSettingData = () => {
     userSettings.getSetting().getSettingsAccentColor()
   );
   document.documentElement.style.setProperty(
+    '--neutral',
+    userSettings.getSetting().getSettingsNeutralColor()
+  );
+  document.documentElement.style.setProperty(
     '--background',
     userSettings.getSetting().getSettingsBgColor()
   );

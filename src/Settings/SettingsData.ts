@@ -10,6 +10,7 @@ export default class SettingsData {
   private settingsBgColor = '#343434';
   private settingsAccentColor = '#5A6AFC';
   private settingsTextColor = '#DFDFDF';
+  private settingsNeutralColor= '#5C5C5C';
   private hexagonSize = 50;
   private hexagonMargin = 5;
 
@@ -25,6 +26,7 @@ export default class SettingsData {
     settingsBgColor: string,
     settingsAccentColor: string,
     settingsTextColor: string,
+    settingsNeutralColor: string,
     hexagonSize: number,
     hexagonMargin: number
   ) {
@@ -39,6 +41,7 @@ export default class SettingsData {
     this.settingsBgColor = settingsBgColor;
     this.settingsAccentColor = settingsAccentColor;
     this.settingsTextColor = settingsTextColor;
+    this.settingsNeutralColor = settingsNeutralColor;
     this.hexagonSize = hexagonSize;
     this.hexagonMargin = hexagonMargin;
   }
@@ -60,6 +63,13 @@ export default class SettingsData {
   }
   public setSettingsTextColor(value) {
     this.settingsTextColor = value;
+  }
+
+  public getSettingsNeutralColor() {
+    return this.settingsNeutralColor;
+  }
+  public setSettingsNeutralColor(value) {
+    this.settingsNeutralColor = value;
   }
 
   public getSettingsAccentColor() {
@@ -141,6 +151,7 @@ export default class SettingsData {
     this.settingsBgColor = settings.settingsBgColor;
     this.settingsAccentColor = settings.settingsAccentColor;
     this.settingsTextColor = settings.settingsTextColor;
+    this.settingsNeutralColor = settings.settingsNeutralColor;
     this.hexagonSize = settings.hexagonSize;
     this.hexagonMargin = settings.hexagonMargin;
   }
@@ -157,6 +168,7 @@ export default class SettingsData {
     settingsBgColor: string;
     settingsAccentColor: string;
     settingsTextColor: string;
+    settingsNeutralColor: string;
     hexagonSize: number;
     hexagonMargin: number;
   } {
@@ -172,6 +184,7 @@ export default class SettingsData {
       settingsBgColor: this.settingsBgColor,
       settingsAccentColor: this.settingsAccentColor,
       settingsTextColor: this.settingsTextColor,
+      settingsNeutralColor: this.settingsNeutralColor,
       hexagonSize: this.hexagonSize,
       hexagonMargin: this.hexagonMargin,
     };
@@ -189,6 +202,7 @@ export default class SettingsData {
     settingsBgColor: string;
     settingsAccentColor: string;
     settingsTextColor: string;
+    settingsNeutralColor: string;
     hexagonSize: number;
     hexagonMargin: number;
   }) {
@@ -204,6 +218,7 @@ export default class SettingsData {
       data.settingsBgColor,
       data.settingsAccentColor,
       data.settingsTextColor,
+      data.settingsNeutralColor,
       data.hexagonSize,
       data.hexagonMargin
     );

@@ -11,6 +11,7 @@ module.exports = {
         gray: 'rgb(92, 92, 92, .5)',
         text: 'var(--text)',
         background: 'var(--background)',
+        neutral: 'var(--neutral)',
         mainHexagonBg: 'var(--mainHexagonBg)',
         mainHexagonIcon: 'var(--mainHexagonIcon)',
         mainHexagonBorder: 'var(--mainHexagonBorder)',

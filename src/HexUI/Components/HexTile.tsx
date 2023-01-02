@@ -113,8 +113,7 @@ const HexTile = (props: {
   return (
     <Show when={(!isFullLayout() && merged.action !== 'Unset') || isFullLayout()}>
       <div
-        class={`hexTile absolute bg-transparent  cursor-pointer inline-block` 
-    + merged.color}
+        class={`hexTile absolute bg-transparent  cursor-pointer inline-block` }
         id={`{"x":"${merged.x}", "y":"${merged.y}", "radiant":"${merged.radiant}", "action":"${
           merged.action
         }", "app":"${merged.app.replaceAll('\\', '\\\\')}", "url":"${merged.url

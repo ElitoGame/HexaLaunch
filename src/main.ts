@@ -36,6 +36,7 @@ await listen('updateSettings', (event) => {
     settingsBgColor: string;
     settingsAccentColor: string;
     settingsTextColor: string;
+    settingsNeutralColor: string;
     hexagonSize: string;
     hexagonMargin: string;
   };
