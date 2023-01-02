@@ -138,11 +138,12 @@ h1 {
 .colorPick {
   height: 16px;
   width: 31px;
-  border: none;
   padding-inline-start: none !important;
   padding-inline-end: none !important;
   min-height: 20px !important;
   height: auto !important;
+  border-right-color: var(--text) !important;
+  filter: brightness(1.10);
 }
 
 input,
@@ -173,6 +174,8 @@ input[type='color'] {
 input[type='color']::-webkit-color-swatch-wrapper {
   padding: 0;
   border-color: var(--neutral) !important;
+  
+  
 }
 
 input[type='color']::-webkit-color-swatch {

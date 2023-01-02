@@ -1,13 +1,4 @@
-import {
-  createEffect,
-  createResource,
-  createSignal,
-  Match,
-  mergeProps,
-  onMount,
-  Show,
-  Switch,
-} from 'solid-js';
+import { createResource, createSignal, Match, mergeProps, onMount, Show, Switch } from 'solid-js';
 import { JSX } from 'solid-js/jsx-runtime';
 import {
   getCurrentMedia,
@@ -22,13 +13,62 @@ import { FaSolidPlay, FaSolidForwardStep, FaSolidPause } from 'solid-icons/fa';
 import { invoke } from '@tauri-apps/api';
 import { externalAppManager } from '../../externalAppManager';
 import { IoTrashBin } from 'solid-icons/io';
-import {themes} from '../../themes';
-import {theme} from '../../themes';
-
-
 
 const HexIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
 
+const getHexagonPathData = () => {
+  const sin = (deg) => Math.sin((deg * Math.PI) / 180);
+  const cos = (deg) => Math.cos((deg * Math.PI) / 180);
+
+  // Modify this border radius via the themes.
+  const borderRadius = 6;
+  const sideLength = (38.5 * getHexSize()) / 66;
+  const x0 = 0;
+  const y0 = 0;
+
+  const x1 = sideLength * cos(30);
+  const y1 = sideLength * sin(30);
+
+  const xc1 = x1 - borderRadius * cos(30);
+  const yc0 = borderRadius * sin(30);
+  const xc2 = x1 + borderRadius * cos(30);
+
+  const x2 = 2 * x1;
+  const y2 = y1 + sideLength;
+
+  const xc3 = x2 - borderRadius * cos(30);
+  const yc1 = y1 - borderRadius * sin(30);
+  const yc2 = y1 + borderRadius;
+
+  const y3 = y2 + y1;
+
+  const yc3 = y2 - borderRadius;
+  const yc4 = y2 + borderRadius * sin(30);
+
+  const yc5 = y3 - borderRadius * sin(30);
+  const xc0 = borderRadius * cos(30);
+
+  return `
+        M ${xc1},${yc0}
+        Q ${x1},${y0} ${xc2},${yc0}
+
+        L ${xc3},${yc1}
+        Q ${x2},${y1} ${x2},${yc2}
+
+        L ${x2},${yc3}
+        Q ${x2},${y2} ${xc3},${yc4}
+
+        L ${xc2},${yc5}
+        Q ${x1},${y3} ${xc1},${yc5}
+        
+        L ${xc0},${yc4}
+        Q ${x0},${y2} ${x0},${yc3}
+        
+        L ${x0},${yc2}
+        Q ${x0},${y1} ${xc0},${yc1}
+        Z
+      `;
+};
 
 const HexTile = (props: {
   x: number;
@@ -52,7 +92,7 @@ const HexTile = (props: {
       radiant: 0,
       onClick: () => {},
       zIndex: 10,
-      color: ` bg-mainHexagonBg`,
+      color: `fill-mainHexagonBg`,
       title: '',
       action: '',
       app: '',
@@ -113,7 +153,7 @@ const HexTile = (props: {
   return (
     <Show when={(!isFullLayout() && merged.action !== 'Unset') || isFullLayout()}>
       <div
-        class={`hexTile absolute bg-transparent  cursor-pointer inline-block` }
+        class={`hexTile absolute bg-transparent  cursor-pointer inline-block`}
         id={`{"x":"${merged.x}", "y":"${merged.y}", "radiant":"${merged.radiant}", "action":"${
           merged.action
         }", "app":"${merged.app.replaceAll('\\', '\\\\')}", "url":"${merged.url
@@ -148,7 +188,9 @@ const HexTile = (props: {
             'absolute ' +
             merged.color +
             ` cursor-pointer inline-block ${
-              merged.hasHoverEffect ? 'hover:scale-97 transition-transform hover:bg-hoverHexagonBg' : ''
+              merged.hasHoverEffect
+                ? 'hover:scale-97 transition-transform hover:fill-hoverHexagonBg'
+                : ''
             }` +
             ` ${
               selectedHexTile().x === merged.x && selectedHexTile().y === merged.y
@@ -175,6 +217,9 @@ const HexTile = (props: {
           }}
           onClick={merged.onClick}
         >
+          <svg width={getHexSize()} height={getHexSize() * 1.169}>
+            <path d={`${getHexagonPathData()}`} />
+          </svg>
           <Switch
             fallback={
               <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -216,6 +261,7 @@ const HexTile = (props: {
                         class={`absolute`}
                         style={{
                           width: `${getHexSize() / 66}rem`,
+                          height: `${getHexSize() / 66}rem`,
                           top: `${getHexSize() / 66}rem`,
                           left: `${(getHexSize() * 1.3) / 66}rem`,
                         }}

@@ -4,6 +4,7 @@ import HexUiData from './DataModel/HexUiData';
 import { fs, invoke } from '@tauri-apps/api';
 import { externalAppManager } from './externalAppManager';
 import { emit, listen } from '@tauri-apps/api/event';
+import { theme } from './themes';
 
 export const [getShowPosition, setShowPosition] = createSignal({ x: 0, y: 0 });
 export const [getCursorPosition, setCursorPosition] = createSignal({
@@ -24,27 +25,62 @@ export const [getCurrentMedia, setCurrentMedia] = createSignal<MediaObject>();
 export const [selectedHexTile, setSelectedHexTile] = createSignal({ x: -99, y: -99 });
 
 await listen('updateSettings', (event) => {
-  const settings = event.payload as {
-    width: string;
-    borderWidth: string;
-    borderStyle: string;
-    borderRadius: string;
-    keyboardNavigation: boolean;
-    fullLayout: boolean;
-    moveToCursor: boolean;
-    hotkeys: string;
-    settingsBgColor: string;
-    settingsAccentColor: string;
-    settingsTextColor: string;
-    settingsNeutralColor: string;
-    hexagonSize: string;
-    hexagonMargin: string;
+  const { settings, theme } = event.payload as {
+    settings: {
+      width: string;
+      borderWidth: string;
+      borderStyle: string;
+      borderRadius: string;
+      keyboardNavigation: boolean;
+      fullLayout: boolean;
+      moveToCursor: boolean;
+      hotkeys: string;
+      settingsBgColor: string;
+      settingsAccentColor: string;
+      settingsNeutralColor: string;
+      settingsTextColor: string;
+      hexagonSize: string;
+      hexagonMargin: string;
+    };
+    theme: {
+      themeName: string;
+
+      mainHexagonBg: string;
+      mainHexagonIcon: string;
+      mainHexagonBorder: string;
+      mainHexagonRadius: string;
+      mainHexagonWidth: string;
+      mainHexagonBorderStyle: string;
+
+      subHexagonBg: string;
+      subHexagonIcon: string;
+      subHexagonBorder: string;
+      subHexagonRadius: string;
+      subHexagonWidth: string;
+      subHexagonBorderStyle: string;
+
+      hoverHexagonBg: string;
+      hoverHexagonIcon: string;
+      hoverHexagonBorder: string;
+      hoverHexagonRadius: string;
+      hoverHexagonWidth: string;
+      hoverHexagonBorderStyle: string;
+    };
   };
   setHexMargin(parseInt(settings.hexagonMargin));
   setHexSize(parseInt(settings.hexagonSize));
   setKeyBoardNavigationEnabled(settings.keyboardNavigation);
   setFullLayout(settings.fullLayout);
   setMoveToCursor(settings.moveToCursor);
+
+  console.log('modified settings', settings);
+
+  document.documentElement.style.setProperty('--accent', settings.settingsAccentColor);
+  document.documentElement.style.setProperty('--neutral', settings.settingsNeutralColor);
+  document.documentElement.style.setProperty('--background', settings.settingsBgColor);
+  document.documentElement.style.setProperty('--text', settings.settingsTextColor);
+  document.documentElement.style.setProperty('--mainHexagonBg', theme.mainHexagonBg);
+  document.documentElement.style.setProperty('--hoverHexagonBg', theme.hoverHexagonBg);
 });
 
 try {
