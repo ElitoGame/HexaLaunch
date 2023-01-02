@@ -16,6 +16,7 @@ import {
 import { actionType } from './DataModel/HexTileData';
 import { unregister, isRegistered, register } from '@tauri-apps/api/globalShortcut';
 import { emit, listen } from '@tauri-apps/api/event';
+import {theme} from './themes';
 
 const appWindow = getAll().find((w) => w.label === 'settings');
 export const userSettings: UserSettings = await UserSettings.load();
@@ -47,21 +48,6 @@ export const changeColor = () => {};
 
 console.log(userSettings);
 
-// const init = new SettingsData(
-//   1,
-//   1,
-//   'solid',
-//   1,
-//   true,
-//   true,
-//   true,
-//   ['CONTROL', 'SHIFT', 'SPACE'],
-//   '#343434',
-//   '#5A6AFC',
-//   '#DFDFDF',
-//   50,
-//   4
-// );
 export const [getSettingsData, setSettingsData] = createSignal<SettingsData>(
   userSettings.getSetting(),
   {
@@ -247,6 +233,14 @@ export const updateSettingData = () => {
   document.documentElement.style.setProperty(
     '--text',
     userSettings.getSetting().getSettingsTextColor()
+  );
+  document.documentElement.style.setProperty(
+    '--mainHexagonBg',
+    theme().getMainHexagonBg()
+  );
+  document.documentElement.style.setProperty(
+    '--hoverHexagonBg',
+    theme().getHoverHexagonBg()
   );
 };
 

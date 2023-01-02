@@ -21,8 +21,13 @@ import { FaSolidPlay, FaSolidForwardStep, FaSolidPause } from 'solid-icons/fa';
 import { invoke } from '@tauri-apps/api';
 import { externalAppManager } from '../../externalAppManager';
 import { IoTrashBin } from 'solid-icons/io';
+import {themes} from '../../themes';
+import {theme} from '../../themes';
+
+
 
 const HexIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
+
 
 const HexTile = (props: {
   x: number;
@@ -46,7 +51,7 @@ const HexTile = (props: {
       radiant: 0,
       onClick: () => {},
       zIndex: 10,
-      color: 'bg-neutral-600',
+      color: ` bg-mainHexagonBg`,
       title: '',
       action: '',
       app: '',
@@ -102,7 +107,8 @@ const HexTile = (props: {
   return (
     <Show when={(!isFullLayout() && merged.action !== 'Unset') || isFullLayout()}>
       <div
-        class={`hexTile absolute bg-transparent cursor-pointer inline-block transition-transform`}
+        class={`hexTile absolute bg-transparent  cursor-pointer inline-block transition-transform` 
+    + merged.color}
         id={`{"x":"${merged.x}", "y":"${merged.y}", "radiant":"${merged.radiant}", "action":"${
           merged.action
         }", "app":"${merged.app.replaceAll('\\', '\\\\')}", "url":"${merged.url
@@ -136,7 +142,7 @@ const HexTile = (props: {
             'absolute ' +
             merged.color +
             ` cursor-pointer inline-block ${
-              merged.hasHoverEffect ? 'hover:scale-97 transition-transform hover:brightness-95' : ''
+              merged.hasHoverEffect ? 'hover:scale-97 transition-transform hover:bg-hoverHexagonBg' : ''
             }` +
             ` ${
               selectedHexTile().x === merged.x && selectedHexTile().y === merged.y
@@ -144,6 +150,7 @@ const HexTile = (props: {
                 : ''
             }`
           }
+          id={`radiant:${merged.radiant}`}
           style={{
             left: `${(getHexMargin() / 2) * -1}px`,
             bottom: `${(getHexMargin() / 2) * -1}px`,

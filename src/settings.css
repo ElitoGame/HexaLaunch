@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+@layer base {
 * {
   margin: 0;
   padding: 0;
@@ -43,6 +43,27 @@ p {
   --accent: #5a6afc;
   --background: #343434;
   --text: '#DFDFDF';
+  --mainHexagonBg: "#414141";
+  --mainHexagonIcon: "#DFDFDF";
+  --mainHexagonBorder: "#DFDFDF";
+  --mainHexagonRadius: "";
+  --mainHexagonWidth: 3px;
+  --mainHexagonBorderStyle: "solid";
+
+  --subHexagonBg: "#414141";
+  --subHexagonIcon: "#DFDFDF";
+  --subHexagonBorder: "";
+  --subHexagonRadius: "";
+  --subHexagonWidth:  3px;
+  --subHexagonBorderStyle: "solid";
+      
+  --hoverHexagonBg:  'var(--hoverHexagonBg)';
+  --hoverHexagonIcon: 'var(--hoverHexagonIcon)';
+  --hoverHexagonBorder: 'var(--hoverHexagonBorder)';
+  --hoverHexagonRadius: 'var(--hoverHexagonRadius)';
+  --hoverHexagonWidth: 'var(--hoverHexagonWidth)';
+  --hoverHexagonBorderStyle:'var(--hoverHexagonBorderStyle)';
+  --hoverHexagonBg: 'var(--hoverHexagonBg)';
 }
 
 h1 {
@@ -215,4 +236,37 @@ input[type='range'] {
 ::-webkit-scrollbar-thumb {
   background: rgb(39, 39, 39);
   border-radius: 10px;
+}
+
+/* Themes */
+
+
+
+
+.theme-dark {
+    --hexagonBg: #343434;
+    --hexagonMargin: 7px;
+    --hexagonHover: rgb(49, 36, 123);
+    --text: var(--text);
+  }
+
+ .theme-honey {
+    --hexagonBg: #FFD66A;
+    --hexagonMargin: 5px;
+    --hexagonHover: #FD923E;
+    --hexagonCoreColor: #F2B104 ;
+     filter: drop-shadow(3px 0px 0px #F68002)
+    drop-shadow(-3px 0px 0px #F68002)
+    drop-shadow(0px 3px 0px #F68002)
+    drop-shadow(0px -3px 0px #F68002)
+    drop-shadow(3px 3px 0px #F68002)
+    drop-shadow(-3px -3px 0px #F68002)
+    drop-shadow(-3px 3px 0px #F68002)
+    drop-shadow(3px -3px 0px #F68002);
+  }
+
+  .theme-honey[id*='radiant:0'] {
+    --hexagonBg: #F2B104!important;
+  }
+
 }
