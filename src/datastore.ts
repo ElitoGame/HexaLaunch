@@ -49,6 +49,7 @@ export class UserSettings {
       '#343434',
       '#5A6AFC',
       '#DFDFDF',
+      '#C5C5C5',
       66,
       4
     );

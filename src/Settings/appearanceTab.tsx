@@ -174,7 +174,7 @@ export const AppearanceTab = () => {
       </Grid>
 
       <Grid h="100%" templateRows="repeat(1, 1fr)" templateColumns="repeat(2, 1fr)" gap="$4">
-      <GridItem  rowStart={2} rowEnd={2} colStart={2} colEnd={2} style="align-self: flex-end;">
+        <GridItem rowStart={2} rowEnd={2} colStart={2} colEnd={2} style="align-self: flex-end;">
           <p>Neutral Color</p>
           <div class="form-group row">
             <label for="theme-color" class="col-sm-2 col-form-label font-weight-bold"></label>
@@ -197,10 +197,10 @@ export const AppearanceTab = () => {
                     id="theme-color"
                     class="form-control @error('theme-color') is-invalid @enderror text-text"
                     name="theme-color"
-                    value={getSettingsData()?.getSettingsTextColor()}
+                    value={getSettingsData()?.getSettingsNeutralColor()}
                     onChange={(e: Event) => {
                       const inputElement = e.currentTarget as HTMLInputElement;
-                      getSettingsData()?.setSettingsTextColor(inputElement.value);
+                      getSettingsData()?.setSettingsNeutralColor(inputElement.value);
                       updateSettingData();
                     }}
                   />
@@ -322,26 +322,31 @@ export const AppearanceTab = () => {
               </div>
             </div>
           </div>
-          
         </GridItem>
       </Grid>
-      <Grid h="100%" templateRows="repeat(1, 1fr)" templateColumns="repeat(2, 1fr)" gap="$4" >
-      <GridItem  rowStart={2} rowEnd={2} colStart={2} colEnd={2} class="flex-row flex-end justify-end flex" >
-      <Button
-            onClick={()=>{
-              getSettingsData()?.setSettingsAccentColor("#5A6AFC");
-              getSettingsData()?.setSettingsBgColor("#343434");
-              getSettingsData()?.setSettingsNeutralColor("#5C5C5C");
-              getSettingsData()?.setSettingsTextColor("#DFDFDF");
-              updateSettingData();}}
+      <Grid h="100%" templateRows="repeat(1, 1fr)" templateColumns="repeat(2, 1fr)" gap="$4">
+        <GridItem
+          rowStart={2}
+          rowEnd={2}
+          colStart={2}
+          colEnd={2}
+          class="flex-row flex-end justify-end flex"
+        >
+          <Button
+            onClick={() => {
+              getSettingsData()?.setSettingsAccentColor('#5A6AFC');
+              getSettingsData()?.setSettingsBgColor('#343434');
+              getSettingsData()?.setSettingsNeutralColor('#5C5C5C');
+              getSettingsData()?.setSettingsTextColor('#DFDFDF');
+              updateSettingData();
+            }}
             class="bg-accent hover:bg-accent hover:brightness-125 text-text"
             style="width:55px"
             size="xs"
           >
-            Reset 
+            Reset
           </Button>
         </GridItem>
-       
       </Grid>
     </>
   );
