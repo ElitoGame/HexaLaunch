@@ -6,12 +6,12 @@
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::fs::{self, File, OpenOptions};
-use std::io::{BufReader, Read, Write};
+use std::fs::{self, create_dir_all, File, OpenOptions};
+use std::io::{BufReader, Cursor, ErrorKind, Read, Write};
 use std::os::windows::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::{env, io::Error, time::Instant};
+use std::{env, time::Instant};
 use tauri::api::path::{resolve_path, BaseDirectory};
 use tauri::api::process::CommandEvent;
 use tauri::async_runtime::Receiver;
@@ -91,25 +91,29 @@ fn main() {
                             .iter()
                             .any(|(_k, v)| v.is_visible().unwrap())
                         {
-                            let session = manager.GetCurrentSession().unwrap();
-                            let title = session
-                                .TryGetMediaPropertiesAsync()
-                                .unwrap()
-                                .get()
-                                .unwrap()
-                                .Title()
-                                .unwrap();
-                            let title = title.to_string();
-                            let play_state = session
-                                .GetPlaybackInfo()
-                                .unwrap()
-                                .PlaybackStatus()
-                                .unwrap()
-                                == GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing;
-                            if title != last_title || last_play_pause != play_state {
-                                last_title = title.clone();
-                                last_play_pause = play_state;
-                                query_current_media_emitter(handle.clone(), &session);
+                            match manager.GetCurrentSession() {
+                                Ok(session) => {
+                                    let title = session
+                                        .TryGetMediaPropertiesAsync()
+                                        .unwrap()
+                                        .get()
+                                        .unwrap()
+                                        .Title()
+                                        .unwrap();
+                                    let title = title.to_string();
+                                    let play_state = session
+                                        .GetPlaybackInfo()
+                                        .unwrap()
+                                        .PlaybackStatus()
+                                        .unwrap()
+                                        == GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing;
+                                    if title != last_title || last_play_pause != play_state {
+                                        last_title = title.clone();
+                                        last_play_pause = play_state;
+                                        query_current_media_emitter(handle.clone(), &session);
+                                    }
+                                }
+                                Err(_) => {}
                             }
                         }
                         // wait for 200ms
@@ -209,8 +213,12 @@ async fn prev_media() {
         .await
         .unwrap();
 
-    let session = manager.GetCurrentSession().unwrap();
-    session.TrySkipPreviousAsync().unwrap().await.unwrap();
+    match manager.GetCurrentSession() {
+        Ok(session) => {
+            session.TrySkipPreviousAsync().unwrap().await.unwrap();
+        }
+        Err(_) => {}
+    }
 }
 
 #[tauri::command]
@@ -222,8 +230,12 @@ async fn next_media() {
         .await
         .unwrap();
 
-    let session = manager.GetCurrentSession().unwrap();
-    session.TrySkipNextAsync().unwrap().await.unwrap();
+    match manager.GetCurrentSession() {
+        Ok(session) => {
+            session.TrySkipNextAsync().unwrap().await.unwrap();
+        }
+        Err(_) => {}
+    }
 }
 
 #[tauri::command]
@@ -233,12 +245,17 @@ async fn get_current_media() -> (String, String, String, bool) {
         .get()
         .unwrap();
 
-    let session = manager.GetCurrentSession().unwrap();
-
-    return query_current_media(&session);
+    match manager.GetCurrentSession() {
+        Ok(session) => {
+            return query_current_media(&session);
+        }
+        Err(_) => {
+            return ("".to_string(), "".to_string(), "".to_string(), false);
+        }
+    }
 }
 
-unsafe fn as_mut_bytes(buffer: &IBuffer) -> Result<&mut [u8], Error> {
+unsafe fn as_mut_bytes(buffer: &IBuffer) -> Result<&mut [u8], std::io::Error> {
     let interop = buffer.cast::<IBufferByteAccess>()?;
     let data = interop.Buffer()?;
     Ok(std::slice::from_raw_parts_mut(data, buffer.Length()? as _))
@@ -352,9 +369,10 @@ fn query_apps(handle: AppHandle) {
                 query_relevant_apps(relevant_handle).await;
             })
         });
+        let current_handle = handle.clone();
         std::thread::spawn(move || {
             loop {
-                query_current_apps();
+                let _ = query_current_apps(current_handle.clone());
                 std::thread::sleep(std::time::Duration::from_secs(300)); //every 5 mins
             }
         });
@@ -399,6 +417,9 @@ async fn query_relevant_apps(handle: AppHandle) {
     apps.append(&mut query_epic_games());
     apps.append(&mut query_steam_games());
 
+    // get the icons for the apps if they don't have one yet
+    apps = query_app_icons(apps).await;
+
     // apply a special mapping for the apps whose executable is called "Update.exe"
     // In this case the name comes from the parent folder
     // The executable is expanded by --processStart "parent_folder_name.exe"
@@ -409,20 +430,19 @@ async fn query_relevant_apps(handle: AppHandle) {
             path.pop();
             let parent_folder = path.file_name().unwrap().to_str().unwrap();
             app.name = parent_folder.to_string();
-            app.executable = format!("{} --processStart \"{}\"", app.executable, parent_folder);
-            app.icon = "TBA".to_string();
-            // println!(
-            //     "------Modified: {}: {}, {}",
-            //     app.name,
-            //     app.executable,
-            //     app.icon.len()
-            // );
+            app.executable = format!("{} --processStart '{}.exe'", app.executable, parent_folder);
+            app.icon = "".to_string();
+            let iconpath = path.ancestors().nth(0).unwrap().join("app.ico");
             //TODO get the icon from a .ico file not from a folder
+            if iconpath.exists() {
+                let icon = image::open(iconpath).unwrap();
+                let mut buf: Vec<u8> = Vec::new();
+                icon.write_to(&mut Cursor::new(&mut buf), image::ImageOutputFormat::Png)
+                    .unwrap();
+                app.icon = "data:image/png;base64,".to_string() + base64::encode(&buf).as_str();
+            }
         }
     }
-
-    // get the icons for the apps if they don't have one yet
-    apps = query_app_icons(apps).await;
 
     // filter out the apps that don't have an icon
     apps.retain(|app| app.icon != "");
@@ -446,7 +466,7 @@ async fn query_relevant_apps(handle: AppHandle) {
     apps.retain(|app| {
         std::path::Path::new(
             &app.executable
-                .replace(format!(" --processStart \"{}.exe\"", app.name).as_str(), ""),
+                .replace(format!(" --processStart '{}.exe'", app.name).as_str(), ""),
         )
         .exists()
     });
@@ -455,14 +475,14 @@ async fn query_relevant_apps(handle: AppHandle) {
     apps.retain(|app| is_valid(app.name.clone(), true));
     apps.retain(|app| is_valid(app.executable.clone(), true));
 
-    for app in &apps {
-        println!(
-            "Relevant: {}: {}, {}",
-            app.name,
-            app.executable,
-            app.icon.len()
-        );
-    }
+    // for app in &apps {
+    //     println!(
+    //         "Relevant: {}: {}, {}",
+    //         app.name,
+    //         app.executable,
+    //         app.icon.len()
+    //     );
+    // }
 
     // end the timer
     let duration = start.elapsed();
@@ -471,21 +491,29 @@ async fn query_relevant_apps(handle: AppHandle) {
         duration,
         apps.len()
     );
+    let _ = handle.emit_all("finish_query_relevant", &apps);
     save_app_data(apps, "appDataRelevant.json".to_string(), handle);
 }
 
-fn query_current_apps() {
+fn query_current_apps(handle: AppHandle) {
     //start a timer
     let start = Instant::now();
     // query the currently running apps
     let output = Command::new("powershell.exe").creation_flags(0x08000000).arg("-WindowStyle").arg("Hidden").arg("-Command")
         .arg("$relevant = @();
+        [void] [System.Reflection.Assembly]::LoadWithPartialName('System.Drawing');
         foreach ($file in Get-Process | Where-Object {$_.MainWindowTitle -ne \"\"} | Select-Object -Expand MainModule -ErrorAction SilentlyContinue | Select-Object -Property FileName) {
-            $path = ($file | Format-table -HideTableHeaders | Out-String).Trim();
-            $name = ((($file | Format-table -HideTableHeaders | Out-String).Trim() -split \"\\.exe\")[0] -split \"\\\\\")[-1];
-            if ($path.EndsWith(\".exe\",\"CurrentCultureIgnoreCase\")){
-                $relevant += [PSCustomObject]@{name = $name; executable = $path; icon = \"\"};
-            }
+            try {
+                $path = ($file | Format-table -HideTableHeaders | Out-String).Trim();
+                $name = ((($file | Format-table -HideTableHeaders | Out-String).Trim() -split \"\\.exe\")[0] -split \"\\\\\")[-1];
+                $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+                $memoryStream = New-Object System.IO.MemoryStream
+                $icon.ToBitmap().Save($memoryStream, 'Png')
+                $base64String = [Convert]::ToBase64String($memoryStream.ToArray())
+                if ($path.EndsWith(\".exe\",\"CurrentCultureIgnoreCase\")){
+                    $relevant += [PSCustomObject]@{name = $name; executable = $path; icon = $base64String};
+                }
+            } catch {}
         }
         $relevant | Select-Object -Property name, executable, icon | ConvertTo-Json -Compress;")
         .output()
@@ -496,13 +524,46 @@ fn query_current_apps() {
     let mut apps: Vec<App> = Vec::new();
     for app in json.as_array().unwrap() {
         apps.push(App {
-            name: app["name"].to_string(),
-            executable: app["executable"].to_string(),
-            icon: app["icon"].to_string(),
+            name: app["name"].to_string().replace("\"", ""),
+            executable: app["executable"].to_string().replace("\"", ""),
+            icon: app["icon"].to_string().replace("\"", ""),
         });
     }
-    // for app in &apps {
-    //     println!("Current: {}: {}, {}", app.name, app.executable, app.icon);
+
+    // Until I find a more reliable solution, remove the apps that are in the WindowsApps folder as this folder is not accessible by the user
+    // Also filter out SystemApps, as those are unlikely relevant. (I think)
+    apps.retain(|app| {
+        !app.executable.contains("WindowsApps")
+            && !app.executable.contains("SystemApps")
+            && !app.executable.to_lowercase().contains("system32")
+    });
+    // for app in &mut apps {
+    //     // Apps inside the WindowsApps folder need to be modified to be able to launch them
+    //     if app.executable.contains("WindowsApps") {
+    //         // Turn paths like "C:\\Program Files\\WindowsApps\\SpotifyAB.SpotifyMusic_1.200.1165.0_x86__zpdnekdrzrea0\\Spotify.exe"
+    //         // into "shell:appsFolder\SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify"
+    //         let path = PathBuf::from(&app.executable);
+    //         let name = path
+    //             .file_name()
+    //             .unwrap()
+    //             .to_str()
+    //             .unwrap()
+    //             .split(".")
+    //             .collect::<Vec<&str>>()[0]
+    //             .to_string();
+    //         let parent_folder = path.parent().unwrap().to_str().unwrap().to_string();
+
+    //         // Get the path after WindowsApps
+    //         let mut dir = parent_folder.split("WindowsApps").collect::<Vec<&str>>()[1].to_string();
+    //         // Replace any version string between this regex "_.*?_.*?_" with ""
+    //         let re = Regex::new("_.*?_.*?_").unwrap();
+    //         dir = re.replace(dir.as_str(), "").to_string();
+    //         // remove the leading backslash
+    //         dir = dir[2..].to_string();
+
+    //         let launch_path = r"shell:appsFolder\".to_string() + dir.as_str() + "!" + &name;
+    //         app.executable = launch_path;
+    //     }
     // }
 
     // end the timer
@@ -512,6 +573,62 @@ fn query_current_apps() {
         duration,
         apps.len()
     );
+    // get the appDataRunning.json file from the Appdata folder if it exists
+    let app_dir = resolve_path(
+        &handle.config(),
+        handle.package_info(),
+        &handle.env(),
+        "",
+        Some(BaseDirectory::AppData),
+    )
+    .unwrap_or_default();
+
+    let app_data_running = app_dir.join("appDataRunning.json");
+
+    if app_data_running.clone().exists() {
+        let mut file = File::open(app_data_running.clone()).unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        let json: Value = serde_json::from_str(contents.as_str()).unwrap();
+        for app in json.as_array().unwrap() {
+            apps.push(App {
+                name: app["name"].to_string().replace(r"\\\\", r"\\"),
+                executable: app["executable"]
+                    .to_string()
+                    .to_string()
+                    .replace(r"\\\\", r"\\"),
+                icon: app["icon"].to_string().to_string().replace(r"\\\\", r"\\"),
+            });
+        }
+    }
+
+    // filter out duplicate executables
+    apps.dedup_by(|a, b| a.executable == b.executable);
+
+    // filter out apps that don't exist anymore
+    apps.retain(|app| !Path::new(&app.executable).exists());
+
+    match File::create(app_data_running.clone()) {
+        Ok(mut file) => {
+            // save the appDataRunning.json file
+            file.write_all(serde_json::to_string(&apps).unwrap().as_bytes())
+                .unwrap();
+        }
+        Err(_e) => {
+            // create the appData folder if it doesn't exist
+            let app_data_dir = app_dir.parent().unwrap();
+            if !app_data_dir.exists() {
+                std::fs::create_dir(app_data_dir).unwrap();
+            }
+            // create the appDataRunning.json file
+            let mut file = File::create(app_data_running).unwrap();
+            // save the appDataRunning.json file
+            file.write_all(serde_json::to_string(&apps).unwrap().as_bytes())
+                .unwrap();
+        }
+    }
+
+    let _ = handle.emit_all("finish_query_current", &apps);
 }
 
 async fn query_other_apps(handle: AppHandle) {
@@ -526,6 +643,7 @@ async fn query_other_apps(handle: AppHandle) {
         duration,
         apps.len()
     );
+    let _ = handle.emit_all("finish_query_other", &apps);
     save_app_data(apps, "appData.json".to_string(), handle);
 }
 
@@ -553,7 +671,7 @@ fn query_lnk_dir(dir: String) -> Vec<App> {
                     let absolute_path = if path.is_absolute() {
                         path.to_path_buf()
                     } else {
-                        let mut absolute_path = PathBuf::from(dir.clone());
+                        let mut absolute_path = PathBuf::from(lnk_path.ancestors().nth(1).unwrap());
                         absolute_path.push(path);
                         absolute_path
                     }
@@ -650,7 +768,7 @@ async fn query_folder(path: &str) -> Vec<App> {
     {
         let f_name = entry.file_name().to_string_lossy();
         let f_path = entry.path().to_string_lossy();
-        if f_name.ends_with(".exe")
+        if f_name.to_lowercase().ends_with(".exe")
             && is_valid(f_path.to_string(), false)
             && !f_path.contains("steamapps")
         {
@@ -669,110 +787,118 @@ fn query_epic_games() -> Vec<App> {
     let mut apps: Vec<App> = Vec::new();
     // get the folder path via the registry
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-    let epic_registry = hklm
-        .open_subkey_with_flags(
-            "SOFTWARE\\WOW6432Node\\Epic Games\\EpicGamesLauncher",
-            KEY_READ,
-        )
-        .unwrap();
-    let mut epic_path: String = epic_registry.get_value("AppDataPath").unwrap();
-    epic_path.push_str("\\Manifests");
-    // check if the folder exists and if it does, query it
-    if Path::new(&epic_path).exists() {
-        // read the files in the folder
-        for entry in WalkDir::new(epic_path)
-            .follow_links(false)
-            .min_depth(1)
-            .max_depth(1)
-            .into_iter()
-            .filter_map(|e| e.ok())
-        {
-            let f_name = entry.file_name().to_string_lossy();
-            if f_name.ends_with(".item") {
-                // open the file and parse it to JSON then extract the InstallLocation and LaunchExecutable
-                let file = File::open(entry.path()).unwrap();
-                let reader = BufReader::new(file);
-                let json: Value = serde_json::from_reader(reader).unwrap();
-                let install_location = json["InstallLocation"].as_str().unwrap();
-                let launch_executable = json["LaunchExecutable"].as_str().unwrap();
-                let name = json["DisplayName"].as_str().unwrap().to_string();
-                let app_path = install_location.to_string() + "\\" + launch_executable;
-                apps.push(App {
-                    name,
-                    executable: app_path,
-                    icon: String::from(""),
-                });
+    match hklm.open_subkey_with_flags(
+        "SOFTWARE\\WOW6432Node\\Epic Games\\EpicGamesLauncher",
+        KEY_READ,
+    ) {
+        Ok(epic_registry) => {
+            let mut epic_path: String = epic_registry.get_value("AppDataPath").unwrap();
+            epic_path.push_str("\\Manifests");
+            // check if the folder exists and if it does, query it
+            if Path::new(&epic_path).exists() {
+                // read the files in the folder
+                for entry in WalkDir::new(epic_path)
+                    .follow_links(false)
+                    .min_depth(1)
+                    .max_depth(1)
+                    .into_iter()
+                    .filter_map(|e| e.ok())
+                {
+                    let f_name = entry.file_name().to_string_lossy();
+                    if f_name.ends_with(".item") {
+                        // open the file and parse it to JSON then extract the InstallLocation and LaunchExecutable
+                        let file = File::open(entry.path()).unwrap();
+                        let reader = BufReader::new(file);
+                        let json: Value = serde_json::from_reader(reader).unwrap();
+                        let install_location = json["InstallLocation"].as_str().unwrap();
+                        let launch_executable = json["LaunchExecutable"].as_str().unwrap();
+                        let name = json["DisplayName"].as_str().unwrap().to_string();
+                        let app_path = install_location.to_string() + "\\" + launch_executable;
+                        apps.push(App {
+                            name,
+                            executable: app_path,
+                            icon: String::from(""),
+                        });
+                    }
+                }
             }
+            return apps;
+        }
+        Err(_) => {
+            return apps;
         }
     }
-    return apps;
 }
 
 fn query_steam_games() -> Vec<App> {
     let mut apps: Vec<App> = Vec::new();
     // get the folder path via the registry
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-    let steam_registry = hklm
-        .open_subkey_with_flags("SOFTWARE\\WOW6432Node\\Valve\\Steam", KEY_READ)
-        .unwrap();
-    let mut steam_path: String = steam_registry.get_value("InstallPath").unwrap();
-    steam_path.push_str("\\steamapps\\libraryfolders.vdf");
-    // check if the folder exists and if it does, query it
-    if Path::new(&steam_path).exists() {
-        // read the files in the folder
-        // let mut apps: Vec<String> = Vec::new();
+    match hklm.open_subkey_with_flags("SOFTWARE\\WOW6432Node\\Valve\\Steam", KEY_READ) {
+        Ok(steam_registry) => {
+            let mut steam_path: String = steam_registry.get_value("InstallPath").unwrap();
+            steam_path.push_str("\\steamapps\\libraryfolders.vdf");
+            // check if the folder exists and if it does, query it
+            if Path::new(&steam_path).exists() {
+                // read the files in the folder
+                // let mut apps: Vec<String> = Vec::new();
 
-        // read the file, convert the .acf formt to json format and parse it to JSON then extract the appid and name
-        let file = File::open(steam_path.clone()).unwrap();
-        let mut reader = BufReader::new(file);
-        let mut data = String::new();
-        // parse the BufferReader to a String
-        let _res = reader.read_to_string(&mut data);
-        let json = acf_to_json(&data).unwrap_or_default();
+                // read the file, convert the .acf formt to json format and parse it to JSON then extract the appid and name
+                let file = File::open(steam_path.clone()).unwrap();
+                let mut reader = BufReader::new(file);
+                let mut data = String::new();
+                // parse the BufferReader to a String
+                let _res = reader.read_to_string(&mut data);
+                let json = acf_to_json(&data).unwrap_or_default();
 
-        // get the keys of the json object
-        let keys = json.as_object().unwrap().keys();
-        // library paths array
-        let mut library_paths: Vec<String> = Vec::new();
-        // iterate over the keys and get the values
-        for key in keys {
-            let value = json.get(key).unwrap().get("path").unwrap();
-            library_paths.push(value.to_string());
-        }
-
-        // iterate over the library paths and get the .acf files in the //steamapps folder
-        for path in library_paths {
-            let mut steamapps_path = path.clone().replace("\"", "");
-            steamapps_path += "\\steamapps";
-            for entry in WalkDir::new(&steamapps_path)
-                .follow_links(false)
-                .min_depth(1)
-                .max_depth(1)
-                .into_iter()
-                .filter_map(|e| e.ok())
-            {
-                if entry.file_name().to_string_lossy().ends_with(".acf") {
-                    // open the file and parse it to JSON then extract the InstallLocation and LaunchExecutable
-                    let file = File::open(entry.path()).unwrap();
-                    let mut reader = BufReader::new(file);
-                    let mut data = String::new();
-                    // parse the BufferReader to a String
-                    let _res = reader.read_to_string(&mut data);
-                    let json = acf_to_json(&data).unwrap_or_default();
-                    let appid = json.get("appid").unwrap().as_str().unwrap();
-                    let name = json.get("name").unwrap().as_str().unwrap().to_string();
-                    // let app_path = path.to_string();
-                    apps.push(App {
-                        name,
-                        executable: appid.to_string(),
-                        icon: String::from(""),
-                    });
+                // get the keys of the json object
+                let keys = json.as_object().unwrap().keys();
+                // library paths array
+                let mut library_paths: Vec<String> = Vec::new();
+                // iterate over the keys and get the values
+                for key in keys {
+                    let value = json.get(key).unwrap().get("path").unwrap();
+                    library_paths.push(value.to_string());
                 }
+
+                // iterate over the library paths and get the .acf files in the //steamapps folder
+                for path in library_paths {
+                    let mut steamapps_path = path.clone().replace("\"", "");
+                    steamapps_path += "\\steamapps";
+                    for entry in WalkDir::new(&steamapps_path)
+                        .follow_links(false)
+                        .min_depth(1)
+                        .max_depth(1)
+                        .into_iter()
+                        .filter_map(|e| e.ok())
+                    {
+                        if entry.file_name().to_string_lossy().ends_with(".acf") {
+                            // open the file and parse it to JSON then extract the InstallLocation and LaunchExecutable
+                            let file = File::open(entry.path()).unwrap();
+                            let mut reader = BufReader::new(file);
+                            let mut data = String::new();
+                            // parse the BufferReader to a String
+                            let _res = reader.read_to_string(&mut data);
+                            let json = acf_to_json(&data).unwrap_or_default();
+                            let appid = json.get("appid").unwrap().as_str().unwrap();
+                            let name = json.get("name").unwrap().as_str().unwrap().to_string();
+                            // let app_path = path.to_string();
+                            apps.push(App {
+                                name,
+                                executable: appid.to_string(),
+                                icon: String::from(""),
+                            });
+                        }
+                    }
+                }
+                // println!("apps in {}: \n{}", steam_path, json.to_string());
             }
+            return apps;
         }
-        // println!("apps in {}: \n{}", steam_path, json.to_string());
+        Err(_) => {
+            return apps;
+        }
     }
-    return apps;
 }
 
 async fn query_app_icons(apps: Vec<App>) -> Vec<App> {
@@ -836,69 +962,6 @@ fn spawn_sidecar_command(args: Vec<String>) -> Receiver<CommandEvent> {
     return rx;
 }
 
-// fn query_app_icons2(apps: Vec<App>, handle: AppHandle) -> Vec<App> {
-//     let app_dir = resolve_path(
-//         &handle.config(),
-//         handle.package_info(),
-//         &handle.env(),
-//         "",
-//         Some(BaseDirectory::AppData),
-//     )
-//     .unwrap_or_default();
-//     std::fs::create_dir_all(app_dir.join("icons")).unwrap();
-//     let mut final_apps: Vec<App> = Vec::new();
-//     apps.iter().for_each(|x| {
-//         match FileMap::open(&x.executable) {
-//             Ok(map) => {
-//                 match PeFile::from_bytes(&map) {
-//                     Ok(file) => {
-//                         let dest = app_dir.join(PathBuf::from("icons"));
-//                         match file.resources() {
-//                             Ok(resources) => {
-//                                 for (_name, group) in resources.icons().filter_map(Result::ok) {
-//                                     // Write the ICO file
-//                                     let mut contents = Vec::new();
-//                                     group.write(&mut contents).unwrap();
-//                                     let path = dest.join(&format!("{}.ico", x.executable.split("\\").last().unwrap()));
-//                                     println!("{}", path.display());
-//                                     let _ = std::fs::write(&path, &contents).unwrap_or_default();
-//                                     final_apps.push(App {
-//                                         name: x.name.clone(),
-//                                         executable: x.executable.clone(),
-//                                         icon: path.display().to_string(),
-//                                     });
-//                                 }
-//                             }
-//                             Err(_e) => {
-//                                 final_apps.push(App {
-//                                     name: x.name.clone(),
-//                                     executable: x.executable.clone(),
-//                                     icon: "".to_string(),
-//                                 });
-//                             }
-//                         }
-//                     }
-//                     Err(_e) => {
-//                         final_apps.push(App {
-//                             name: x.name.clone(),
-//                             executable: x.executable.clone(),
-//                             icon: "".to_string(),
-//                         });
-//                     }
-//                 }
-//             }
-//             Err(_) => {
-//                 final_apps.push(App {
-//                     name: x.name.clone(),
-//                     executable: x.executable.clone(),
-//                     icon: "".to_string(),
-//                 });
-//             }
-//         }
-//     });
-//     return final_apps;
-// }
-
 fn query_app_name(path: String) -> String {
     let map_res = FileMap::open(&path);
     if map_res.is_err() {
@@ -915,6 +978,7 @@ fn query_app_name(path: String) -> String {
     match resources {
         Ok(resource) => {
             let mut name = String::new();
+            let mut file_description = String::new();
             if !resource.version_info().is_err() {
                 let vi = resource.version_info().unwrap();
                 let lang = vi.translation().iter().next();
@@ -923,8 +987,14 @@ fn query_app_name(path: String) -> String {
                         if key == "ProductName" {
                             name = value.to_string();
                         }
+                        if key == "FileDescription" {
+                            file_description = value.to_string();
+                        }
                     });
                 }
+            }
+            if name == "" || name == "Microsoft Office" {
+                name = file_description;
             }
             return name;
         }
@@ -1045,15 +1115,27 @@ fn save_app_data(apps: Vec<App>, name: String, handle: AppHandle) {
         app_dir.as_os_str().to_str().unwrap(),
         name
     );
-    let mut file = OpenOptions::new()
+    match OpenOptions::new()
         .write(true)
         .create(true)
         .truncate(true)
-        .open(app_dir.join(name))
-        .unwrap();
-    // write the appData to the file as json
-    file.write_all(serde_json::to_string(&apps).unwrap().as_bytes())
-        .unwrap();
+        .open(app_dir.join(name.clone()))
+    {
+        Ok(mut file) => {
+            // write the appData to the file as json
+            file.write_all(serde_json::to_string(&apps).unwrap().as_bytes())
+                .unwrap();
+        }
+        Err(e) => {
+            // create the directory if it doesn't exist
+            if e.kind() == ErrorKind::NotFound {
+                create_dir_all(app_dir).unwrap();
+                save_app_data(apps, name, handle);
+            } else {
+                println!("Error saving app data: {}", e);
+            }
+        }
+    }
 }
 
 /*

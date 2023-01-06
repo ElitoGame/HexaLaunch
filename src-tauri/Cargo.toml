@@ -1,8 +1,8 @@
 [package]
 name = "app"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "A App Launcher for Windows"
+authors = ["ElitoGame", "chpenz", "Karo"]
 license = ""
 repository = ""
 default-run = "app"
@@ -29,6 +29,7 @@ winreg = "0.10.1"
 futures = "0.3.25"
 lazy_static = "1.4.0"
 window-vibrancy = "0.3.2"
+image = "0.24.5"
 # image = "0.24.5"
 
 [dependencies.tauri-plugin-autostart]

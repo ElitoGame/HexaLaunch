@@ -30,6 +30,7 @@ export const [getHotkeys, setHotkeys] = createSignal('');
 export const [getColor, setColor] = createSignal('#FFFFFF');
 
 export const [getRelevantApps, setRelevantApps] = createSignal<Array<externalApp>>();
+export const [getAllApps, setAllApps] = createSignal<Array<externalApp>>();
 
 export const [isDraggingTiles, setIsDraggingTiles] = createSignal<boolean>(false);
 export const [wasDraggingTiles, setWassDraggingTiles] = createSignal<boolean>(false);

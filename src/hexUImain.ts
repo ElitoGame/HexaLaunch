@@ -269,33 +269,29 @@ export const openApp = async (app: string, url: string) => {
 
     const child = await command.spawn();
     console.log('pid:', child.pid);
-  }
-  const args = [];
+  } else {
+    const args = [];
 
-  if (app) {
-    args.push(`"${app}"`);
-    if (url) {
-      args.push('-ArgumentList', `"${url}"`);
+    if (app) {
+      args.push(`"${app}"`);
+      if (url) {
+        args.push('-ArgumentList', `"${url}"`);
+      }
+    } else if (url) {
+      args.push(`"${url}"`);
     }
-  } else if (url) {
-    args.push(`"${url}"`);
+
+    const command = app.includes('--processStart')
+      ? new Command('open', ['-Command', ...args.map((arg) => arg.replace(/"/g, ''))])
+      : new Command('open', ['-Command', 'Start', ...args]);
+    command.on('close', (data) => {
+      toggleUI(true);
+      console.log(`command finished with code ${data.code} and signal ${data.signal}`);
+    });
+
+    const child = await command.spawn();
+    console.log('pid:', child.pid);
   }
-
-  const command = new Command('open', [
-    '-Command',
-    app.includes('--processStart') ? '' : 'Start',
-    ...args,
-  ]);
-  command.on('close', (data) => {
-    toggleUI(true);
-    console.log(`command finished with code ${data.code} and signal ${data.signal}`);
-  });
-  // command.on("error", (error) => console.error(`command error: "${error}"`));
-  // command.stdout.on("data", (line) => console.log(`command stdout: "${line}"`));
-  // command.stderr.on("data", (line) => console.log(`command stderr: "${line}"`));
-
-  const child = await command.spawn();
-  console.log('pid:', child.pid);
 };
 export const runAction = async (action: string, option?: string) => {
   console.log('running action', action, option);

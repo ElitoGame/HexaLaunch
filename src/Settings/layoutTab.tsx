@@ -1,4 +1,4 @@
-import { getRelevantApps, isDraggingTiles, setIsDraggingTiles } from '../settings';
+import { getAllApps, getRelevantApps, isDraggingTiles, setIsDraggingTiles } from '../settings';
 import { Box, Input, Center, HStack, InputGroup, InputLeftElement } from '@hope-ui/solid';
 
 import { createSignal, For, Match, onMount, Show, Switch } from 'solid-js';
@@ -101,7 +101,7 @@ export const LayoutTab = () => {
             searchAppDB((e.target as HTMLInputElement).value);
             setPage(0);
           }}
-          placeholder="Search all available apps"
+          placeholder={`Search all available apps (${getAllApps()?.length ?? 0})`}
         />
       </InputGroup>
       <br />
@@ -198,7 +198,9 @@ export const LayoutTab = () => {
           </>
         }
       >
-        <h2>Apps</h2>
+        <h2>
+          Apps <span class="text-neutral">({(getRelevantApps() ?? []).length} Relevant)</span>
+        </h2>
         <p>
           This list only contains the most important Apps. If you do not find the App you are
           looking for you can use the search function above.{' '}

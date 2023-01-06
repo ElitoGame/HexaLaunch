@@ -7,7 +7,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "RadialHexUI",
+    "productName": "HexaLaunch",
     "version": "0.1.0"
   },
   "tauri": {
@@ -136,7 +136,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "radialhexui",
+      "identifier": "hexalaunch",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -167,7 +167,7 @@
         "fullscreen": false,
         "height": 1,
         "resizable": false,
-        "title": "RadialHexUI",
+        "title": "HexaLaunch",
         "width": 1,
         "transparent": true,
         "decorations": false,
@@ -181,7 +181,7 @@
         "label": "settings",
         "height": 600,
         "resizable": true,
-        "title": "RadialHexUI Settings",
+        "title": "HexaLaunch Settings",
         "width": 800,
         "url": "settings.html",
         "visible": false,

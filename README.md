@@ -1,4 +1,4 @@
-# RadialHexUI
+# HexaLaunch
 
 A radial hexagon menu to boost productivity
 

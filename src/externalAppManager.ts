@@ -3,8 +3,9 @@ import { create, insert, insertBatch, Lyra, search, SearchResult } from '@lyrase
 import { Command } from '@tauri-apps/api/shell';
 import { queryIconOfExe, queryNamesOfExes, queryOtherApps, queryRelevantApps } from './queryApps';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
-import { setRelevantApps } from './settings';
+import { setAllApps, setRelevantApps } from './settings';
 import { BaseDirectory } from '@tauri-apps/api/fs';
+import { listen } from '@tauri-apps/api/event';
 
 export class externalAppManager {
   private static appData: Array<externalApp> = [];
@@ -36,52 +37,84 @@ export class externalAppManager {
    */
   public static async getSearchDatabase() {
     if (this.appDB === undefined) {
-      this.appDB = create({
-        schema: {
-          executable: 'string',
-          name: 'string',
-          icon: 'string',
-          type: 'string',
-        },
-      });
       if (this.appData.length === 0) {
         console.log('Querying apps...');
         // this.queryRelevantApps();
         // this.queryOtherApps();
-        const data = await fs.readTextFile('appData.json', { dir: BaseDirectory.AppData });
-        const parsed = JSON.parse(data);
-        this.appData = parsed.map((x) => new externalApp(x.executable, x.name, x.icon, 'App'));
 
-        const relevantData = await fs.readTextFile('appDataRelevant.json', {
-          dir: BaseDirectory.AppData,
+        // Set up listeners for the query functions
+
+        // listen to the "finish_query_relevant" event to get the result
+        await listen('finish_query_relevant', (event) => {
+          console.log('finish_query_relevant', event);
+          this.appDataRelevant = (event.payload as any).map(
+            (x) => new externalApp(x.executable, x.name, x.icon, 'App')
+          );
+          setRelevantApps(this.appDataRelevant);
+          this.updateSearchDatabase();
         });
-        const parsedRelevant = JSON.parse(relevantData);
-        this.appDataRelevant = parsedRelevant.map(
-          (x) => new externalApp(x.executable, x.name, x.icon, 'App')
-        );
-        setRelevantApps(this.appDataRelevant);
+        await listen('finish_query_current', (event) => {
+          console.log('finish_query_current', event);
+        });
+        await listen('finish_query_other', (event) => {
+          console.log('finish_query_other', event);
+          this.appData = (event.payload as any).map(
+            (x) => new externalApp(x.executable, x.name, x.icon, 'App')
+          );
+          setAllApps(this.appData);
+          this.updateSearchDatabase();
+        });
+
+        if (fs.exists('appDataRelevant.json', { dir: BaseDirectory.AppData })) {
+          const relevantData = await fs.readTextFile('appDataRelevant.json', {
+            dir: BaseDirectory.AppData,
+          });
+          const parsedRelevant = JSON.parse(relevantData);
+          this.appDataRelevant = parsedRelevant.map(
+            (x) => new externalApp(x.executable, x.name, x.icon, 'App')
+          );
+          setRelevantApps(this.appDataRelevant);
+        }
+        if (fs.exists('appData.json', { dir: BaseDirectory.AppData })) {
+          const data = await fs.readTextFile('appData.json', { dir: BaseDirectory.AppData });
+          const parsed = JSON.parse(data);
+          this.appData = parsed.map((x) => new externalApp(x.executable, x.name, x.icon, 'App'));
+          setAllApps(this.appData);
+        }
         console.log('Querying apps finished', this.appDataRelevant);
       }
-      await insertBatch(
-        this.appDB,
-        this.appData.map((x) => {
-          if (!x.icon.startsWith('data:image/png;base64,')) {
-            x.icon = convertFileSrc(x.icon);
-          }
-          return x.toJSONwithTypes();
-        })
-      );
-      await insertBatch(
-        this.appDB,
-        this.appDataRelevant.map((x) => {
-          if (!x.icon.startsWith('data:image/png;base64,')) {
-            x.icon = convertFileSrc(x.icon);
-          }
-          return x.toJSONwithTypes();
-        })
-      );
+      this.updateSearchDatabase();
     }
     return this.appDB;
+  }
+
+  private static async updateSearchDatabase() {
+    this.appDB = create({
+      schema: {
+        executable: 'string',
+        name: 'string',
+        icon: 'string',
+        type: 'string',
+      },
+    });
+    await insertBatch(
+      this.appDB,
+      this.appData.map((x) => {
+        if (!x.icon.startsWith('data:image/png;base64,')) {
+          x.icon = convertFileSrc(x.icon);
+        }
+        return x.toJSONwithTypes();
+      })
+    );
+    await insertBatch(
+      this.appDB,
+      this.appDataRelevant.map((x) => {
+        if (!x.icon.startsWith('data:image/png;base64,')) {
+          x.icon = convertFileSrc(x.icon);
+        }
+        return x.toJSONwithTypes();
+      })
+    );
   }
 
   public static async getIconOfActionExe(executable: string): Promise<string> {
