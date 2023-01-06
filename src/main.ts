@@ -5,6 +5,7 @@ import { fs, invoke } from '@tauri-apps/api';
 import { externalAppManager } from './externalAppManager';
 import { emit, listen } from '@tauri-apps/api/event';
 import { theme } from './themes';
+import Themes from './Themes/Themes';
 
 export const [getShowPosition, setShowPosition] = createSignal({ x: 0, y: 0 });
 export const [getCursorPosition, setCursorPosition] = createSignal({
@@ -41,6 +42,7 @@ await listen('updateSettings', (event) => {
       settingsTextColor: string;
       hexagonSize: string;
       hexagonMargin: string;
+      themes: Themes;
     };
     theme: {
       themeName: string;
@@ -81,6 +83,14 @@ await listen('updateSettings', (event) => {
   document.documentElement.style.setProperty('--text', settings.settingsTextColor);
   document.documentElement.style.setProperty('--mainHexagonBg', theme.mainHexagonBg);
   document.documentElement.style.setProperty('--hoverHexagonBg', theme.hoverHexagonBg);
+  document.documentElement.style.setProperty('--subHexagonBg', theme.subHexagonBg);
+  document.documentElement.style.setProperty('--mainHexagonBorder', theme.mainHexagonBorder);
+  document.documentElement.style.setProperty('--hoverHexagonBorder', theme.hoverHexagonBorder);
+  document.documentElement.style.setProperty('--subHexagonBorder', theme.subHexagonBorder);
+  document.documentElement.style.setProperty('--mainHexagonWidth', theme.mainHexagonWidth);
+  document.documentElement.style.setProperty('--hoverHexagonWidth', theme.hoverHexagonWidth);
+  document.documentElement.style.setProperty('--subHexagonWidth', theme.subHexagonWidth);
+  document.documentElement.style.setProperty('--mainHexagonIcon', theme.mainHexagonIcon);
 });
 
 try {

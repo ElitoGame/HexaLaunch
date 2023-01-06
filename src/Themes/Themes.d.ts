@@ -73,6 +73,9 @@ export default class Themes {
   getHexagonSize(): number;
   setHexagonSize(x: number): void;
   setHexagonMargin(x: number): void;
+
+  getThemeName() : string;
+  setThemeName(v : string);
     
   getMainHexagonBg() : string;
   setMainHexagonBg(v : string);

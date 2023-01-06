@@ -1,3 +1,5 @@
+import Themes from "../Themes/Themes";
+
 export default class SettingsData {
   private width = 0;
   private borderWidth = 0;
@@ -13,6 +15,7 @@ export default class SettingsData {
   private settingsNeutralColor= '#5C5C5C';
   private hexagonSize = 50;
   private hexagonMargin = 5;
+  private themes = [];
 
   constructor(
     width: number,
@@ -28,7 +31,8 @@ export default class SettingsData {
     settingsTextColor: string,
     settingsNeutralColor: string,
     hexagonSize: number,
-    hexagonMargin: number
+    hexagonMargin: number,
+    themes: Themes[]
   ) {
     this.width = width;
     this.borderWidth = borderWidth;
@@ -44,6 +48,7 @@ export default class SettingsData {
     this.settingsNeutralColor = settingsNeutralColor;
     this.hexagonSize = hexagonSize;
     this.hexagonMargin = hexagonMargin;
+    this.themes = themes;
   }
 
   public getHexagonMargin() {
@@ -90,6 +95,13 @@ export default class SettingsData {
   }
   public setHotkeys(value: string[]) {
     this.hotkeys = value;
+  }
+
+  public getThemes() {
+    return this.themes;
+  }
+  public setThemes(value: Themes[]) {
+    this.themes = value;
   }
   public getWidth() {
     return this.width;
@@ -154,6 +166,7 @@ export default class SettingsData {
     this.settingsNeutralColor = settings.settingsNeutralColor;
     this.hexagonSize = settings.hexagonSize;
     this.hexagonMargin = settings.hexagonMargin;
+    this.themes = settings.themes;
   }
 
   public toJSON(): {
@@ -171,6 +184,7 @@ export default class SettingsData {
     settingsNeutralColor: string;
     hexagonSize: number;
     hexagonMargin: number;
+    themes: Array<Themes>;
   } {
     return {
       width: this.width,
@@ -187,6 +201,7 @@ export default class SettingsData {
       settingsNeutralColor: this.settingsNeutralColor,
       hexagonSize: this.hexagonSize,
       hexagonMargin: this.hexagonMargin,
+      themes: this.themes,
     };
   }
 
@@ -205,6 +220,7 @@ export default class SettingsData {
     settingsNeutralColor: string;
     hexagonSize: number;
     hexagonMargin: number;
+    themes: Array<Themes>;
   }) {
     return new SettingsData(
       data.width,
@@ -220,7 +236,8 @@ export default class SettingsData {
       data.settingsTextColor,
       data.settingsNeutralColor,
       data.hexagonSize,
-      data.hexagonMargin
+      data.hexagonMargin,
+      data.themes,
     );
   }
 }

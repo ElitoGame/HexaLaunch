@@ -792,6 +792,7 @@ const SettingsMenu = () => {
                   setCurrentTab('Appearance');
                 }}
                 id="tp_appearance"
+                class="overflow-y-auto h-full"
               >
                 <Show when={getNewTheme()} fallback={<AppearanceTab></AppearanceTab>}>
                   <NewThemeTab></NewThemeTab>

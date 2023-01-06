@@ -13,15 +13,16 @@ import { FaSolidPlay, FaSolidForwardStep, FaSolidPause } from 'solid-icons/fa';
 import { invoke } from '@tauri-apps/api';
 import { externalAppManager } from '../../externalAppManager';
 import { IoTrashBin } from 'solid-icons/io';
+import { theme, setTheme } from '../../themes';
 
 const HexIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
 
-const getHexagonPathData = (scale = 1) => {
+const getHexagonPathData = (radius: any = 3, scale = 1) => {
   const sin = (deg) => Math.sin((deg * Math.PI) / 180);
   const cos = (deg) => Math.cos((deg * Math.PI) / 180);
 
   // Modify this border radius via the themes.
-  const borderRadius = 6;
+  const borderRadius = radius as any;
   const sideLength = ((38.5 * getHexSize()) / 66) * scale;
   const x0 = 0;
   const y0 = 0;
@@ -90,16 +91,16 @@ const HexTile = (props: {
       x: 0,
       y: 0,
       radiant: 0,
-      onClick: () => {},
+      onClick: () => { },
       zIndex: 10,
-      color: `fill-mainHexagonBg`,
+      color: `fill-subHexagonBg`,
       title: '',
       action: '',
       app: '',
       url: '',
       hasAnimation: true,
       hasHoverEffect: true,
-      border: 5,
+      border: 7,
       isSettings: false,
     },
     props
@@ -113,6 +114,7 @@ const HexTile = (props: {
   const [icon] = createResource(merged.app, HexIcon);
 
   const [getHovered, setHovered] = createSignal(false);
+
 
   // console.log(merged.radiant, props.radiant, merged.hasAnimation);
   const [getScale, setScale] = createSignal(merged.hasAnimation ? 0 : 100);
@@ -151,27 +153,24 @@ const HexTile = (props: {
   const [isBrokenImage, setBrokenImage] = createSignal(false);
 
   return (
-    <Show when={(!isFullLayout() && merged.action !== 'Unset') || isFullLayout()}>
+    <Show when={(!isFullLayout() && merged.action !== 'Unset') || isFullLayout()} >
       <div
         class={`hexTile absolute bg-transparent  cursor-pointer inline-block`}
-        id={`{"x":"${merged.x}", "y":"${merged.y}", "radiant":"${merged.radiant}", "action":"${
-          merged.action
-        }", "app":"${merged.app.replaceAll('\\', '\\\\')}", "url":"${merged.url
-          .trim()
-          .replaceAll('\\', '\\\\')}
+        id={`{"x":"${merged.x}", "y":"${merged.y}", "radiant":"${merged.radiant}", "action":"${merged.action
+          }", "app":"${merged.app.replaceAll('\\', '\\\\')}", "url":"${merged.url
+            .trim()
+            .replaceAll('\\', '\\\\')}
         ", "title":"${merged.title.replace('\\', '')}"}`}
         style={{
-          left: `${
-            merged.x * (getHexSize() + getHexMargin()) -
+          left: `${merged.x * (getHexSize() + getHexMargin()) -
             (merged.y % 2 === 0 ? 0 : (getHexSize() + getHexMargin()) / 2) -
             getHexSize() / 2 -
             (getHexMargin() / 8) * 11.75
-          }px`,
-          bottom: `${
-            merged.y * (getHexSize() * 0.86 + getHexMargin()) -
+            }px`,
+          bottom: `${merged.y * (getHexSize() * 0.86 + getHexMargin()) -
             (getHexSize() / 13) * 8 -
             (getHexMargin() / 8) * 11.75
-          }px`,
+            }px`,
           width: `${getHexSize() + getHexMargin()}px`,
           margin: `${getHexMargin()}px`,
           height: `${(getHexSize() + getHexMargin()) * 1.169}px`,
@@ -187,15 +186,15 @@ const HexTile = (props: {
           class={
             'absolute ' +
             merged.color +
-            ` cursor-pointer inline-block ${
-              merged.hasHoverEffect
-                ? 'hover:scale-97 transition-transform hover:fill-hoverHexagonBg'
-                : ''
+            ` cursor-pointer inline-block ${getHovered()
+              ? ' transition-transform hover:fill-hoverHexagonBg scale-97'
+              : merged.radiant === 0
+                ? ' fill-mainHexagonBg'
+                : ' fill-subHexagonBg'
             }` +
-            ` ${
-              selectedHexTile().x === merged.x && selectedHexTile().y === merged.y
-                ? 'bg-red-500'
-                : ''
+            ` ${selectedHexTile().x === merged.x && selectedHexTile().y === merged.y
+              ? 'bg-red-500'
+              : ''
             }`
           }
           id={`radiant:${merged.radiant}`}
@@ -219,38 +218,265 @@ const HexTile = (props: {
         >
           <svg width={getHexSize() + getHexMargin() * 2} height={getHexSize() * 1.169}>
             <clipPath id="hexClip">
-              {/* <circle cx="40" cy="35" r="35" /> */}
+              {<circle cx="40" cy="35" r="35" />}
               <path
-                d={`${getHexagonPathData()}`}
+                id={`radiant:${merged.radiant}`}
+                d={`${getHovered()
+                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius())}`
+                    : merged.radiant === 0
+                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius())}`
+                      : `${getHexagonPathData(theme()?.getSubHexagonRadius())}`
+                  }`}
                 style={{
                   transform: `translate(-0.1%, 5%)`,
                 }}
               />
+
+
+
             </clipPath>
+            {/* Hexagon on Hover*/}
             {/* This path will act as the border or if the same color as the main content*/}
-            <path
-              d={`${getHexagonPathData(0.99)}`}
-              class="fill-mainHexagonBorder"
-              style={{
-                transform: `translate(0.9%, 0.9%)`,
-              }}
-            />
-            {/* The main hexagon content if a border is present, otherwise hide it via a Show component*/}
-            <path
-              d={`${getHexagonPathData(0.9)}`}
-              style={{
-                transform: `translate(5%, 5%)`,
-              }}
-            />
-            {/* Path to only show the bottom border */}
-            <path
-              clip-path="url(#hexClip)"
-              d={`${getHexagonPathData()}`}
-              style={{
-                transform: `translate(-0.1%, -5%)`,
-              }}
-            />
+            <Show
+              when={theme()?.getHoverHexagonBorderStyle()
+                === "none" && getHovered()}
+            >
+              <path
+
+                d={`${getHovered()
+                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.99)}`
+                    : merged.radiant === 0
+                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.99)}`
+                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.99)}`
+                  }`}
+                class={`${getHovered()
+                    ? `fill-hoverHexagonBg`
+                    : merged.radiant === 0
+                      ? `fill-mainHexagonBg`
+                      : `fill-subHexagonBg`
+                  }`}
+                style={{
+                  transform: `translate(0.9%, 0.9%)`,
+                }}
+              /></Show>
+            <Show
+              when={theme()?.getHoverHexagonBorderStyle()
+                !== "none" && getHovered()}
+            >
+
+              <path
+
+                d={`${getHovered()
+                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.99)}`
+                    : merged.radiant === 0
+                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.99)}`
+                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.99)}`
+                  }`}
+                class={`${getHovered()
+                    ? `fill-hoverHexagonBorder`
+                    : merged.radiant === 0
+                      ? `fill-mainHexagonBorder`
+                      : `fill-subHexagonBorder`
+                  }`}
+                style={{
+                  transform: `translate(0.9%, 0.9%)`,
+                }}
+              />
+
+              {/* The main hexagon content if a border is present, otherwise hide it via a Show component*/}
+
+              <path
+
+                d={`${getHovered()
+                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.9)}`
+                    : merged.radiant === 0
+                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.9)}`
+                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.9)}`
+                  }`}
+                style={{
+                  transform: `translate(5%, 5%)`,
+                }}
+              />
+              {/* Path to only show the bottom border */}
+              <Show
+                when={theme()?.getHoverHexagonBorderStyle()
+                  === "shadow" && getHovered()}>
+                <path
+                  clip-path="url(#hexClip)"
+
+                  d={`${getHovered()
+                      ? `${getHexagonPathData(theme()?.getHoverHexagonRadius())}`
+                      : merged.radiant === 0
+                        ? `${getHexagonPathData(theme()?.getMainHexagonRadius())}`
+                        : `${getHexagonPathData(theme()?.getSubHexagonRadius())}`
+                    }`}
+                  style={{
+                    transform: `translate(-0.1%, -5%)`,
+                  }}
+                /></Show>
+            </Show>
+
+            {/* Sub Hexagon*/}
+            {/* This path will act as the border or if the same color as the main content*/}
+            <Show
+              when={theme()?.getSubHexagonBorderStyle()
+                === "none" && merged.radiant !== 0 && !getHovered()}
+            >
+              <path
+
+                d={`${getHovered()
+                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.99)}`
+                    : merged.radiant === 0
+                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.99)}`
+                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.99)}`
+                  }`}
+                class={`${getHovered()
+                    ? `fill-hoverHexagonBg`
+                    : merged.radiant === 0
+                      ? `fill-mainHexagonBg`
+                      : `fill-subHexagonBg`
+                  }`}
+                style={{
+                  transform: `translate(0.9%, 0.9%)`,
+                }}
+              /></Show>
+            <Show
+              when={theme()?.getSubHexagonBorderStyle()
+                !== "none" && merged.radiant !== 0 && !getHovered()}
+            >
+
+              <path
+
+                d={`${getHovered()
+                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.99)}`
+                    : merged.radiant === 0
+                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.99)}`
+                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.99)}`
+                  }`}
+                class={`${getHovered()
+                    ? `fill-hoverHexagonBorder`
+                    : merged.radiant === 0
+                      ? `fill-mainHexagonBorder`
+                      : `fill-subHexagonBorder`
+                  }`}
+                style={{
+                  transform: `translate(0.9%, 0.9%)`,
+                }}
+              />
+
+              {/* The main hexagon content if a border is present, otherwise hide it via a Show component*/}
+
+              <path
+
+                d={`${getHovered()
+                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.9)}`
+                    : merged.radiant === 0
+                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.9)}`
+                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.9)}`
+                  }`}
+                style={{
+                  transform: `translate(5%, 5%)`,
+                }}
+              />
+              {/* Path to only show the bottom border */}
+              <Show
+                when={theme()?.getSubHexagonBorderStyle()
+                  === "shadow" && merged.radiant !== 0 && !getHovered()}>
+                <path
+                  clip-path="url(#hexClip)"
+
+                  d={`${getHovered()
+                      ? `${getHexagonPathData(theme()?.getHoverHexagonRadius())}`
+                      : merged.radiant === 0
+                        ? `${getHexagonPathData(theme()?.getMainHexagonRadius())}`
+                        : `${getHexagonPathData(theme()?.getSubHexagonRadius())}`
+                    }`}
+                  style={{
+                    transform: `translate(-0.1%, -5%)`,
+                  }}
+                /></Show>
+            </Show>
+            {/* Main Hexagon*/}
+            {/* This path will act as the border or if the same color as the main content*/}
+            <Show
+              when={theme()?.getMainHexagonBorderStyle()
+                === "none" && merged.radiant == 0 && !getHovered()}
+            >
+              <path
+
+                d={`${getHovered()
+                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.99)}`
+                    : merged.radiant === 0
+                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.99)}`
+                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.99)}`
+                  }`}
+                class={`${getHovered()
+                    ? `fill-hoverHexagonBg`
+                    : (merged.radiant === 0
+                      ? `fill-mainHexagonBg`
+                      : `fill-subHexagonBg`)
+                  }`}
+                style={{
+                  transform: `translate(0.9%, 0.9%)`,
+                }}
+              /></Show>
+            <Show
+              when={theme()?.getMainHexagonBorderStyle()
+                !== "none" && merged.radiant == 0 && !getHovered()}
+            >
+
+              <path
+
+                d={`${getHovered()
+                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.99)}`
+                    : (merged.radiant === 0
+                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.99)}`
+                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.99)}`)
+                  }`}
+                class={`${getHovered()
+                    ? `fill-hoverHexagonBorder`
+                    : merged.radiant === 0
+                      ? `fill-mainHexagonBorder`
+                      : `fill-subHexagonBorder`
+                  }`}
+                style={{
+                  transform: `translate(0.9%, 0.9%)`,
+                }}
+              />
+
+              {/* The main hexagon content if a border is present, otherwise hide it via a Show component*/}
+
+              <path
+
+                d={`${getHovered()
+                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.9)}`
+                    : (merged.radiant === 0
+                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.9)}`
+                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.9)}`)
+                  }`}
+                style={{
+                  transform: `translate(5%, 5%)`,
+                }}
+              />
+              {/* Path to only show the bottom border */}
+              <Show
+                when={theme()?.getMainHexagonBorderStyle()
+                  === "shadow" && merged.radiant == 0 && !getHovered()}>
+                <path
+                  clip-path="url(#hexClip)"
+
+                  d={`${getHovered()
+                      ? `${getHexagonPathData(theme()?.getHoverHexagonRadius())}`
+                      : (merged.radiant === 0
+                        ? `${getHexagonPathData(theme()?.getMainHexagonRadius())}`
+                        : `${getHexagonPathData(theme()?.getSubHexagonRadius())}`)
+                    }`}
+                  style={{
+                    transform: `translate(-0.1%, -5%)`,
+                  }}
+                /></Show></Show>
           </svg>
+
           <Switch
             fallback={
               <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -329,9 +555,8 @@ const HexTile = (props: {
                   >
                     <img
                       src={'data:image/png;base64,' + getCurrentMedia()?.thumbnail}
-                      class={`absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 ${
-                        getHovered() ? 'brightness-50' : ''
-                      }`}
+                      class={`absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 ${getHovered() ? 'brightness-50' : ''
+                        }`}
                       style={{
                         height: `${(getHexSize() - merged.border) * 1.169}px`,
                         'min-width': `min-content`,

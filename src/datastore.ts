@@ -51,7 +51,8 @@ export class UserSettings {
       '#DFDFDF',
       '#C5C5C5',
       66,
-      4
+      4,
+      []
     );
     this.hexUI = new HexUiData([
       new HexTileData(1, 0, 0, 'Unset', '', ''),

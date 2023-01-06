@@ -1,3 +1,6 @@
+import { ThemeStyleConfig } from "@hope-ui/solid";
+import Themes from "../Themes/Themes";
+
 export default class SettingsData {
   width: number;
   borderWidth: number;
@@ -13,6 +16,7 @@ export default class SettingsData {
   settingsNeutralColor: string;
   hexagonSize: number;
   hexagonMargin: number;
+  themes: Themes[];
 
   constructor(
     width: number,
@@ -28,7 +32,8 @@ export default class SettingsData {
     settingsTextColor: string,
     settingsNeutralColor: string,
     hexagonSize: number,
-    hexagonMargin: number
+    hexagonMargin: number,
+    themes: Themes[]
   );
 
   getWidth(): number;
@@ -59,6 +64,8 @@ export default class SettingsData {
   getHexagonSize(): number;
   setHexagonSize(x: number): void;
   setHexagonMargin(x: number): void;
+  getThemes(): Themes[];
+  setThemes(x: Themes[]): void;
 
   toJSON(): {
     width: number;
@@ -75,6 +82,7 @@ export default class SettingsData {
     settingsNeutralColor: string;
     hexagonSize: number;
     hexagonMargin: number;
+    themes: Themes[];
   };
   fromJSON(data: {
     width: number;
@@ -91,5 +99,6 @@ export default class SettingsData {
     settingsNeutralColor: string;
     hexagonSize: number;
     hexagonMargin: number;
+    themes: Themes[];
   }): SettingsData;
 }

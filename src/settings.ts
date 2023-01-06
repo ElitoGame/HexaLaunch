@@ -16,7 +16,9 @@ import {
 import { actionType } from './DataModel/HexTileData';
 import { unregister, isRegistered, register } from '@tauri-apps/api/globalShortcut';
 import { emit, listen } from '@tauri-apps/api/event';
-import { theme } from './themes';
+import { themes, setTheme, theme } from './themes';
+import Themes from './Themes/Themes';
+import { newThemes, setNewThemes } from './Settings/newThemeTab';
 
 const appWindow = getAll().find((w) => w.label === 'settings');
 export const userSettings: UserSettings = await UserSettings.load();
@@ -31,6 +33,7 @@ export const [getRelevantApps, setRelevantApps] = createSignal<Array<externalApp
 
 export const [isDraggingTiles, setIsDraggingTiles] = createSignal<boolean>(false);
 export const [wasDraggingTiles, setWassDraggingTiles] = createSignal<boolean>(false);
+export const [useMainHexagonInput, setUseMainHexagonInput] = createSignal<boolean>(false);
 
 let dragChangerTimeout: NodeJS.Timeout;
 createEffect(() => {
@@ -188,9 +191,16 @@ export const updateSettingData = () => {
   // console.log(getHexSize());
   // console.log(JSON.stringify(getSettingsData()) + 'from update');
   //assign new objects for rerendering
+  
   const newObj = SettingsData.fromJSON(getSettingsData().toJSON());
+  newObj.setThemes(themes.themes);
+  const newTheme = Themes.fromJSON(newThemes().toJSON());
+  setNewThemes(newTheme);
+ 
   setSettingsData(newObj);
   registerShortCut(newObj.getHotkeys().join('+'));
+
+
 
   const temp = JSON.parse(JSON.stringify(getSettingsData()?.toJSON()));
 

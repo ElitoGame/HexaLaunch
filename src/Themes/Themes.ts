@@ -72,6 +72,13 @@ export default class Themes {
   }
 
   
+   
+  public getThemeName() : string {
+    return this.themeName;
+  }
+  public setThemeName(v : string) {
+    this.themeName = v;
+  }
   
   
   public getMainHexagonBg() : string {
