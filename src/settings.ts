@@ -190,6 +190,7 @@ export const updateBorderStyle = (event: Event) => {
 };
 export const updateSettingData = () => {
 
+  
   //assign new objects for rerendering
   
   const newObj: SettingsData = getSettingsData();

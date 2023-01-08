@@ -17,8 +17,9 @@ import Themes from '../Themes/Themes';
 import { createSignal, Show } from 'solid-js';
 import  { themes, setThemes } from '../themes';
 import { produce } from 'solid-js/store';
+import { lastActiveTheme, setLastAcitveTheme } from './appearanceTab';
 
-let theme = new Themes( 
+export const theme = new Themes( 
   '',
     '#414141',
     '#DFDFDF',
@@ -41,6 +42,7 @@ let theme = new Themes(
   );
 
 let tempSubHexData : Themes;
+
 
 export const NewThemeTab = () => {
   return (
@@ -72,6 +74,7 @@ export const NewThemeTab = () => {
                 const inputElement = e.currentTarget as HTMLInputElement;
                 restrictValue(e);
                 getSettingsData()?.getNewTheme()?.setMainHexagonRadius(inputElement.value);
+                if (useMainHexagonInput() == true){ getSettingsData()?.getNewTheme()?.setSubHexagonRadius(inputElement.value);}
                 getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
                 updateSettingData();
               }}
@@ -92,6 +95,7 @@ export const NewThemeTab = () => {
                 const inputElement = e.currentTarget as HTMLInputElement;
                 restrictValue(e);
                 getSettingsData()?.getNewTheme()?.setMainHexagonWidth(inputElement.value);
+                if (useMainHexagonInput() == true){ getSettingsData()?.getNewTheme()?.setSubHexagonWidth(inputElement.value);}
                 getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
                 updateSettingData();
               }}
@@ -116,6 +120,7 @@ export const NewThemeTab = () => {
               }
               console.log(e.toString());
               getSettingsData()?.getNewTheme()?.setMainHexagonBorderStyle(e.toString());
+              if(useMainHexagonInput() == true){ getSettingsData()?.getNewTheme()?.setSubHexagonBorderStyle(e.toString());}
               getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
               updateSettingData();
 
@@ -138,6 +143,7 @@ export const NewThemeTab = () => {
                      const inputElement = e.currentTarget as HTMLInputElement;
                      getSettingsData()?.getNewTheme()?.setMainHexagonBg(inputElement.value);
                      getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
+                    if(useMainHexagonInput() == true) {getSettingsData()?.getNewTheme()?.setSubHexagonBg(inputElement.value);}
                      updateSettingData();
                    }}
                   class="colorPick"
@@ -154,6 +160,7 @@ export const NewThemeTab = () => {
                     onChange={(e: Event) => {
                       const inputElement = e.currentTarget as HTMLInputElement;
                       getSettingsData()?.getNewTheme()?.setMainHexagonBg(inputElement.value);
+                      if (useMainHexagonInput() == true ) {getSettingsData()?.getNewTheme()?.setSubHexagonBg(inputElement.value);}
                       getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
                       updateSettingData();
                     }}
@@ -175,6 +182,7 @@ export const NewThemeTab = () => {
                    onChange={(e: Event) => {
                      const inputElement = e.currentTarget as HTMLInputElement;
                      getSettingsData()?.getNewTheme()?.setMainHexagonIcon(inputElement.value);
+                      if(useMainHexagonInput() == true){getSettingsData()?.getNewTheme()?.setSubHexagonIcon(inputElement.value);}
                      getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
                      updateSettingData();
                    }}
@@ -192,6 +200,7 @@ export const NewThemeTab = () => {
                     onChange={(e: Event) => {
                       const inputElement = e.currentTarget as HTMLInputElement;
                       getSettingsData()?.getNewTheme()?.setMainHexagonIcon(inputElement.value);
+                      if(useMainHexagonInput() == true ) {getSettingsData()?.getNewTheme()?.setSubHexagonIcon(inputElement.value);}
                       getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
                       updateSettingData();
                     }}
@@ -213,6 +222,7 @@ export const NewThemeTab = () => {
                    onChange={(e: Event) => {
                      const inputElement = e.currentTarget as HTMLInputElement;
                      getSettingsData()?.getNewTheme()?.setMainHexagonBorder(inputElement.value);
+                      if (useMainHexagonInput() == true)  {getSettingsData()?.getNewTheme()?.setSubHexagonBorder(inputElement.value);}
                      getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
                      updateSettingData();
                    }}
@@ -230,6 +240,7 @@ export const NewThemeTab = () => {
                     onChange={(e: Event) => {
                       const inputElement = e.currentTarget as HTMLInputElement;
                       getSettingsData()?.getNewTheme()?.setMainHexagonBorder(inputElement.value);
+                      if (useMainHexagonInput() == true ){getSettingsData()?.getNewTheme()?.setSubHexagonBorder(inputElement.value);}
                       getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
                       updateSettingData();
                     }}
@@ -667,6 +678,7 @@ export const NewThemeTab = () => {
             getSettingsData()?.getNewTheme()?.setThemeName(`Custom Theme `+ `${ getSettingsData()?.getThemes().length-2}`);}
           setThemes(produce(store => store.themes.push(getSettingsData()?.getNewTheme())));
           getSettingsData()?.getThemes().push(getSettingsData()?.getNewTheme());
+          getSettingsData()?.setCurrentTheme(getSettingsData()?.getThemes()[getSettingsData()?.getThemes().length -1]);
           let theme = new Themes( 
             '',
               '#414141',
@@ -688,9 +700,9 @@ export const NewThemeTab = () => {
               '3px',
               'none'
             );
-          getSettingsData()?.setNewTheme(theme);
+          
           tempSubHexData = theme;
-          getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
+          getSettingsData()?.setCurrentTheme(lastActiveTheme()as Themes);
           updateSettingData();
           }}>
             Save
@@ -704,6 +716,7 @@ export const NewThemeTab = () => {
           colEnd={1}
         >
           <Button class="bg-accent" size="xs"  onClick={()=>{changeWindow();
+           getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
           let theme = new Themes( 
             '',
               '#414141',
@@ -725,8 +738,8 @@ export const NewThemeTab = () => {
               '3px',
               'none'
             );
-          getSettingsData()?.setNewTheme(theme);
-          getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
+          // getSettingsData()?.setNewTheme(theme);
+        
           updateSettingData();
           }}>
             Cancel

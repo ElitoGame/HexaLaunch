@@ -27,8 +27,10 @@ import { FaSolidMoon } from 'solid-icons/fa';
 import { FaSolidSun } from 'solid-icons/fa';
 import { FaSolidCircleCheck } from 'solid-icons/fa';
 import { FaSolidPen } from 'solid-icons/fa';
+import { theme } from './newThemeTab';
 
 const [getSize, setSize] = createSignal<number>(0);
+export const [lastActiveTheme, setLastAcitveTheme]= createSignal();
 setSize((await primaryMonitor()).size.height);
 
 export const AppearanceTab = () => {
@@ -205,7 +207,35 @@ export const AppearanceTab = () => {
             </ModalContent>
           </Modal>
           <Button
-            onClick={changeWindow}
+            onClick={()=>{
+              changeWindow();
+              getSettingsData()?.setNewTheme(new Themes( 
+                '',
+                  '#414141',
+                  '#DFDFDF',
+                  '',
+                  '',
+                  '3px',
+                  'none',
+                  '#414141',
+                  '#DFDFDF',
+                  '',
+                  '',
+                  '3px',
+                  'none',
+                  '#31247B',
+                  '#DFDFDF',
+                  '',
+                  '',
+                  '3px',
+                  'none'
+                ));
+                updateSettingData();
+                // const el : Themes = getSettingsData()?.getCurrentTheme();
+                // Object.assign(el, getSettingsData()?.getCurrentTheme());
+                // setLastAcitveTheme(el);
+                getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());}}
+                
             class="bg-accent hover:bg-accent hoverEffect text-text"
             size="xs"
           >
