@@ -7,7 +7,6 @@ import { emit, listen } from '@tauri-apps/api/event';
 import Themes from './Themes/Themes';
 import { createStore } from 'solid-js/store';
 
-
 export const [getShowPosition, setShowPosition] = createSignal({ x: 0, y: 0 });
 export const [getCursorPosition, setCursorPosition] = createSignal({
   x: 0,
@@ -75,9 +74,6 @@ await listen('updateSettings', (event) => {
   setKeyBoardNavigationEnabled(settings.keyboardNavigation);
   setFullLayout(settings.fullLayout);
   setMoveToCursor(settings.moveToCursor);
-
-
-  
 
   console.log('modified settings', settings);
 
@@ -152,11 +148,24 @@ async function searchAppDBAsync(query: string, offset: number) {
       }
       return await externalAppManager.searchFileSystem(query, offset);
     } else {
-      return search(await externalAppManager.getSearchDatabase(), {
+      let result = search(await externalAppManager.getSearchDatabase(), {
         term: query,
         properties: ['name', 'executable'],
         offset: offset,
+        tolerance: 10,
+        limit: 100,
       });
+      // modify the result by multiplying the score by externalAppManager.getAppScore()
+      //TODO: currently lyra search has a problem where the score returned might be NaN.
+      // This issue has already been addressed and will be fixed in it's next release.
+      // After that, in theory this code should update the result score correctly.
+      result.hits.forEach(async (hit) => {
+        hit.score = hit.score * externalAppManager.getAppScore(hit.document.executable);
+      });
+      // sort the result by score
+      result.hits.sort((a, b) => b.score - a.score);
+      console.log(result);
+      return result;
     }
   }
   return;

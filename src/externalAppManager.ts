@@ -7,6 +7,9 @@ import { setAllApps, setRelevantApps } from './settings';
 import { BaseDirectory } from '@tauri-apps/api/fs';
 import { listen } from '@tauri-apps/api/event';
 
+const defaultIcon =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEaSURBVFhH7ZTbCoJAEIYlgoggguhZiw5QVBdB14HQ00T0CqUP4AN41puJAVe92F3HRZegHfgQFvH7/1nQMmPmZ+Z8uYJOCm01vJe64PF8cZ+Ftho89DxPC8IAeZ73QpZlJWmattsAfsBavsk0yRsD3Ox7ST3A4uTC/OjC7ODCdO/AZOfAeOvAaPOB4foDg1UVwLZtIUmSqG2AIq9vgNcc5coBKHIWgNec0RhAdAUUOSJrjsRxrLYBihxBMa85QzkARY7ImjOkAURXQJEjKOY1Z0RRpLYBihyRNUe5cgCKHEEprzmjMYDoCqjImiNhGKptgApvA3V57wFkzbUGEMmDIGgfAKH84ShypQBdyn3fFwfQSaE1Y+bvx7K+Vs0alqBeFFIAAAAASUVORK5CYII=\r';
+
 export class externalAppManager {
   private static appData: Array<externalApp> = [];
   private static appDataRelevant: Array<externalApp> = [];
@@ -31,6 +34,8 @@ export class externalAppManager {
     type: 'string';
   }>;
 
+  private static scoreList: Map<string, number> = new Map();
+
   /**
    * Get the search database and if no data is present, start a query for all apps
    * @returns A promise that resolves to the Lyra search database
@@ -50,6 +55,9 @@ export class externalAppManager {
           this.appDataRelevant = (event.payload as any).map(
             (x) => new externalApp(x.executable, x.name, x.icon, 'App')
           );
+          this.appDataRelevant = this.appDataRelevant.filter(
+            (x) => x.name !== '' && x.icon !== '' && x.icon !== defaultIcon
+          );
           setRelevantApps(this.appDataRelevant);
           this.updateSearchDatabase();
         });
@@ -60,6 +68,9 @@ export class externalAppManager {
           console.log('finish_query_other', event);
           this.appData = (event.payload as any).map(
             (x) => new externalApp(x.executable, x.name, x.icon, 'App')
+          );
+          this.appData = this.appData.filter(
+            (x) => x.name !== '' && x.icon !== '' && x.icon !== defaultIcon
           );
           setAllApps(this.appData);
           this.updateSearchDatabase();
@@ -73,13 +84,30 @@ export class externalAppManager {
           this.appDataRelevant = parsedRelevant.map(
             (x) => new externalApp(x.executable, x.name, x.icon, 'App')
           );
+          this.appDataRelevant = this.appDataRelevant.filter(
+            (x) => x.name !== '' && x.icon !== '' && x.icon !== defaultIcon
+          );
           setRelevantApps(this.appDataRelevant);
         }
         if (fs.exists('appData.json', { dir: BaseDirectory.AppData })) {
           const data = await fs.readTextFile('appData.json', { dir: BaseDirectory.AppData });
           const parsed = JSON.parse(data);
           this.appData = parsed.map((x) => new externalApp(x.executable, x.name, x.icon, 'App'));
+          this.appData = this.appData.filter(
+            (x) => x.name !== '' && x.icon !== '' && x.icon !== defaultIcon
+          );
           setAllApps(this.appData);
+        }
+
+        if (this.scoreList.size === 0) {
+          if (!(await fs.exists('appScores.json', { dir: fs.BaseDirectory.AppData }))) {
+            this.scoreList = new Map();
+          } else {
+            const data = await fs.readTextFile('appScores.json', {
+              dir: fs.BaseDirectory.AppData,
+            });
+            this.scoreList = new Map(JSON.parse(data));
+          }
         }
         console.log('Querying apps finished', this.appDataRelevant);
       }
@@ -97,18 +125,18 @@ export class externalAppManager {
         type: 'string',
       },
     });
+    // create a new list of apps, which filters out duplicates, by removing all apps, whose executable is already in the relevant list
+    const filteredApps = this.appData.filter(
+      (x) =>
+        this.appDataRelevant.findIndex((y) => y.executable === x.executable) === -1 &&
+        x.executable !== ''
+    );
+    // add the relevant apps and the filtered apps to the appData array
+    this.appData = this.appDataRelevant.concat(filteredApps);
+
     await insertBatch(
       this.appDB,
       this.appData.map((x) => {
-        if (!x.icon.startsWith('data:image/png;base64,')) {
-          x.icon = convertFileSrc(x.icon);
-        }
-        return x.toJSONwithTypes();
-      })
-    );
-    await insertBatch(
-      this.appDB,
-      this.appDataRelevant.map((x) => {
         if (!x.icon.startsWith('data:image/png;base64,')) {
           x.icon = convertFileSrc(x.icon);
         }
@@ -330,6 +358,26 @@ export class externalAppManager {
     );
     console.log(resultArray);
     return resultArray;
+  }
+
+  public static getAppScore(exe: string) {
+    if (this.scoreList.has(exe)) {
+      return this.scoreList.get(exe);
+    } else {
+      return 1;
+    }
+  }
+
+  public static incrementAppScore(exe: string) {
+    if (this.scoreList.has(exe)) {
+      const score = this.scoreList.get(exe) + 0.1;
+      this.scoreList.set(exe, score);
+    } else {
+      this.scoreList.set(exe, 1.1);
+    }
+    fs.writeTextFile('appScores.json', JSON.stringify(Array.from(this.scoreList.entries())), {
+      dir: fs.BaseDirectory.AppData,
+    });
   }
 }
 

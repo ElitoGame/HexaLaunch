@@ -140,7 +140,20 @@ export const LayoutTab = () => {
                           }
                         }}
                       >
-                        <li>
+                        <li
+                          onMouseDown={(e) => {
+                            console.log('mouse down');
+                            setIsDraggingTiles(true);
+                            setIsDraggingFromSidebar(true);
+                            setHexTileData(
+                              new dragData('App', res.document.executable, '', res.document.icon)
+                            );
+                            e.preventDefault();
+                            dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
+                            dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
+                          }}
+                          draggable={false}
+                        >
                           <HStack>
                             <Box class="my-2 bg-background p-3.5" borderRadius="$lg">
                               <div class="w-25">
@@ -166,35 +179,6 @@ export const LayoutTab = () => {
                 </For>
               </ul>
             </Box>
-            <Center>
-              <button
-                class="bg-blue-300 rounded-sm px-2 py-1 m-2"
-                onClick={() => {
-                  if (searchBar?.value !== '' && getPage() > 0) {
-                    setPage((page) => page - 1);
-                    searchAppDB(searchBar?.value ?? '', getPage() * 10);
-                  }
-                }}
-              >
-                Prev
-              </button>
-              <span>{getPage() + 1}</span>
-              <button
-                class="bg-blue-300 rounded-sm px-2 py-1 m-2"
-                onClick={() => {
-                  console.log(getSearchResults()?.count);
-                  if (
-                    searchBar?.value !== '' &&
-                    (getSearchResults()?.count ?? 0) > (getPage() + 1) * 10
-                  ) {
-                    setPage((page) => page + 1);
-                    searchAppDB(searchBar?.value ?? '', getPage() * 10);
-                  }
-                }}
-              >
-                Next
-              </button>
-            </Center>
           </>
         }
       >

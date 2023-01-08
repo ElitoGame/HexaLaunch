@@ -214,6 +214,7 @@ const HexUI = () => {
                         setPage(0);
                         searchBar.focus();
                       } else {
+                        externalAppManager.incrementAppScore(res.document.executable);
                         openApp('', res.document.executable);
                         setIsSearchVisible(false);
                       }
