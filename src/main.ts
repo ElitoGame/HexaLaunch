@@ -4,8 +4,9 @@ import HexUiData from './DataModel/HexUiData';
 import { fs, invoke } from '@tauri-apps/api';
 import { externalAppManager } from './externalAppManager';
 import { emit, listen } from '@tauri-apps/api/event';
-import { theme } from './themes';
 import Themes from './Themes/Themes';
+import { createStore } from 'solid-js/store';
+
 
 export const [getShowPosition, setShowPosition] = createSignal({ x: 0, y: 0 });
 export const [getCursorPosition, setCursorPosition] = createSignal({
@@ -42,7 +43,7 @@ await listen('updateSettings', (event) => {
       settingsTextColor: string;
       hexagonSize: string;
       hexagonMargin: string;
-      themes: Themes;
+      themes: Array<Themes>;
     };
     theme: {
       themeName: string;
@@ -74,6 +75,9 @@ await listen('updateSettings', (event) => {
   setKeyBoardNavigationEnabled(settings.keyboardNavigation);
   setFullLayout(settings.fullLayout);
   setMoveToCursor(settings.moveToCursor);
+
+
+  
 
   console.log('modified settings', settings);
 

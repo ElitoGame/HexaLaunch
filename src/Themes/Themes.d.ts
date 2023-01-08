@@ -47,33 +47,6 @@ export default class Themes {
     hoverHexagonBorderStyle: string
   );
 
-  getWidth(): number;
-  setWidth(x: number): void;
-  getBorderWidth(): number;
-  setBorderWidth(x: number): void;
-  getBorderStyle(): string;
-  setBorderStyle(x: string): void;
-  getBorderRadius(): string;
-  setBorderRadius(x: number): void;
-  getKeyboardNavigation(): boolean;
-  setKeyboardNavigation(x: boolean): void;
-  setFullLayout(x: boolean): void;
-  getFullLayout(): boolean;
-  setMoveToCursor(x: boolean): void;
-  getMoveToCursor(): boolean;
-  getHotkey(): string[];
-  setHotkey(x: string[]): void;
-  setSettingsBgColor(x: string): void;
-  getSettingsBgColor(): string;
-  setSettingsAccentColor(x: string): void;
-  getSettingsAccentColor(): string;
-  setSettingsTextColor(x: string): void;
-  getSettingsTextColor(): string;
-  getHexagonMargin(): number;
-  getHexagonSize(): number;
-  setHexagonSize(x: number): void;
-  setHexagonMargin(x: number): void;
-
   getThemeName() : string;
   setThemeName(v : string);
     
@@ -123,7 +96,7 @@ export default class Themes {
    setHoverHexagonIcon(v : string);
 
    getHoverHexagonBorder() : string;
-   setHoverexagonBorder(v : string);
+   setHoverHexagonBorder(v : string);
 
    getHoverHexagonRadius() : string;
    setHoverexagonRadius(v : string);

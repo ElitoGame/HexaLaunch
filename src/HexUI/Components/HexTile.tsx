@@ -13,7 +13,7 @@ import { FaSolidPlay, FaSolidForwardStep, FaSolidPause } from 'solid-icons/fa';
 import { invoke } from '@tauri-apps/api';
 import { externalAppManager } from '../../externalAppManager';
 import { IoTrashBin } from 'solid-icons/io';
-import { theme, setTheme } from '../../themes';
+import { getSettingsData } from '../../settings';
 
 const HexIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
 
@@ -222,10 +222,10 @@ const HexTile = (props: {
               <path
                 id={`radiant:${merged.radiant}`}
                 d={`${getHovered()
-                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius())}`
+                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius())}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius())}`
-                      : `${getHexagonPathData(theme()?.getSubHexagonRadius())}`
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius())}`
+                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius())}`
                   }`}
                 style={{
                   transform: `translate(-0.1%, 5%)`,
@@ -238,16 +238,16 @@ const HexTile = (props: {
             {/* Hexagon on Hover*/}
             {/* This path will act as the border or if the same color as the main content*/}
             <Show
-              when={theme()?.getHoverHexagonBorderStyle()
+              when={getSettingsData()?.getCurrentTheme()?.getHoverHexagonBorderStyle()
                 === "none" && getHovered()}
             >
               <path
 
                 d={`${getHovered()
-                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.99)}`
+                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.99)}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.99)}`
-                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.99)}`
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.99)}`
+                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.99)}`
                   }`}
                 class={`${getHovered()
                     ? `fill-hoverHexagonBg`
@@ -260,17 +260,17 @@ const HexTile = (props: {
                 }}
               /></Show>
             <Show
-              when={theme()?.getHoverHexagonBorderStyle()
+              when={getSettingsData()?.getCurrentTheme()?.getHoverHexagonBorderStyle()
                 !== "none" && getHovered()}
             >
 
               <path
 
                 d={`${getHovered()
-                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.99)}`
+                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.99)}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.99)}`
-                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.99)}`
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.99)}`
+                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.99)}`
                   }`}
                 class={`${getHovered()
                     ? `fill-hoverHexagonBorder`
@@ -288,10 +288,10 @@ const HexTile = (props: {
               <path
 
                 d={`${getHovered()
-                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.9)}`
+                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.9)}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.9)}`
-                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.9)}`
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.9)}`
+                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.9)}`
                   }`}
                 style={{
                   transform: `translate(5%, 5%)`,
@@ -299,16 +299,16 @@ const HexTile = (props: {
               />
               {/* Path to only show the bottom border */}
               <Show
-                when={theme()?.getHoverHexagonBorderStyle()
+                when={getSettingsData()?.getCurrentTheme()?.getHoverHexagonBorderStyle()
                   === "shadow" && getHovered()}>
                 <path
                   clip-path="url(#hexClip)"
 
                   d={`${getHovered()
-                      ? `${getHexagonPathData(theme()?.getHoverHexagonRadius())}`
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius())}`
                       : merged.radiant === 0
-                        ? `${getHexagonPathData(theme()?.getMainHexagonRadius())}`
-                        : `${getHexagonPathData(theme()?.getSubHexagonRadius())}`
+                        ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius())}`
+                        : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius())}`
                     }`}
                   style={{
                     transform: `translate(-0.1%, -5%)`,
@@ -319,16 +319,16 @@ const HexTile = (props: {
             {/* Sub Hexagon*/}
             {/* This path will act as the border or if the same color as the main content*/}
             <Show
-              when={theme()?.getSubHexagonBorderStyle()
+              when={getSettingsData()?.getCurrentTheme()?.getSubHexagonBorderStyle()
                 === "none" && merged.radiant !== 0 && !getHovered()}
             >
               <path
 
                 d={`${getHovered()
-                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.99)}`
+                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.99)}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.99)}`
-                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.99)}`
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.99)}`
+                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.99)}`
                   }`}
                 class={`${getHovered()
                     ? `fill-hoverHexagonBg`
@@ -341,17 +341,17 @@ const HexTile = (props: {
                 }}
               /></Show>
             <Show
-              when={theme()?.getSubHexagonBorderStyle()
+              when={getSettingsData()?.getCurrentTheme()?.getSubHexagonBorderStyle()
                 !== "none" && merged.radiant !== 0 && !getHovered()}
             >
 
               <path
 
                 d={`${getHovered()
-                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.99)}`
+                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.99)}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.99)}`
-                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.99)}`
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.99)}`
+                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.99)}`
                   }`}
                 class={`${getHovered()
                     ? `fill-hoverHexagonBorder`
@@ -369,10 +369,10 @@ const HexTile = (props: {
               <path
 
                 d={`${getHovered()
-                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.9)}`
+                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.9)}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.9)}`
-                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.9)}`
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.9)}`
+                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.9)}`
                   }`}
                 style={{
                   transform: `translate(5%, 5%)`,
@@ -380,16 +380,16 @@ const HexTile = (props: {
               />
               {/* Path to only show the bottom border */}
               <Show
-                when={theme()?.getSubHexagonBorderStyle()
+                when={getSettingsData()?.getCurrentTheme()?.getSubHexagonBorderStyle()
                   === "shadow" && merged.radiant !== 0 && !getHovered()}>
                 <path
                   clip-path="url(#hexClip)"
 
                   d={`${getHovered()
-                      ? `${getHexagonPathData(theme()?.getHoverHexagonRadius())}`
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius())}`
                       : merged.radiant === 0
-                        ? `${getHexagonPathData(theme()?.getMainHexagonRadius())}`
-                        : `${getHexagonPathData(theme()?.getSubHexagonRadius())}`
+                        ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius())}`
+                        : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius())}`
                     }`}
                   style={{
                     transform: `translate(-0.1%, -5%)`,
@@ -399,16 +399,16 @@ const HexTile = (props: {
             {/* Main Hexagon*/}
             {/* This path will act as the border or if the same color as the main content*/}
             <Show
-              when={theme()?.getMainHexagonBorderStyle()
+              when={getSettingsData()?.getCurrentTheme()?.getMainHexagonBorderStyle()
                 === "none" && merged.radiant == 0 && !getHovered()}
             >
               <path
 
                 d={`${getHovered()
-                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.99)}`
+                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.99)}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.99)}`
-                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.99)}`
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.99)}`
+                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.99)}`
                   }`}
                 class={`${getHovered()
                     ? `fill-hoverHexagonBg`
@@ -421,17 +421,17 @@ const HexTile = (props: {
                 }}
               /></Show>
             <Show
-              when={theme()?.getMainHexagonBorderStyle()
+              when={getSettingsData()?.getCurrentTheme()?.getMainHexagonBorderStyle()
                 !== "none" && merged.radiant == 0 && !getHovered()}
             >
 
               <path
 
                 d={`${getHovered()
-                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.99)}`
+                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.99)}`
                     : (merged.radiant === 0
-                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.99)}`
-                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.99)}`)
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.99)}`
+                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.99)}`)
                   }`}
                 class={`${getHovered()
                     ? `fill-hoverHexagonBorder`
@@ -449,10 +449,10 @@ const HexTile = (props: {
               <path
 
                 d={`${getHovered()
-                    ? `${getHexagonPathData(theme()?.getHoverHexagonRadius(), 0.9)}`
+                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.9)}`
                     : (merged.radiant === 0
-                      ? `${getHexagonPathData(theme()?.getMainHexagonRadius(), 0.9)}`
-                      : `${getHexagonPathData(theme()?.getSubHexagonRadius(), 0.9)}`)
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.9)}`
+                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.9)}`)
                   }`}
                 style={{
                   transform: `translate(5%, 5%)`,
@@ -460,16 +460,16 @@ const HexTile = (props: {
               />
               {/* Path to only show the bottom border */}
               <Show
-                when={theme()?.getMainHexagonBorderStyle()
+                when={getSettingsData()?.getCurrentTheme()?.getMainHexagonBorderStyle()
                   === "shadow" && merged.radiant == 0 && !getHovered()}>
                 <path
                   clip-path="url(#hexClip)"
 
                   d={`${getHovered()
-                      ? `${getHexagonPathData(theme()?.getHoverHexagonRadius())}`
+                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius())}`
                       : (merged.radiant === 0
-                        ? `${getHexagonPathData(theme()?.getMainHexagonRadius())}`
-                        : `${getHexagonPathData(theme()?.getSubHexagonRadius())}`)
+                        ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius())}`
+                        : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius())}`)
                     }`}
                   style={{
                     transform: `translate(-0.1%, -5%)`,

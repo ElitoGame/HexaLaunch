@@ -16,9 +16,9 @@ import {
 import { actionType } from './DataModel/HexTileData';
 import { unregister, isRegistered, register } from '@tauri-apps/api/globalShortcut';
 import { emit, listen } from '@tauri-apps/api/event';
-import { themes, setTheme, theme } from './themes';
+import { themes, setThemes } from './themes';
 import Themes from './Themes/Themes';
-import { newThemes, setNewThemes } from './Settings/newThemeTab';
+
 
 const appWindow = getAll().find((w) => w.label === 'settings');
 export const userSettings: UserSettings = await UserSettings.load();
@@ -189,23 +189,21 @@ export const updateBorderStyle = (event: Event) => {
   updateSettingData();
 };
 export const updateSettingData = () => {
-  // console.log(getHexSize());
-  // console.log(JSON.stringify(getSettingsData()) + 'from update');
+
   //assign new objects for rerendering
   
-  const newObj = SettingsData.fromJSON(getSettingsData().toJSON());
-  newObj.setThemes(themes.themes);
-  const newTheme = Themes.fromJSON(newThemes().toJSON());
-  setNewThemes(newTheme);
+  const newObj: SettingsData = getSettingsData();
+  Object.assign(newObj, getSettingsData());
  
-  setSettingsData(newObj);
+ setSettingsData(newObj);
+  
   registerShortCut(newObj.getHotkeys().join('+'));
 
 
 
   const temp = JSON.parse(JSON.stringify(getSettingsData()?.toJSON()));
 
-  userSettings.setSetting(temp);
+  userSettings.setSetting(newObj);
   userSettings.save();
 
   // setHexSize(getSettingsData()!.getHexagonSize());
@@ -231,7 +229,7 @@ export const updateSettingData = () => {
   }
 
   console.log(userSettings.getSetting());
-  emit('updateSettings', { settings: userSettings.getSetting(), theme: theme() });
+  emit('updateSettings', { settings: userSettings.getSetting(), theme: getSettingsData()?.getCurrentTheme() });
 };
 
 let oldShortcut = getSettingsData()?.getHotkeys().join('+') ?? 'Control+Shift+Space';

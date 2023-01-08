@@ -6,6 +6,7 @@ import SettingsData from './Settings/SettingsData';
 import { invoke } from '@tauri-apps/api/tauri';
 import { setHexUiData } from './main';
 import { emit } from '@tauri-apps/api/event';
+import Themes from './Themes/Themes';
 
 export class UserSettings {
   public static settings: UserSettings; // Using a Singleton here to ensure that the settings are only loaded once.
@@ -52,7 +53,109 @@ export class UserSettings {
       '#5C5C5C',
       66,
       4,
-      []
+      new Themes(
+        '',
+        '#414141',
+        '#DFDFDF',
+        '',
+        '',
+        '3px',
+        'solid',
+        '#414141',
+        '#DFDFDF',
+        '',
+        '',
+        '3px',
+        'solid',
+        '#31247B',
+        '#DFDFDF',
+        '',
+        '',
+        '3px',
+        'solid'
+      ),
+      new Themes(
+        'Dark',
+        '#414141',
+        '#DFDFDF',
+        '',
+        '',
+        '3px',
+        'solid',
+        '#414141',
+        '#DFDFDF',
+        '',
+        '',
+        '3px',
+        'solid',
+        '#31247B',
+        '#DFDFDF',
+        '',
+        '',
+        '3px',
+        'solid'
+      ),
+      [new Themes(
+        'Dark',
+        '#414141',
+        '#DFDFDF',
+        '',
+        '',
+        '3px',
+        'solid',
+        '#414141',
+        '#DFDFDF',
+        '',
+        '',
+        '3px',
+        'solid',
+        '#31247B',
+        '#DFDFDF',
+        '',
+        '',
+        '3px',
+        'solid'
+      ),new Themes(
+        'Light',
+        '#cacaca',
+        '#343434',
+        '',
+        '',
+        '3px',
+        'solid',
+        '#A2D6E1',
+        '#DFDFDF',
+        '',
+        '',
+        '3px',
+        'solid',
+        '#2DC6D0',
+        '#DFDFDF',
+        '',
+        '',
+        '3px',
+        'solid'
+      ), new Themes(
+        'Honey',
+        '#F2B104',
+        '#F76E02',
+        '#F76E02',
+        '',
+        '3px',
+        'solid',
+        '#FFD66A',
+        '#F76E02',
+        '#F76E02',
+        '',
+        '3px',
+        'solid',
+        '#FD923E',
+        '#F76E02',
+        '#F76E02',
+        '',
+        '3px',
+        'solid'
+      )]
     );
     this.hexUI = new HexUiData([
       new HexTileData(1, 0, 0, 'Unset', '', ''),

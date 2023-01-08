@@ -192,7 +192,7 @@ export default class Themes {
   public getHoverHexagonRadius() : string {
     return this.hoverHexagonRadius;
   }
-  public setHoverexagonRadius(v : string) {
+  public setHoverHexagonRadius(v : string) {
     this.hoverHexagonRadius = v;
   }
 

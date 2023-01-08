@@ -20,7 +20,6 @@ import {
 } from '@hope-ui/solid';
 import { primaryMonitor } from '@tauri-apps/api/window';
 import { createSignal, For, Show } from 'solid-js';
-import { theme, setTheme } from '../themes';
 import { themes } from '../themes';
 import Themes from '../Themes/Themes';
 import HexTile from '../HexUI/Components/HexTile';
@@ -40,7 +39,7 @@ export const AppearanceTab = () => {
       <Box w="100%" pt="10px" pb="50px" class="flex justify-between">
         {' '}
 
-        <For each={themes.themes}>
+        <For each={getSettingsData()?.getThemes()}>
 
           {(themeVar: Themes, ) => (
 
@@ -50,9 +49,9 @@ export const AppearanceTab = () => {
 
 
 
-                <input class="hoverEffect checked:bg-accent checked:opacity-50 border-2 themes" type="radio" name="theme" value={`${themeVar.getThemeName()}`} id={`${themeVar.getThemeName()}`}
+                <input class="hoverEffect checked:bg-accent checked:opacity-50 border-2 themes" type="radio" name="theme" value={`${themeVar.getThemeName()}`} checked={themeVar.getThemeName() === getSettingsData()?.getCurrentTheme()?.getThemeName()?? true} id={`${themeVar.getThemeName()}`}
                   onClick={(e: Event) => {
-                    setTheme(themeVar);
+                    getSettingsData()?.setCurrentTheme(themeVar);
                     updateSettingData();
                   }}
                 />   <label class="pointer-events-none" for="card1">
@@ -143,11 +142,11 @@ export const AppearanceTab = () => {
       " style="transform: translate(5%, 5%);"></path></svg><span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></span></div></div>
 
                   <p class="top-[12px] left-[-8px] relative flex" id="label">
-                  <Show when={theme()?.getThemeName() == themeVar.getThemeName()} fallback={ <span class="ml-2">
+                  <Show when={getSettingsData()?.getCurrentTheme()?.getThemeName() == themeVar.getThemeName()} fallback={ <span class="ml-2">
                    {`${themeVar.getThemeName()}`}</span>
         
       }>
-                   <FaSolidCircleCheck class="fill-accent mt-[4px]" size={14}></FaSolidCircleCheck>  <span class="ml-2">
+                   <FaSolidCircleCheck class="fill-accent mt-1" size={14}></FaSolidCircleCheck>  <span class="ml-2">
                    {`${themeVar.getThemeName()}`}</span></Show>
                   </p>
                 </label></div></Show>
@@ -219,7 +218,7 @@ export const AppearanceTab = () => {
       <Box w="100%"  pb="50px" class="flex customThemes w-[470px] overflow-x-auto">
         {' '}
 
-        <For each={themes.themes}>
+        <For each={getSettingsData()?.getThemes()}>
 
           {(themeVar: Themes, i) => (
 
@@ -229,9 +228,9 @@ export const AppearanceTab = () => {
 
 
 
-                <input class="hoverEffect checked:bg-accent checked:opacity-50 border-2 themes" type="radio" name="theme" value={`${themeVar.getThemeName()}`}
+                <input class="hoverEffect checked:bg-accent checked:opacity-50 border-2 themes" type="radio" checked={themeVar.getThemeName() === getSettingsData()?.getCurrentTheme()?.getThemeName()?? true} name="theme" value={`${themeVar.getThemeName()}`}
                   onClick={(e: Event) => {
-                    setTheme(themeVar);
+                    getSettingsData()?.setCurrentTheme(themeVar);
                     updateSettingData();
                   }}
                 />   <label class="pointer-events-none" for="card1">
@@ -307,11 +306,11 @@ export const AppearanceTab = () => {
       " style="transform: translate(5%, 5%);"></path></svg><span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></span></div></div>
 
 <p class="top-[12px] left-[-8px] relative flex" id="label">
-                  <Show when={theme()?.getThemeName() == themeVar.getThemeName()} fallback={ <span class="ml-2">
+                  <Show when={getSettingsData()?.getCurrentTheme()?.getThemeName() == themeVar.getThemeName()} fallback={ <span class="ml-2">
                    {`${themeVar.getThemeName()}`}</span>
         
       }>
-                   <FaSolidCircleCheck class="fill-accent mt-[4px]" size={14}></FaSolidCircleCheck>  <span class="ml-2">
+                   <FaSolidCircleCheck class="fill-accent mt-1" size={14}></FaSolidCircleCheck>  <span class="ml-2">
                    {`${themeVar.getThemeName()}`}</span></Show>
                   </p>
                 </label></div></Show>

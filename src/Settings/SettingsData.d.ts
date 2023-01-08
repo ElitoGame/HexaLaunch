@@ -1,4 +1,5 @@
 import { ThemeStyleConfig } from "@hope-ui/solid";
+import { ThemeTokens } from "@stitches/core/types/stitches";
 import Themes from "../Themes/Themes";
 
 export default class SettingsData {
@@ -16,7 +17,9 @@ export default class SettingsData {
   settingsNeutralColor: string;
   hexagonSize: number;
   hexagonMargin: number;
-  themes: Themes[];
+  themes: Array<Themes>;
+  currentTheme: Themes;
+  newTheme: Themes;
 
   constructor(
     width: number,
@@ -33,7 +36,9 @@ export default class SettingsData {
     settingsNeutralColor: string,
     hexagonSize: number,
     hexagonMargin: number,
-    themes: Themes[]
+    themes: Array<Themes>,
+    currentTheme: Themes,
+    newTheme: Themes
   );
 
   getWidth(): number;
@@ -64,8 +69,13 @@ export default class SettingsData {
   getHexagonSize(): number;
   setHexagonSize(x: number): void;
   setHexagonMargin(x: number): void;
-  getThemes(): Themes[];
-  setThemes(x: Themes[]): void;
+  getThemes(): Array<Themes>;
+  setThemes(x: Array<Themes>): void;
+  getCurrentThemes(): Themes;
+  setCurrentThemes(x: Themes): void;
+  getNewThemes(): Themes;
+  setNewThemes(x: Themes): void;
+
 
   toJSON(): {
     width: number;
@@ -82,9 +92,80 @@ export default class SettingsData {
     settingsNeutralColor: string;
     hexagonSize: number;
     hexagonMargin: number;
-    themes: Themes[];
+    currentTheme: {
+      themeName: string;
+
+      mainHexagonBg: string;
+      mainHexagonIcon: string;
+      mainHexagonBorder: string;
+      mainHexagonRadius: string;
+      mainHexagonWidth: string;
+      mainHexagonBorderStyle: string;
+    
+      subHexagonBg: string;
+      subHexagonIcon: string;
+      subHexagonBorder: string;
+      subHexagonRadius: string;
+      subHexagonWidth: string;
+      subHexagonBorderStyle: string;
+    
+      hoverHexagonBg: string;
+      hoverHexagonIcon: string;
+      hoverHexagonBorder: string;
+      hoverHexagonRadius: string;
+      hoverHexagonWidth: string;
+      hoverHexagonBorderStyle: string;
+    };
+    newTheme: {
+      themeName: string;
+
+      mainHexagonBg: string;
+      mainHexagonIcon: string;
+      mainHexagonBorder: string;
+      mainHexagonRadius: string;
+      mainHexagonWidth: string;
+      mainHexagonBorderStyle: string;
+    
+      subHexagonBg: string;
+      subHexagonIcon: string;
+      subHexagonBorder: string;
+      subHexagonRadius: string;
+      subHexagonWidth: string;
+      subHexagonBorderStyle: string;
+    
+      hoverHexagonBg: string;
+      hoverHexagonIcon: string;
+      hoverHexagonBorder: string;
+      hoverHexagonRadius: string;
+      hoverHexagonWidth: string;
+      hoverHexagonBorderStyle: string;
+    };
+    themes: Array<{
+      themeName: string;
+
+      mainHexagonBg: string;
+      mainHexagonIcon: string;
+      mainHexagonBorder: string;
+      mainHexagonRadius: string;
+      mainHexagonWidth: string;
+      mainHexagonBorderStyle: string;
+    
+      subHexagonBg: string;
+      subHexagonIcon: string;
+      subHexagonBorder: string;
+      subHexagonRadius: string;
+      subHexagonWidth: string;
+      subHexagonBorderStyle: string;
+    
+      hoverHexagonBg: string;
+      hoverHexagonIcon: string;
+      hoverHexagonBorder: string;
+      hoverHexagonRadius: string;
+      hoverHexagonWidth: string;
+      hoverHexagonBorderStyle: string;
+    }>
   };
-  fromJSON(data: {
+  static fromJSON(data: {
     width: number;
     borderWidth: number;
     borderStyle: string;
@@ -99,6 +180,77 @@ export default class SettingsData {
     settingsNeutralColor: string;
     hexagonSize: number;
     hexagonMargin: number;
-    themes: Themes[];
-  }): SettingsData;
+    currentTheme: {
+      themeName: string;
+
+      mainHexagonBg: string;
+      mainHexagonIcon: string;
+      mainHexagonBorder: string;
+      mainHexagonRadius: string;
+      mainHexagonWidth: string;
+      mainHexagonBorderStyle: string;
+    
+      subHexagonBg: string;
+      subHexagonIcon: string;
+      subHexagonBorder: string;
+      subHexagonRadius: string;
+      subHexagonWidth: string;
+      subHexagonBorderStyle: string;
+    
+      hoverHexagonBg: string;
+      hoverHexagonIcon: string;
+      hoverHexagonBorder: string;
+      hoverHexagonRadius: string;
+      hoverHexagonWidth: string;
+      hoverHexagonBorderStyle: string;
+    };
+    newTheme: {
+      themeName: string;
+
+      mainHexagonBg: string;
+      mainHexagonIcon: string;
+      mainHexagonBorder: string;
+      mainHexagonRadius: string;
+      mainHexagonWidth: string;
+      mainHexagonBorderStyle: string;
+    
+      subHexagonBg: string;
+      subHexagonIcon: string;
+      subHexagonBorder: string;
+      subHexagonRadius: string;
+      subHexagonWidth: string;
+      subHexagonBorderStyle: string;
+    
+      hoverHexagonBg: string;
+      hoverHexagonIcon: string;
+      hoverHexagonBorder: string;
+      hoverHexagonRadius: string;
+      hoverHexagonWidth: string;
+      hoverHexagonBorderStyle: string;
+    };
+    themes: Array<{
+      themeName: string;
+
+      mainHexagonBg: string;
+      mainHexagonIcon: string;
+      mainHexagonBorder: string;
+      mainHexagonRadius: string;
+      mainHexagonWidth: string;
+      mainHexagonBorderStyle: string;
+    
+      subHexagonBg: string;
+      subHexagonIcon: string;
+      subHexagonBorder: string;
+      subHexagonRadius: string;
+      subHexagonWidth: string;
+      subHexagonBorderStyle: string;
+    
+      hoverHexagonBg: string;
+      hoverHexagonIcon: string;
+      hoverHexagonBorder: string;
+      hoverHexagonRadius: string;
+      hoverHexagonWidth: string;
+      hoverHexagonBorderStyle: string;
+    }>
+  }): SettingsData
 }
