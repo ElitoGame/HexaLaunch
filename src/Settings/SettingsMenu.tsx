@@ -283,7 +283,7 @@ const HexUIGrid = () => {
                   }
                 >
                   <div
-                    class={`hexOptions absolute bg-accent rounded-full h-6 w-max p-1 flex items-center justify-center z-50 text-base -translate-x-1/2 translate-y-1/2 gap-1`}
+                    class={`hexOptions absolute bg-accent rounded-full h-6 w-max p-1 flex items-center justify-center z-50 text-base -translate-x-1/2 translate-y-1/2 gap-1 cursor-pointer`}
                     style={{
                       left: `${
                         getOptionsVisible().x * (getHexSize() + getHexMargin()) -

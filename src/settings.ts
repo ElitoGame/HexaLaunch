@@ -19,7 +19,6 @@ import { emit, listen } from '@tauri-apps/api/event';
 import { themes, setThemes } from './themes';
 import Themes from './Themes/Themes';
 
-
 const appWindow = getAll().find((w) => w.label === 'settings');
 export const userSettings: UserSettings = await UserSettings.load();
 
@@ -29,7 +28,9 @@ export const [getHotkeys, setHotkeys] = createSignal('');
 
 export const [getColor, setColor] = createSignal('#FFFFFF');
 
-export const [getRelevantApps, setRelevantApps] = createSignal<Array<externalApp>>();
+export const [getRelevantApps, setRelevantApps] = createSignal<Array<externalApp>>([], {
+  equals: false,
+});
 export const [getAllApps, setAllApps] = createSignal<Array<externalApp>>();
 
 export const [isDraggingTiles, setIsDraggingTiles] = createSignal<boolean>(false);
@@ -189,18 +190,14 @@ export const updateBorderStyle = (event: Event) => {
   updateSettingData();
 };
 export const updateSettingData = () => {
-
-  
   //assign new objects for rerendering
-  
+
   const newObj: SettingsData = getSettingsData();
   Object.assign(newObj, getSettingsData());
- 
- setSettingsData(newObj);
-  
+
+  setSettingsData(newObj);
+
   registerShortCut(newObj.getHotkeys().join('+'));
-
-
 
   const temp = JSON.parse(JSON.stringify(getSettingsData()?.toJSON()));
 
@@ -230,7 +227,10 @@ export const updateSettingData = () => {
   }
 
   console.log(userSettings.getSetting());
-  emit('updateSettings', { settings: userSettings.getSetting(), theme: getSettingsData()?.getCurrentTheme() });
+  emit('updateSettings', {
+    settings: userSettings.getSetting(),
+    theme: getSettingsData()?.getCurrentTheme(),
+  });
 };
 
 let oldShortcut = getSettingsData()?.getHotkeys().join('+') ?? 'Control+Shift+Space';

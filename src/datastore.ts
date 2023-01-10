@@ -95,67 +95,71 @@ export class UserSettings {
         '3px',
         'solid'
       ),
-      [new Themes(
-        'Dark',
-        '#414141',
-        '#DFDFDF',
-        '',
-        '',
-        '3px',
-        'solid',
-        '#414141',
-        '#DFDFDF',
-        '',
-        '',
-        '3px',
-        'solid',
-        '#31247B',
-        '#DFDFDF',
-        '',
-        '',
-        '3px',
-        'solid'
-      ),new Themes(
-        'Light',
-        '#cacaca',
-        '#343434',
-        '',
-        '',
-        '3px',
-        'solid',
-        '#A2D6E1',
-        '#DFDFDF',
-        '',
-        '',
-        '3px',
-        'solid',
-        '#2DC6D0',
-        '#DFDFDF',
-        '',
-        '',
-        '3px',
-        'solid'
-      ), new Themes(
-        'Honey',
-        '#F2B104',
-        '#F76E02',
-        '#F76E02',
-        '',
-        '3px',
-        'solid',
-        '#FFD66A',
-        '#F76E02',
-        '#F76E02',
-        '',
-        '3px',
-        'solid',
-        '#FD923E',
-        '#F76E02',
-        '#F76E02',
-        '',
-        '3px',
-        'solid'
-      )]
+      [
+        new Themes(
+          'Dark',
+          '#414141',
+          '#DFDFDF',
+          '',
+          '',
+          '3px',
+          'solid',
+          '#414141',
+          '#DFDFDF',
+          '',
+          '',
+          '3px',
+          'solid',
+          '#31247B',
+          '#DFDFDF',
+          '',
+          '',
+          '3px',
+          'solid'
+        ),
+        new Themes(
+          'Light',
+          '#cacaca',
+          '#343434',
+          '',
+          '',
+          '3px',
+          'solid',
+          '#A2D6E1',
+          '#DFDFDF',
+          '',
+          '',
+          '3px',
+          'solid',
+          '#2DC6D0',
+          '#DFDFDF',
+          '',
+          '',
+          '3px',
+          'solid'
+        ),
+        new Themes(
+          'Honey',
+          '#F2B104',
+          '#F76E02',
+          '#F76E02',
+          '',
+          '3px',
+          'solid',
+          '#FFD66A',
+          '#F76E02',
+          '#F76E02',
+          '',
+          '3px',
+          'solid',
+          '#FD923E',
+          '#F76E02',
+          '#F76E02',
+          '',
+          '3px',
+          'solid'
+        ),
+      ]
     );
     this.hexUI = new HexUiData([
       new HexTileData(1, 0, 0, 'Unset', '', ''),
@@ -237,6 +241,10 @@ export class UserSettings {
       settingsData: this.settingsData.toJSON(),
       hexUI: this.hexUI.toJSON(),
     };
+
+    if (!(await fs.exists('', { dir: fs.BaseDirectory.AppData }))) {
+      await fs.createDir('', { dir: fs.BaseDirectory.AppData });
+    }
     // check if the file exists and if the changes are actually changes
     if (
       (await fs.exists('user-settings.json', { dir: fs.BaseDirectory.AppConfig })) &&
@@ -249,7 +257,7 @@ export class UserSettings {
     ) {
       console.log('No changes to settings');
     } else {
-      fs.writeTextFile('user-settings.json', JSON.stringify(data), {
+      await fs.writeTextFile('user-settings.json', JSON.stringify(data), {
         dir: fs.BaseDirectory.AppConfig,
       });
       console.log('Settings saved');
@@ -261,7 +269,7 @@ export class UserSettings {
     if (UserSettings.settings === undefined || force) {
       UserSettings.settings = new UserSettings();
       console.log('Loading settings');
-      if (!(await fs.exists('user-settings.json', { dir: fs.BaseDirectory.AppConfig }))) {
+      if (!(await fs.exists('user-settings.json', { dir: fs.BaseDirectory.AppData }))) {
         // No data has been setup yet, so set default values here:
         console.log('No user-settings.json found. Using default settings.');
         UserSettings.settings.save();
@@ -270,7 +278,7 @@ export class UserSettings {
       try {
         const data = JSON.parse(
           await fs.readTextFile('user-settings.json', {
-            dir: fs.BaseDirectory.AppConfig,
+            dir: fs.BaseDirectory.AppData,
           })
         );
         UserSettings.settings.autoLaunch = data.autoLaunch;

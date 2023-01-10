@@ -1,4 +1,4 @@
-import Themes from "../Themes/Themes";
+import Themes from '../Themes/Themes';
 
 export default class SettingsData {
   private width = 0;
@@ -12,7 +12,7 @@ export default class SettingsData {
   private settingsBgColor = '#343434';
   private settingsAccentColor = '#5A6AFC';
   private settingsTextColor = '#DFDFDF';
-  private settingsNeutralColor= '#5C5C5C';
+  private settingsNeutralColor = '#5C5C5C';
   private hexagonSize = 50;
   private hexagonMargin = 5;
   private themes: Array<Themes> = [];
@@ -57,7 +57,7 @@ export default class SettingsData {
     '',
     '3px',
     'solid'
-  )
+  );
 
   constructor(
     width: number,
@@ -92,7 +92,8 @@ export default class SettingsData {
     this.settingsNeutralColor = settingsNeutralColor;
     this.hexagonSize = hexagonSize;
     this.hexagonMargin = hexagonMargin;
-    this.currentTheme= currentTheme;
+    this.currentTheme = currentTheme;
+    this.newTheme = newTheme;
     this.themes = themes;
   }
 
@@ -194,7 +195,7 @@ export default class SettingsData {
   public setMoveToCursor(x: boolean) {
     this.moveToCursor = x;
   }
-  
+
   public getCurrentTheme() {
     return this.currentTheme;
   }
@@ -208,8 +209,6 @@ export default class SettingsData {
   public setNewTheme(x: Themes) {
     this.currentTheme = x;
   }
-
-
 
   // Convert the Object to a JSON string
 
@@ -231,7 +230,6 @@ export default class SettingsData {
     this.themes = settings.themes;
     this.currentTheme = settings.currentTheme;
     this.newTheme = settings.newTheme;
-    
   }
 
   public toJSON(): {
@@ -258,14 +256,14 @@ export default class SettingsData {
       mainHexagonRadius: string;
       mainHexagonWidth: string;
       mainHexagonBorderStyle: string;
-    
+
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
       subHexagonWidth: string;
       subHexagonBorderStyle: string;
-    
+
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
@@ -282,14 +280,14 @@ export default class SettingsData {
       mainHexagonRadius: string;
       mainHexagonWidth: string;
       mainHexagonBorderStyle: string;
-    
+
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
       subHexagonWidth: string;
       subHexagonBorderStyle: string;
-    
+
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
@@ -306,21 +304,21 @@ export default class SettingsData {
       mainHexagonRadius: string;
       mainHexagonWidth: string;
       mainHexagonBorderStyle: string;
-    
+
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
       subHexagonWidth: string;
       subHexagonBorderStyle: string;
-    
+
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
       hoverHexagonRadius: string;
       hoverHexagonWidth: string;
       hoverHexagonBorderStyle: string;
-    }>
+    }>;
   } {
     return {
       width: this.width,
@@ -367,14 +365,14 @@ export default class SettingsData {
       mainHexagonRadius: string;
       mainHexagonWidth: string;
       mainHexagonBorderStyle: string;
-    
+
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
       subHexagonWidth: string;
       subHexagonBorderStyle: string;
-    
+
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
@@ -391,14 +389,14 @@ export default class SettingsData {
       mainHexagonRadius: string;
       mainHexagonWidth: string;
       mainHexagonBorderStyle: string;
-    
+
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
       subHexagonWidth: string;
       subHexagonBorderStyle: string;
-    
+
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
@@ -415,21 +413,21 @@ export default class SettingsData {
       mainHexagonRadius: string;
       mainHexagonWidth: string;
       mainHexagonBorderStyle: string;
-    
+
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
       subHexagonWidth: string;
       subHexagonBorderStyle: string;
-    
+
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
       hoverHexagonRadius: string;
       hoverHexagonWidth: string;
       hoverHexagonBorderStyle: string;
-    }>
+    }>;
   }) {
     return new SettingsData(
       data.width,
@@ -450,28 +448,28 @@ export default class SettingsData {
       Themes.fromJSON(data.newTheme),
       data.themes.map(
         (x: {
-         themeName: string;
+          themeName: string;
 
-      mainHexagonBg: string;
-      mainHexagonIcon: string;
-      mainHexagonBorder: string;
-      mainHexagonRadius: string;
-      mainHexagonWidth: string;
-      mainHexagonBorderStyle: string;
-    
-      subHexagonBg: string;
-      subHexagonIcon: string;
-      subHexagonBorder: string;
-      subHexagonRadius: string;
-      subHexagonWidth: string;
-      subHexagonBorderStyle: string;
-    
-      hoverHexagonBg: string;
-      hoverHexagonIcon: string;
-      hoverHexagonBorder: string;
-      hoverHexagonRadius: string;
-      hoverHexagonWidth: string;
-      hoverHexagonBorderStyle: string;
+          mainHexagonBg: string;
+          mainHexagonIcon: string;
+          mainHexagonBorder: string;
+          mainHexagonRadius: string;
+          mainHexagonWidth: string;
+          mainHexagonBorderStyle: string;
+
+          subHexagonBg: string;
+          subHexagonIcon: string;
+          subHexagonBorder: string;
+          subHexagonRadius: string;
+          subHexagonWidth: string;
+          subHexagonBorderStyle: string;
+
+          hoverHexagonBg: string;
+          hoverHexagonIcon: string;
+          hoverHexagonBorder: string;
+          hoverHexagonRadius: string;
+          hoverHexagonWidth: string;
+          hoverHexagonBorderStyle: string;
         }) => Themes.fromJSON(x)
       )
     );

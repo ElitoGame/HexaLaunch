@@ -3,7 +3,7 @@ import { create, insert, insertBatch, Lyra, search, SearchResult } from '@lyrase
 import { Command } from '@tauri-apps/api/shell';
 import { queryIconOfExe, queryNamesOfExes, queryOtherApps, queryRelevantApps } from './queryApps';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
-import { setAllApps, setRelevantApps } from './settings';
+import { getRelevantApps, setAllApps, setRelevantApps } from './settings';
 import { BaseDirectory } from '@tauri-apps/api/fs';
 import { listen } from '@tauri-apps/api/event';
 
@@ -43,13 +43,7 @@ export class externalAppManager {
   public static async getSearchDatabase() {
     if (this.appDB === undefined) {
       if (this.appData.length === 0) {
-        console.log('Querying apps...');
-        // this.queryRelevantApps();
-        // this.queryOtherApps();
-
         // Set up listeners for the query functions
-
-        // listen to the "finish_query_relevant" event to get the result
         await listen('finish_query_relevant', (event) => {
           console.log('finish_query_relevant', event);
           this.appDataRelevant = (event.payload as any).map(
@@ -98,6 +92,28 @@ export class externalAppManager {
           );
           setAllApps(this.appData);
         }
+        if (fs.exists('appPathsCustom.json', { dir: BaseDirectory.AppData })) {
+          const data = await fs.readTextFile('appPathsCustom.json', { dir: BaseDirectory.AppData });
+          const parsed = JSON.parse(data);
+          this.appDataCustomApps = parsed.map(
+            (x) => new externalApp(x.executable, x.name, x.icon, 'App')
+          );
+          this.appDataCustomApps = this.appDataCustomApps.filter(
+            (x) => x.name !== '' && x.icon !== '' && x.icon !== defaultIcon
+          );
+          this.appDataRelevant = this.appDataRelevant
+            .concat(this.appDataCustomApps)
+            .sort((a, b) => {
+              if (a.name.toLowerCase() < b.name.toLowerCase()) {
+                return -1;
+              }
+              if (a.name.toLowerCase() > b.name.toLowerCase()) {
+                return 1;
+              }
+              return 0;
+            });
+          setRelevantApps(this.appDataRelevant);
+        }
 
         if (this.scoreList.size === 0) {
           if (!(await fs.exists('appScores.json', { dir: fs.BaseDirectory.AppData }))) {
@@ -126,17 +142,17 @@ export class externalAppManager {
       },
     });
     // create a new list of apps, which filters out duplicates, by removing all apps, whose executable is already in the relevant list
-    const filteredApps = this.appData.filter(
+    let filteredApps = this.appData.filter(
       (x) =>
         this.appDataRelevant.findIndex((y) => y.executable === x.executable) === -1 &&
         x.executable !== ''
     );
     // add the relevant apps and the filtered apps to the appData array
-    this.appData = this.appDataRelevant.concat(filteredApps);
+    filteredApps = this.appDataRelevant.concat(filteredApps);
 
     await insertBatch(
       this.appDB,
-      this.appData.map((x) => {
+      filteredApps.map((x) => {
         if (!x.icon.startsWith('data:image/png;base64,')) {
           x.icon = convertFileSrc(x.icon);
         }
@@ -174,11 +190,14 @@ export class externalAppManager {
     return icon;
   }
 
+  private static dropTimeout: number = 0;
+
   //TODO get the custom Apps in the relevantApps query!
   public static async addCustomApp(executable: string) {
-    console.log('Applist (custom): ', this.appDataCustomApps);
     if (this.appDataCustomApps.find((x) => x.executable === executable) === undefined) {
-      console.log('Adding app: ' + executable);
+      let now = new Date().getTime();
+      if (this.dropTimeout < now + 1000 && this.dropTimeout !== 0) return;
+      this.dropTimeout = now;
       // First make sure the file exists and has not been added yet.
       if (
         (await fs.exists(executable)) &&
@@ -200,11 +219,21 @@ export class externalAppManager {
             name[0],
             'data:image/png;base64,' + icon.split('?')[1]
           );
-          this.appData.push(app);
           this.appDataCustomApps.push(app);
           this.appDataRelevant.push(app);
+          this.appDataRelevant = this.appDataRelevant.sort((a, b) => {
+            if (a.name.toLowerCase() < b.name.toLowerCase()) {
+              return -1;
+            }
+            if (a.name.toLowerCase() > b.name.toLowerCase()) {
+              return 1;
+            }
+            return 0;
+          });
+          setRelevantApps(this.appDataRelevant);
+          setAllApps(this.appData);
           this.saveAppDataToDisk();
-          insert(this.appDB, app.toJSONwithTypes());
+          this.updateSearchDatabase();
           return app;
         }
       }
@@ -294,9 +323,6 @@ export class externalAppManager {
   }
 
   private static saveAppDataToDisk() {
-    fs.writeTextFile('appData.json', JSON.stringify(this.appData), {
-      dir: fs.BaseDirectory.AppData,
-    });
     fs.writeTextFile('appPathsCustom.json', JSON.stringify(this.appDataCustomApps), {
       dir: fs.BaseDirectory.AppData,
     });

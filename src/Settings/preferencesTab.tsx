@@ -61,10 +61,7 @@ export const PreferencesTab = () => {
           ></Switch>
         </GridItem>
       </Grid>
-      <p>
-        Always show all the available Hexagons, even when they are empty Filled Hexagons don't need
-        to be attached to another anymore
-      </p>
+      <p>Always show all the available Hexagons, even when they are empty.</p>
       <br></br>
       <Grid h="100%" templateRows="repeat(, 1fr)" templateColumns="repeat(2, 1fr)" gap="$1">
         <p class="font-medium">Move to Cursor</p>

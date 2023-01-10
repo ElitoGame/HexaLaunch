@@ -91,7 +91,7 @@ const HexTile = (props: {
       x: 0,
       y: 0,
       radiant: 0,
-      onClick: () => { },
+      onClick: () => {},
       zIndex: 10,
       color: `fill-subHexagonBg`,
       title: '',
@@ -114,7 +114,6 @@ const HexTile = (props: {
   const [icon] = createResource(merged.app, HexIcon);
 
   const [getHovered, setHovered] = createSignal(false);
-
 
   // console.log(merged.radiant, props.radiant, merged.hasAnimation);
   const [getScale, setScale] = createSignal(merged.hasAnimation ? 0 : 100);
@@ -153,24 +152,29 @@ const HexTile = (props: {
   const [isBrokenImage, setBrokenImage] = createSignal(false);
 
   return (
-    <Show when={(!isFullLayout() && merged.action !== 'Unset') || isFullLayout()} >
+    <Show
+      when={(!isFullLayout() && merged.action !== 'Unset') || isFullLayout() || merged.isSettings}
+    >
       <div
         class={`hexTile absolute bg-transparent  cursor-pointer inline-block`}
-        id={`{"x":"${merged.x}", "y":"${merged.y}", "radiant":"${merged.radiant}", "action":"${merged.action
-          }", "app":"${merged.app.replaceAll('\\', '\\\\')}", "url":"${merged.url
-            .trim()
-            .replaceAll('\\', '\\\\')}
+        id={`{"x":"${merged.x}", "y":"${merged.y}", "radiant":"${merged.radiant}", "action":"${
+          merged.action
+        }", "app":"${merged.app.replaceAll('\\', '\\\\')}", "url":"${merged.url
+          .trim()
+          .replaceAll('\\', '\\\\')}
         ", "title":"${merged.title.replace('\\', '')}"}`}
         style={{
-          left: `${merged.x * (getHexSize() + getHexMargin()) -
+          left: `${
+            merged.x * (getHexSize() + getHexMargin()) -
             (merged.y % 2 === 0 ? 0 : (getHexSize() + getHexMargin()) / 2) -
             getHexSize() / 2 -
             (getHexMargin() / 8) * 11.75
-            }px`,
-          bottom: `${merged.y * (getHexSize() * 0.86 + getHexMargin()) -
+          }px`,
+          bottom: `${
+            merged.y * (getHexSize() * 0.86 + getHexMargin()) -
             (getHexSize() / 13) * 8 -
             (getHexMargin() / 8) * 11.75
-            }px`,
+          }px`,
           width: `${getHexSize() + getHexMargin()}px`,
           margin: `${getHexMargin()}px`,
           height: `${(getHexSize() + getHexMargin()) * 1.169}px`,
@@ -186,15 +190,17 @@ const HexTile = (props: {
           class={
             'absolute ' +
             merged.color +
-            ` cursor-pointer inline-block ${getHovered()
-              ? ' transition-transform hover:fill-hoverHexagonBg scale-97'
-              : merged.radiant === 0
+            ` cursor-pointer inline-block ${
+              getHovered()
+                ? ' transition-transform hover:fill-hoverHexagonBg scale-97'
+                : merged.radiant === 0
                 ? ' fill-mainHexagonBg'
                 : ' fill-subHexagonBg'
             }` +
-            ` ${selectedHexTile().x === merged.x && selectedHexTile().y === merged.y
-              ? 'bg-red-500'
-              : ''
+            ` ${
+              selectedHexTile().x === merged.x && selectedHexTile().y === merged.y
+                ? 'bg-red-500'
+                : ''
             }`
           }
           id={`radiant:${merged.radiant}`}
@@ -221,63 +227,91 @@ const HexTile = (props: {
               {<circle cx="40" cy="35" r="35" />}
               <path
                 id={`radiant:${merged.radiant}`}
-                d={`${getHovered()
-                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius())}`
+                d={`${
+                  getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius()
+                      )}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius())}`
-                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius())}`
-                  }`}
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius()
+                      )}`
+                    : `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius()
+                      )}`
+                }`}
                 style={{
                   transform: `translate(-0.1%, 5%)`,
                 }}
               />
-
-
-
             </clipPath>
             {/* Hexagon on Hover*/}
             {/* This path will act as the border or if the same color as the main content*/}
             <Show
-              when={getSettingsData()?.getCurrentTheme()?.getHoverHexagonBorderStyle()
-                === "none" && getHovered()}
+              when={
+                getSettingsData()?.getCurrentTheme()?.getHoverHexagonBorderStyle() === 'none' &&
+                getHovered()
+              }
             >
               <path
-
-                d={`${getHovered()
-                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.99)}`
+                d={`${
+                  getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(),
+                        0.99
+                      )}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.99)}`
-                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.99)}`
-                  }`}
-                class={`${getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(),
+                        0.99
+                      )}`
+                    : `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(),
+                        0.99
+                      )}`
+                }`}
+                class={`${
+                  getHovered()
                     ? `fill-hoverHexagonBg`
                     : merged.radiant === 0
-                      ? `fill-mainHexagonBg`
-                      : `fill-subHexagonBg`
-                  }`}
+                    ? `fill-mainHexagonBg`
+                    : `fill-subHexagonBg`
+                }`}
                 style={{
                   transform: `translate(0.9%, 0.9%)`,
                 }}
-              /></Show>
+              />
+            </Show>
             <Show
-              when={getSettingsData()?.getCurrentTheme()?.getHoverHexagonBorderStyle()
-                !== "none" && getHovered()}
+              when={
+                getSettingsData()?.getCurrentTheme()?.getHoverHexagonBorderStyle() !== 'none' &&
+                getHovered()
+              }
             >
-
               <path
-
-                d={`${getHovered()
-                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.99)}`
+                d={`${
+                  getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(),
+                        0.99
+                      )}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.99)}`
-                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.99)}`
-                  }`}
-                class={`${getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(),
+                        0.99
+                      )}`
+                    : `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(),
+                        0.99
+                      )}`
+                }`}
+                class={`${
+                  getHovered()
                     ? `fill-hoverHexagonBorder`
                     : merged.radiant === 0
-                      ? `fill-mainHexagonBorder`
-                      : `fill-subHexagonBorder`
-                  }`}
+                    ? `fill-mainHexagonBorder`
+                    : `fill-subHexagonBorder`
+                }`}
                 style={{
                   transform: `translate(0.9%, 0.9%)`,
                 }}
@@ -286,79 +320,124 @@ const HexTile = (props: {
               {/* The main hexagon content if a border is present, otherwise hide it via a Show component*/}
 
               <path
-
-                d={`${getHovered()
-                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.9)}`
+                d={`${
+                  getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(),
+                        0.9
+                      )}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.9)}`
-                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.9)}`
-                  }`}
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(),
+                        0.9
+                      )}`
+                    : `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(),
+                        0.9
+                      )}`
+                }`}
                 style={{
                   transform: `translate(5%, 5%)`,
                 }}
               />
               {/* Path to only show the bottom border */}
               <Show
-                when={getSettingsData()?.getCurrentTheme()?.getHoverHexagonBorderStyle()
-                  === "shadow" && getHovered()}>
+                when={
+                  getSettingsData()?.getCurrentTheme()?.getHoverHexagonBorderStyle() === 'shadow' &&
+                  getHovered()
+                }
+              >
                 <path
                   clip-path="url(#hexClip)"
-
-                  d={`${getHovered()
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius())}`
+                  d={`${
+                    getHovered()
+                      ? `${getHexagonPathData(
+                          getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius()
+                        )}`
                       : merged.radiant === 0
-                        ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius())}`
-                        : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius())}`
-                    }`}
+                      ? `${getHexagonPathData(
+                          getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius()
+                        )}`
+                      : `${getHexagonPathData(
+                          getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius()
+                        )}`
+                  }`}
                   style={{
                     transform: `translate(-0.1%, -5%)`,
                   }}
-                /></Show>
+                />
+              </Show>
             </Show>
 
             {/* Sub Hexagon*/}
             {/* This path will act as the border or if the same color as the main content*/}
             <Show
-              when={getSettingsData()?.getCurrentTheme()?.getSubHexagonBorderStyle()
-                === "none" && merged.radiant !== 0 && !getHovered()}
+              when={
+                getSettingsData()?.getCurrentTheme()?.getSubHexagonBorderStyle() === 'none' &&
+                merged.radiant !== 0 &&
+                !getHovered()
+              }
             >
               <path
-
-                d={`${getHovered()
-                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.99)}`
+                d={`${
+                  getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(),
+                        0.99
+                      )}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.99)}`
-                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.99)}`
-                  }`}
-                class={`${getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(),
+                        0.99
+                      )}`
+                    : `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(),
+                        0.99
+                      )}`
+                }`}
+                class={`${
+                  getHovered()
                     ? `fill-hoverHexagonBg`
                     : merged.radiant === 0
-                      ? `fill-mainHexagonBg`
-                      : `fill-subHexagonBg`
-                  }`}
+                    ? `fill-mainHexagonBg`
+                    : `fill-subHexagonBg`
+                }`}
                 style={{
                   transform: `translate(0.9%, 0.9%)`,
                 }}
-              /></Show>
+              />
+            </Show>
             <Show
-              when={getSettingsData()?.getCurrentTheme()?.getSubHexagonBorderStyle()
-                !== "none" && merged.radiant !== 0 && !getHovered()}
+              when={
+                getSettingsData()?.getCurrentTheme()?.getSubHexagonBorderStyle() !== 'none' &&
+                merged.radiant !== 0 &&
+                !getHovered()
+              }
             >
-
               <path
-
-                d={`${getHovered()
-                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.99)}`
+                d={`${
+                  getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(),
+                        0.99
+                      )}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.99)}`
-                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.99)}`
-                  }`}
-                class={`${getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(),
+                        0.99
+                      )}`
+                    : `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(),
+                        0.99
+                      )}`
+                }`}
+                class={`${
+                  getHovered()
                     ? `fill-hoverHexagonBorder`
                     : merged.radiant === 0
-                      ? `fill-mainHexagonBorder`
-                      : `fill-subHexagonBorder`
-                  }`}
+                    ? `fill-mainHexagonBorder`
+                    : `fill-subHexagonBorder`
+                }`}
                 style={{
                   transform: `translate(0.9%, 0.9%)`,
                 }}
@@ -367,78 +446,124 @@ const HexTile = (props: {
               {/* The main hexagon content if a border is present, otherwise hide it via a Show component*/}
 
               <path
-
-                d={`${getHovered()
-                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.9)}`
+                d={`${
+                  getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(),
+                        0.9
+                      )}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.9)}`
-                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.9)}`
-                  }`}
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(),
+                        0.9
+                      )}`
+                    : `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(),
+                        0.9
+                      )}`
+                }`}
                 style={{
                   transform: `translate(5%, 5%)`,
                 }}
               />
               {/* Path to only show the bottom border */}
               <Show
-                when={getSettingsData()?.getCurrentTheme()?.getSubHexagonBorderStyle()
-                  === "shadow" && merged.radiant !== 0 && !getHovered()}>
+                when={
+                  getSettingsData()?.getCurrentTheme()?.getSubHexagonBorderStyle() === 'shadow' &&
+                  merged.radiant !== 0 &&
+                  !getHovered()
+                }
+              >
                 <path
                   clip-path="url(#hexClip)"
-
-                  d={`${getHovered()
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius())}`
+                  d={`${
+                    getHovered()
+                      ? `${getHexagonPathData(
+                          getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius()
+                        )}`
                       : merged.radiant === 0
-                        ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius())}`
-                        : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius())}`
-                    }`}
+                      ? `${getHexagonPathData(
+                          getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius()
+                        )}`
+                      : `${getHexagonPathData(
+                          getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius()
+                        )}`
+                  }`}
                   style={{
                     transform: `translate(-0.1%, -5%)`,
                   }}
-                /></Show>
+                />
+              </Show>
             </Show>
             {/* Main Hexagon*/}
             {/* This path will act as the border or if the same color as the main content*/}
             <Show
-              when={getSettingsData()?.getCurrentTheme()?.getMainHexagonBorderStyle()
-                === "none" && merged.radiant == 0 && !getHovered()}
+              when={
+                getSettingsData()?.getCurrentTheme()?.getMainHexagonBorderStyle() === 'none' &&
+                merged.radiant == 0 &&
+                !getHovered()
+              }
             >
               <path
-
-                d={`${getHovered()
-                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.99)}`
+                d={`${
+                  getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(),
+                        0.99
+                      )}`
                     : merged.radiant === 0
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.99)}`
-                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.99)}`
-                  }`}
-                class={`${getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(),
+                        0.99
+                      )}`
+                    : `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(),
+                        0.99
+                      )}`
+                }`}
+                class={`${
+                  getHovered()
                     ? `fill-hoverHexagonBg`
-                    : (merged.radiant === 0
-                      ? `fill-mainHexagonBg`
-                      : `fill-subHexagonBg`)
-                  }`}
+                    : merged.radiant === 0
+                    ? `fill-mainHexagonBg`
+                    : `fill-subHexagonBg`
+                }`}
                 style={{
                   transform: `translate(0.9%, 0.9%)`,
                 }}
-              /></Show>
+              />
+            </Show>
             <Show
-              when={getSettingsData()?.getCurrentTheme()?.getMainHexagonBorderStyle()
-                !== "none" && merged.radiant == 0 && !getHovered()}
+              when={
+                getSettingsData()?.getCurrentTheme()?.getMainHexagonBorderStyle() !== 'none' &&
+                merged.radiant == 0 &&
+                !getHovered()
+              }
             >
-
               <path
-
-                d={`${getHovered()
-                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.99)}`
-                    : (merged.radiant === 0
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.99)}`
-                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.99)}`)
-                  }`}
-                class={`${getHovered()
+                d={`${
+                  getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(),
+                        0.99
+                      )}`
+                    : merged.radiant === 0
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(),
+                        0.99
+                      )}`
+                    : `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(),
+                        0.99
+                      )}`
+                }`}
+                class={`${
+                  getHovered()
                     ? `fill-hoverHexagonBorder`
                     : merged.radiant === 0
-                      ? `fill-mainHexagonBorder`
-                      : `fill-subHexagonBorder`
-                  }`}
+                    ? `fill-mainHexagonBorder`
+                    : `fill-subHexagonBorder`
+                }`}
                 style={{
                   transform: `translate(0.9%, 0.9%)`,
                 }}
@@ -447,34 +572,55 @@ const HexTile = (props: {
               {/* The main hexagon content if a border is present, otherwise hide it via a Show component*/}
 
               <path
-
-                d={`${getHovered()
-                    ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(), 0.9)}`
-                    : (merged.radiant === 0
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(), 0.9)}`
-                      : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(), 0.9)}`)
-                  }`}
+                d={`${
+                  getHovered()
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius(),
+                        0.9
+                      )}`
+                    : merged.radiant === 0
+                    ? `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius(),
+                        0.9
+                      )}`
+                    : `${getHexagonPathData(
+                        getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius(),
+                        0.9
+                      )}`
+                }`}
                 style={{
                   transform: `translate(5%, 5%)`,
                 }}
               />
               {/* Path to only show the bottom border */}
               <Show
-                when={getSettingsData()?.getCurrentTheme()?.getMainHexagonBorderStyle()
-                  === "shadow" && merged.radiant == 0 && !getHovered()}>
+                when={
+                  getSettingsData()?.getCurrentTheme()?.getMainHexagonBorderStyle() === 'shadow' &&
+                  merged.radiant == 0 &&
+                  !getHovered()
+                }
+              >
                 <path
                   clip-path="url(#hexClip)"
-
-                  d={`${getHovered()
-                      ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius())}`
-                      : (merged.radiant === 0
-                        ? `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius())}`
-                        : `${getHexagonPathData(getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius())}`)
-                    }`}
+                  d={`${
+                    getHovered()
+                      ? `${getHexagonPathData(
+                          getSettingsData()?.getCurrentTheme()?.getHoverHexagonRadius()
+                        )}`
+                      : merged.radiant === 0
+                      ? `${getHexagonPathData(
+                          getSettingsData()?.getCurrentTheme()?.getMainHexagonRadius()
+                        )}`
+                      : `${getHexagonPathData(
+                          getSettingsData()?.getCurrentTheme()?.getSubHexagonRadius()
+                        )}`
+                  }`}
                   style={{
                     transform: `translate(-0.1%, -5%)`,
                   }}
-                /></Show></Show>
+                />
+              </Show>
+            </Show>
           </svg>
 
           <Switch
@@ -555,8 +701,9 @@ const HexTile = (props: {
                   >
                     <img
                       src={'data:image/png;base64,' + getCurrentMedia()?.thumbnail}
-                      class={`absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 ${getHovered() ? 'brightness-50' : ''
-                        }`}
+                      class={`absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 ${
+                        getHovered() ? 'brightness-50' : ''
+                      }`}
                       style={{
                         height: `${(getHexSize() - merged.border) * 1.169}px`,
                         'min-width': `min-content`,
@@ -574,7 +721,7 @@ const HexTile = (props: {
                         🎵
                       </span>
                     </Show>
-                    <Show when={getHovered()}>
+                    <Show when={getHovered() && getCurrentMedia() && getCurrentMedia().title}>
                       <span class="controls absolute text-base text-white flex flex-row top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-max gap-1">
                         <FaSolidForwardStep
                           class="rotate-180"

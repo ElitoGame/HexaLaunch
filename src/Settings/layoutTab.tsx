@@ -187,7 +187,7 @@ export const LayoutTab = () => {
         </h2>
         <p>
           This list only contains the most important Apps. If you do not find the App you are
-          looking for you can use the search function above.{' '}
+          looking for you can use the search function above or drop it's executable here.
         </p>
         <br />
         <Box

@@ -146,8 +146,16 @@ const HexUI = () => {
     }
   });
 
+  const [getSelectedSearchResult, setSelectedSearchResult] = createSignal(0);
+
   return (
-    <div class={`${isSearchVisible() ? 'h-full bg-neutral-800 bg-opacity-50' : 'h-0'}`}>
+    <div
+      class={`${isSearchVisible() ? 'h-full bg-neutral-800 bg-opacity-50' : 'h-0'}`}
+      onFocusOut={() => {
+        setIsSearchVisible(false);
+        setSelectedSearchResult(0);
+      }}
+    >
       <div
         class={`${
           isSearchVisible() ? 'block' : 'hidden'
@@ -163,9 +171,31 @@ const HexUI = () => {
             ref={searchBar}
             class="p-2 rounded-md pl-12"
             style={{ 'background-color': '#595959', color: '#C3C2C2' }}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowUp') {
+                if (getSelectedSearchResult() > 0) {
+                  setSelectedSearchResult(getSelectedSearchResult() - 1);
+                }
+                e.preventDefault();
+                console.log('arrow up');
+              } else if (e.key === 'ArrowDown') {
+                if (getSelectedSearchResult() < getSearchResults()?.hits.length - 1) {
+                  setSelectedSearchResult(getSelectedSearchResult() + 1);
+                }
+                e.preventDefault();
+                console.log('arrow down');
+              } else if (e.key === 'Enter') {
+                e.preventDefault();
+                let res = getSearchResults()?.hits[getSelectedSearchResult()];
+                externalAppManager.incrementAppScore(res.document.executable);
+                openApp('', res.document.executable);
+                setIsSearchVisible(false);
+              }
+            }}
             onInput={(e) => {
               searchAppDB((e.target as HTMLInputElement).value);
               setPage(0);
+              setSelectedSearchResult(0);
               if (searchBar?.value === '') {
                 setIsSearchVisible(false);
               }
@@ -173,28 +203,31 @@ const HexUI = () => {
           />
         </InputGroup>
 
-        <ul>
+        <ul class="cursor-pointer">
           <For
             each={getSearchResults()?.hits ?? []}
             fallback={
-              <Box
-                class="my-2 p-2"
-                style={{
-                  'background-color': '#343434',
-                  color: '#FFFFFF',
-                }}
-                borderRadius="$lg"
-              >
-                <Center>Search something to see results!</Center>
-              </Box>
+              <li>
+                <Box
+                  class="my-2 p-2"
+                  style={{
+                    'background-color': '#343434',
+                    color: '#FFFFFF',
+                  }}
+                  borderRadius="$lg"
+                >
+                  <Center>Search something to see results!</Center>
+                </Box>
+              </li>
             }
           >
-            {(res) => (
-              <>
+            {(res, i) => (
+              <li>
                 <Box
                   class="my-2 p-2 overflow-x-hidden"
                   style={{
-                    'background-color': '#343434',
+                    'background-color':
+                      i() === getSelectedSearchResult() ? 'var(--neutral)' : 'var(--background)',
                     color: '#FFFFFF',
                   }}
                   borderRadius="$lg"
@@ -221,24 +254,22 @@ const HexUI = () => {
                     }
                   }}
                 >
-                  <li>
-                    <HStack>
-                      <img src={res.document.icon} class="w-10 pr-2"></img>
-                      <div>
-                        <span>{res.document.name}</span>
-                        <br />
-                        <em
-                          style={{
-                            color: '#C3C2C2',
-                          }}
-                        >
-                          {res.document.executable}
-                        </em>{' '}
-                      </div>
-                    </HStack>
-                  </li>
+                  <HStack>
+                    <img src={res.document.icon} class="w-10 pr-2"></img>
+                    <div>
+                      <span>{res.document.name}</span>
+                      <br />
+                      <em
+                        style={{
+                          color: '#C3C2C2',
+                        }}
+                      >
+                        {res.document.executable}
+                      </em>{' '}
+                    </div>
+                  </HStack>
                 </Box>
-              </>
+              </li>
             )}
           </For>
         </ul>

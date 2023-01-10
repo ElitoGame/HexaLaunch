@@ -616,9 +616,8 @@ fn query_current_apps(handle: AppHandle) {
         }
         Err(_e) => {
             // create the appData folder if it doesn't exist
-            let app_data_dir = app_dir.parent().unwrap();
-            if !app_data_dir.exists() {
-                std::fs::create_dir(app_data_dir).unwrap();
+            if !app_dir.exists() {
+                std::fs::create_dir_all(app_dir).unwrap();
             }
             // create the appDataRunning.json file
             let mut file = File::create(app_data_running).unwrap();
