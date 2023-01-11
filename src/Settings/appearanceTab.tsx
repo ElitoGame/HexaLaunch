@@ -38,7 +38,7 @@ export const AppearanceTab = () => {
   return (
     <>
       <h2>Theme Selection</h2>
-      <Box w="100%" pt="10px" pb="50px" class="flex justify-between">
+      <Box w="100%" pt="10px" pb="50px" class="flex justify-between gap-3">
         {' '}
         <For each={getSettingsData()?.getThemes()}>
           {(themeVar: Themes) => (
@@ -49,9 +49,9 @@ export const AppearanceTab = () => {
                 themeVar.getThemeName() == 'Dark'
               }
             >
-              <div class=" roundend-lg card">
+              <div class="rounded-lg card w-1/3">
                 <input
-                  class="hoverEffect checked:bg-accent checked:opacity-50 border-2 themes"
+                  class="hoverEffect border-2 themes w-full rounded-md"
                   type="radio"
                   name="theme"
                   value={`${themeVar.getThemeName()}`}
@@ -331,7 +331,7 @@ export const AppearanceTab = () => {
       </Grid>
       <p>Create your own Themes. You can use existing Themes as your basis.</p>
 
-      <Box w="100%" pb="50px" class="flex customThemes w-[470px] overflow-x-auto">
+      <Box w="100%" pb="50px" class="flex customThemes w-full overflow-x-auto">
         {' '}
         <For each={getSettingsData()?.getThemes()}>
           {(themeVar: Themes, i) => (
@@ -342,9 +342,9 @@ export const AppearanceTab = () => {
                 themeVar.getThemeName() !== 'Dark'
               }
             >
-              <div class=" mr-[11px] rounden-lg mt-10 focus:bg-accent hoverEffect card bg-neutral border">
+              <div class=" mr-[11px] rounded-lg mt-10 focus:bg-accent hoverEffect card bg-neutral border-0">
                 <input
-                  class="hoverEffect checked:bg-accent checked:opacity-50 border-2 themes"
+                  class="hoverEffect border-2 themes rounded-md"
                   type="radio"
                   checked={
                     themeVar.getThemeName() ===

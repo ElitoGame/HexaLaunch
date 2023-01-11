@@ -12,6 +12,7 @@ import {
   HStack,
   Button,
   Input,
+  Switch as HopeSwitch,
 } from '@hope-ui/solid';
 
 import {
@@ -57,7 +58,7 @@ import { IoArrowForward, IoTrashBin } from 'solid-icons/io';
 import { invoke } from '@tauri-apps/api';
 import { emit, listen } from '@tauri-apps/api/event';
 import { BsPen } from 'solid-icons/bs';
-import { FaSolidPen } from 'solid-icons/fa';
+import { FaSolidMusic, FaSolidPen, FaSolidTrashCan } from 'solid-icons/fa';
 
 //import { MultipleListsExample } from './App';
 let dragElement: HTMLImageElement | undefined;
@@ -181,6 +182,8 @@ window.addEventListener('mousemove', (e) => {
   }
 });
 
+const [isOverWritingHexGridDisplayType, setIsOverWritingHexGridDisplayType] = createSignal(false);
+
 const HexAppIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
 const [hexAppIcon, setHexAppIcon] = createSignal('');
 const [hexIcon] = createResource(hexAppIcon, HexAppIcon);
@@ -220,6 +223,13 @@ const HexUIGrid = () => {
         ? rightPanelWindow.clientWidth / (getHexSize() * 9 + getHexMargin() * 7 + 20)
         : 1
     );
+  createEffect(() => {
+    setGridScale(() =>
+      getHexSize() * 9 + getHexMargin() * 7 > rightPanelWindow.clientWidth
+        ? rightPanelWindow.clientWidth / (getHexSize() * 9 + getHexMargin() * 7 + 20)
+        : 1
+    );
+  });
 
   return (
     <>
@@ -512,10 +522,10 @@ const HexUIGrid = () => {
                     }
                   >
                     <Match when={getOverWriteWarning().targetTile.action === 'MediaPlayer'}>
-                      <span class="">🎵</span>
+                      <FaSolidMusic class="w-5 h-5 text-text" />
                     </Match>
                     <Match when={getOverWriteWarning().targetTile.action === 'PaperBin'}>
-                      <span class="">🗑</span>
+                      <FaSolidTrashCan class="w-5 h-5 text-text" />
                     </Match>
                     {/* <Match when={getOverWriteWarning().targetTile.action === 'Web'}>
                       <span class="">🌐</span>
@@ -537,10 +547,10 @@ const HexUIGrid = () => {
                     }
                   >
                     <Match when={getOverWriteWarning().newTile.action === 'MediaPlayer'}>
-                      <span class="">🎵</span>
+                      <FaSolidMusic class="w-5 h-5 text-text" />
                     </Match>
                     <Match when={getOverWriteWarning().newTile.action === 'PaperBin'}>
-                      <span class="">🗑</span>
+                      <FaSolidTrashCan class="w-5 h-5 text-text" />
                     </Match>
                     {/* <Match when={getOverWriteWarning().newTile.action === 'Web'}>
                       <span class="">🌐</span>
@@ -636,12 +646,12 @@ const HexUIGrid = () => {
         >
           <Match when={getHexTileData()?.type === 'MediaPlayer'}>
             <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
-              🎵
+              <FaSolidMusic class="w-5 h-5 text-text" />
             </span>
           </Match>
           <Match when={getHexTileData()?.type === 'PaperBin'}>
             <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
-              🗑
+              <FaSolidTrashCan class="w-5 h-5 text-text" />
             </span>
           </Match>
           {/* <Match when={getHexTileData()?.type === 'Web'}>
@@ -746,7 +756,7 @@ const SettingsMenu = () => {
       </div>
       <Grid
         h="100%"
-        templateColumns="repeat(3, 1fr)"
+        templateColumns="max(520px, min(40vw, 700px)) 1fr 1fr"
         onDragOver={(e: DragEvent) => {
           e.preventDefault();
           console.log(e);
@@ -819,11 +829,26 @@ const SettingsMenu = () => {
           </VStack>
         </GridItem>
         <GridItem rowSpan={1} colSpan={2} h="100%" ref={rightPanelWindow}>
-          <Show when={getCurrentTab() == 'Layout'}>
+          <Show when={getCurrentTab() == 'Layout' || isOverWritingHexGridDisplayType()}>
             <HexUIGrid></HexUIGrid>
           </Show>
-          <Show when={getCurrentTab() == 'Appearance'}>
+          <Show when={getCurrentTab() == 'Appearance' && !isOverWritingHexGridDisplayType()}>
             <HexUIPreview></HexUIPreview>
+          </Show>
+          <Show when={getCurrentTab() == 'Appearance'}>
+            <span class="absolute right-2 bottom-4">
+              <HopeSwitch
+                class="checked:accent active:accent  m-2 h-min text-text w-32 "
+                defaultChecked={getCurrentTab() == 'Appearance'}
+                checked={isOverWritingHexGridDisplayType()}
+                onChange={() => {
+                  setIsOverWritingHexGridDisplayType(!isOverWritingHexGridDisplayType());
+                }}
+                labelPlacement="start"
+              >
+                Full Layout
+              </HopeSwitch>
+            </span>
           </Show>
         </GridItem>
       </Grid>

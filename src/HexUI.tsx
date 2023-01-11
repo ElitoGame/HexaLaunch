@@ -150,7 +150,7 @@ const HexUI = () => {
 
   return (
     <div
-      class={`${isSearchVisible() ? 'h-full bg-neutral-800 bg-opacity-50' : 'h-0'}`}
+      class={`${isSearchVisible() ? 'h-screen bg-zinc-800 bg-opacity-50' : 'h-0'}`}
       onFocusOut={() => {
         setIsSearchVisible(false);
         setSelectedSearchResult(0);
@@ -159,10 +159,10 @@ const HexUI = () => {
       <div
         class={`${
           isSearchVisible() ? 'block' : 'hidden'
-        } z-40 absolute top-10 left-1/2 -translate-x-1/2 w-1/4`}
+        } h-full z-40 relative my-10 left-1/2 -translate-x-1/2 w-1/4  min-w-[640px]`}
         style={{ 'font-size': '16px' }}
       >
-        <InputGroup>
+        <InputGroup class="h-10">
           <InputLeftElement class="text-neutral-300">
             <BsSearch />
           </InputLeftElement>
@@ -203,7 +203,12 @@ const HexUI = () => {
           />
         </InputGroup>
 
-        <ul class="cursor-pointer">
+        <ul
+          class="cursor-pointer overflow-y-auto my-4"
+          style={{
+            height: 'calc(100% - 7rem)',
+          }}
+        >
           <For
             each={getSearchResults()?.hits ?? []}
             fallback={

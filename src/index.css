@@ -24,3 +24,19 @@ body {
 .draggable {
   -webkit-app-region: drag;
 }
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #646464;
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(39, 39, 39);
+  border-radius: 10px;
+}

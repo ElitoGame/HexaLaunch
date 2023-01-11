@@ -1,7 +1,4 @@
-import { createEffect, createSignal } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import { getSettingsData } from './settings';
-import SettingsData from './Settings/SettingsData';
 import Themes from './Themes/Themes';
 
 const dark = new Themes(
@@ -68,6 +65,4 @@ const honey = new Themes(
   'solid'
 );
 
-export const [themes, setThemes] = createStore({themes: [dark,light,honey]});
-
-
+export const [themes, setThemes] = createStore({ themes: [dark, light, honey] });

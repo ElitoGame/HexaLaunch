@@ -9,11 +9,18 @@ import {
   selectedHexTile,
 } from '../../main';
 
-import { FaSolidPlay, FaSolidForwardStep, FaSolidPause } from 'solid-icons/fa';
+import {
+  FaSolidPlay,
+  FaSolidForwardStep,
+  FaSolidPause,
+  FaSolidTrashCan,
+  FaSolidMusic,
+} from 'solid-icons/fa';
 import { invoke } from '@tauri-apps/api';
 import { externalAppManager } from '../../externalAppManager';
 import { IoTrashBin } from 'solid-icons/io';
 import { getSettingsData } from '../../settings';
+import Themes from '../../Themes/Themes';
 
 const HexIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
 
@@ -22,7 +29,7 @@ const getHexagonPathData = (radius: any = 3, scale = 1) => {
   const cos = (deg) => Math.cos((deg * Math.PI) / 180);
 
   // Modify this border radius via the themes.
-  const borderRadius = radius as any;
+  const borderRadius = parseFloat(radius === '' ? '0' : radius);
   const sideLength = ((38.5 * getHexSize()) / 66) * scale;
   const x0 = 0;
   const y0 = 0;
@@ -85,6 +92,7 @@ const HexTile = (props: {
   hasAnimation?: boolean;
   hasHoverEffect?: boolean;
   isSettings?: boolean;
+  class?: string;
 }) => {
   const merged = mergeProps(
     {
@@ -102,6 +110,7 @@ const HexTile = (props: {
       hasHoverEffect: true,
       border: 7,
       isSettings: false,
+      class: '',
     },
     props
   );
@@ -156,7 +165,7 @@ const HexTile = (props: {
       when={(!isFullLayout() && merged.action !== 'Unset') || isFullLayout() || merged.isSettings}
     >
       <div
-        class={`hexTile absolute bg-transparent  cursor-pointer inline-block`}
+        class={`hexTile absolute bg-transparent  cursor-pointer inline-block ` + merged.class}
         id={`{"x":"${merged.x}", "y":"${merged.y}", "radiant":"${merged.radiant}", "action":"${
           merged.action
         }", "app":"${merged.app.replaceAll('\\', '\\\\')}", "url":"${merged.url
@@ -165,13 +174,13 @@ const HexTile = (props: {
         ", "title":"${merged.title.replace('\\', '')}"}`}
         style={{
           left: `${
-            merged.x * (getHexSize() + getHexMargin()) -
+            merged.x * (getHexSize() + getHexMargin()) - // maybe hexsize  * 0.98
             (merged.y % 2 === 0 ? 0 : (getHexSize() + getHexMargin()) / 2) -
             getHexSize() / 2 -
             (getHexMargin() / 8) * 11.75
           }px`,
           bottom: `${
-            merged.y * (getHexSize() * 0.86 + getHexMargin()) -
+            merged.y * (getHexSize() * 0.86 + getHexMargin()) - // maybe hexsize  * 0.85
             (getHexSize() / 13) * 8 -
             (getHexMargin() / 8) * 11.75
           }px`,
@@ -224,7 +233,6 @@ const HexTile = (props: {
         >
           <svg width={getHexSize() + getHexMargin() * 2} height={getHexSize() * 1.169}>
             <clipPath id="hexClip">
-              {<circle cx="40" cy="35" r="35" />}
               <path
                 id={`radiant:${merged.radiant}`}
                 d={`${
@@ -684,7 +692,7 @@ const HexTile = (props: {
                   when={!merged.isSettings || getCurrentMedia()?.title === undefined}
                   fallback={
                     <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                      🎵
+                      <FaSolidMusic class="w-5 h-5 text-mainHexagonIcon" />
                     </span>
                   }
                 >
@@ -718,7 +726,7 @@ const HexTile = (props: {
                     />
                     <Show when={isBrokenImage()}>
                       <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                        🎵
+                        <FaSolidMusic class="w-5 h-5 text-mainHexagonIcon" />
                       </span>
                     </Show>
                     <Show when={getHovered() && getCurrentMedia() && getCurrentMedia().title}>
@@ -757,7 +765,7 @@ const HexTile = (props: {
               </>
             </Match>
             <Match when={merged.action === 'PaperBin'}>
-              <IoTrashBin class="bin fill-text text-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none" />
+              <FaSolidTrashCan class="bin fill-mainHexagonIcon w-5 h-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none" />
             </Match>
           </Switch>
         </div>

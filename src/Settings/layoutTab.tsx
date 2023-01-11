@@ -10,6 +10,7 @@ import { UserSettings } from '../datastore';
 import { setSettingsGridTiles, setOptionsVisible, setOverWriteWarning } from './SettingsMenu';
 import { IoTrashBin } from 'solid-icons/io';
 import { BsSearch } from 'solid-icons/bs';
+import { FaSolidMusic, FaSolidTrashCan } from 'solid-icons/fa';
 
 export const LayoutTab = () => {
   const [getPage, setPage] = createSignal<number>(0);
@@ -96,7 +97,7 @@ export const LayoutTab = () => {
         <Input
           bg="#C3C2C2"
           ref={searchBar}
-          class="text-text placeholder-text"
+          class="text-text placeholder-text rounded-md"
           onInput={(e) => {
             searchAppDB((e.target as HTMLInputElement).value);
             setPage(0);
@@ -160,17 +161,13 @@ export const LayoutTab = () => {
                                 <img src={res.document.icon} class="w-7"></img>
                               </div>
                             </Box>
-                            <div>
-                              <Box
-                                class="my-2 ml-3 p-2 bg-background whitespace-nowrap"
-                                maxW="280px"
-                                minW="280px"
-                                borderRadius="$lg"
-                              >
-                                <p class="truncate ...">{res.document.name}</p>
-                                <p class="truncate ...">{res.document.executable}</p>{' '}
-                              </Box>
-                            </div>
+                            <Box
+                              class="my-2 mx-3 p-2 bg-background whitespace-nowrap overflow-hidden w-full"
+                              borderRadius="$lg"
+                            >
+                              <p class="truncate ...">{res.document.name}</p>
+                              <p class="truncate ...">{res.document.executable}</p>{' '}
+                            </Box>
                           </HStack>
                         </li>
                       </Box>
@@ -219,17 +216,13 @@ export const LayoutTab = () => {
                         <img src={res.icon} class="w-7"></img>
                       </div>
                     </Box>
-                    <div>
-                      <Box
-                        class="my-2 ml-3 p-2 bg-background whitespace-nowrap"
-                        maxW="280px"
-                        minW="280px"
-                        borderRadius="$lg"
-                      >
-                        <p class="truncate ...">{res.name}</p>
-                        <p class="truncate ...">{res.executable}</p>{' '}
-                      </Box>
-                    </div>
+                    <Box
+                      class="my-2 mx-3 p-2 bg-background whitespace-nowrap overflow-hidden w-full"
+                      borderRadius="$lg"
+                    >
+                      <p class="truncate ...">{res.name}</p>
+                      <p class="truncate ...">{res.executable}</p>{' '}
+                    </Box>
                   </HStack>
                 </li>
               )}
@@ -258,7 +251,9 @@ export const LayoutTab = () => {
             }}
             draggable={false}
           >
-            <div class="w-25">🎵</div>
+            <div class="w-25">
+              <FaSolidMusic class="w-4 h-4 text-text" />
+            </div>
           </Box>
           <Box
             class="p-3.5 bg-background cursor-pointer"
@@ -274,7 +269,9 @@ export const LayoutTab = () => {
             }}
             draggable={false}
           >
-            <div class="w-25">🗑</div>
+            <div class="w-25">
+              <FaSolidTrashCan class="w-4 h-4 text-text" />
+            </div>
           </Box>
           {/* <Box
               class="my-2 p-3.5 bg-background"
@@ -305,13 +302,13 @@ export const LayoutTab = () => {
           }
         >
           <Match when={getHexTileData()?.type === 'MediaPlayer'}>
-            <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
-              🎵
+            <span class="w-5 h-5 absolute z-40 cursor-pointer" ref={dragElement}>
+              <FaSolidMusic class="w-5 h-5 text-text" />
             </span>
           </Match>
           <Match when={getHexTileData()?.type === 'PaperBin'}>
-            <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
-              🗑
+            <span class="w-5 h-5 absolute z-40 cursor-pointer" ref={dragElement}>
+              <FaSolidTrashCan class="w-5 h-5 text-text" />
             </span>
           </Match>
           {/* <Match when={getHexTileData()?.type === 'Web'}>

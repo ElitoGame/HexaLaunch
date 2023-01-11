@@ -11,11 +11,11 @@ const [isAutoStartEnabled, setAutoStartEnabled] = createSignal(
 export const PreferencesTab = () => {
   return (
     <>
-      <p class="font-medium">Start Hotkey</p>
+      <span class="font-medium mr-4">Start Hotkey</span>
 
       <Input
         size="md"
-        class="w-60 text-text mb-4"
+        class="w-60 text-text mb-4 rounded-md"
         id="hello"
         onKeyDown={handleHotkeyEvent}
         onfocusout={(e: Event) => {
@@ -34,7 +34,7 @@ export const PreferencesTab = () => {
 
       <br></br>
       <Grid h="100%" templateRows="repeat(, 1fr)" templateColumns="repeat(2, 1fr)" gap="$1">
-        <p class="font-medium">Navigation via keyboard</p>{' '}
+        <span class="font-medium">Navigation via keyboard</span>{' '}
         <GridItem class="flex justify-end">
           <Switch
             class="checked:accent active:accent flex-end"
@@ -49,7 +49,7 @@ export const PreferencesTab = () => {
       <p>Navigation through the Application with your Keyboard</p>
       <br></br>
       <Grid h="100%" templateRows="repeat(, 1fr)" templateColumns="repeat(2, 1fr)" gap="$1">
-        <p class="font-medium">Full Layout</p>
+        <span class="font-medium">Full Layout</span>
         <GridItem class="flex justify-end">
           <Switch
             onChange={() => {
@@ -64,7 +64,7 @@ export const PreferencesTab = () => {
       <p>Always show all the available Hexagons, even when they are empty.</p>
       <br></br>
       <Grid h="100%" templateRows="repeat(, 1fr)" templateColumns="repeat(2, 1fr)" gap="$1">
-        <p class="font-medium">Move to Cursor</p>
+        <span class="font-medium">Move to Cursor</span>
         <GridItem class="flex justify-end">
           <Switch
             onChange={() => {
@@ -79,7 +79,7 @@ export const PreferencesTab = () => {
       <p>The Layout will open where your mouse is located when you open the Application</p>
       <br></br>
       <Grid h="100%" templateRows="repeat(, 1fr)" templateColumns="repeat(2, 1fr)" gap="$1">
-        <p class="font-medium">Autostart</p>
+        <span class="font-medium">Autostart</span>
         <GridItem class="flex justify-end">
           <Switch
             onChange={() => {
