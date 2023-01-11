@@ -30,7 +30,7 @@ import { FaSolidPen } from 'solid-icons/fa';
 import { theme } from './newThemeTab';
 
 const [getSize, setSize] = createSignal<number>(0);
-export const [lastActiveTheme, setLastAcitveTheme] = createSignal();
+export const [lastActiveTheme, setLastActiveTheme] = createSignal();
 setSize((await primaryMonitor()).size.height);
 
 export const AppearanceTab = () => {
@@ -62,6 +62,7 @@ export const AppearanceTab = () => {
                   id={`${themeVar.getThemeName()}`}
                   onClick={(e: Event) => {
                     getSettingsData()?.setCurrentTheme(themeVar);
+                    setLastActiveTheme(themeVar);
                     updateSettingData();
                   }}
                 />{' '}
@@ -248,13 +249,13 @@ export const AppearanceTab = () => {
           <h2>Custom Themes</h2>
         </GridItem>
         <GridItem style="align-self: flex;" class="flex justify-end">
-          <Button
+          {/* <Button
             class="bg-neutral mr-2 hover:bg-neutral hoverEffect text-text"
             size="xs"
             onClick={onOpen}
           >
             Import
-          </Button>
+          </Button> */}
           <Modal centered opened={isOpen()} onClose={onClose}>
             <ModalOverlay />
             <ModalContent class="bg-background">
@@ -317,9 +318,6 @@ export const AppearanceTab = () => {
                 )
               );
               updateSettingData();
-              // const el : Themes = getSettingsData()?.getCurrentTheme();
-              // Object.assign(el, getSettingsData()?.getCurrentTheme());
-              // setLastAcitveTheme(el);
               getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
             }}
             class="bg-accent hover:bg-accent hoverEffect text-text"
@@ -354,6 +352,7 @@ export const AppearanceTab = () => {
                   value={`${themeVar.getThemeName()}`}
                   onClick={(e: Event) => {
                     getSettingsData()?.setCurrentTheme(themeVar);
+                    setLastActiveTheme(themeVar);
                     updateSettingData();
                   }}
                 />{' '}

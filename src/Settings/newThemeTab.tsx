@@ -26,7 +26,7 @@ import Themes from '../Themes/Themes';
 import { createSignal, Show } from 'solid-js';
 import { themes, setThemes } from '../themes';
 import { produce } from 'solid-js/store';
-import { lastActiveTheme, setLastAcitveTheme } from './appearanceTab';
+import { lastActiveTheme, setLastActiveTheme } from './appearanceTab';
 
 export const theme = new Themes(
   '',
@@ -747,6 +747,7 @@ export const NewThemeTab = () => {
               getSettingsData()?.setCurrentTheme(
                 getSettingsData()?.getThemes()[getSettingsData()?.getThemes().length - 1]
               );
+              setLastActiveTheme(getSettingsData()?.getThemes()[getSettingsData()?.getThemes().length - 1])
               let theme = new Themes(
                 '',
                 '#414141',
@@ -770,8 +771,9 @@ export const NewThemeTab = () => {
               );
 
               tempSubHexData = theme;
-              getSettingsData()?.setCurrentTheme(lastActiveTheme() as Themes);
               updateSettingData();
+
+
             }}
           >
             Save
@@ -789,7 +791,7 @@ export const NewThemeTab = () => {
             size="xs"
             onClick={() => {
               changeWindow();
-              getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
+              getSettingsData()?.setCurrentTheme(lastActiveTheme() as Themes);
               let theme = new Themes(
                 '',
                 '#414141',
