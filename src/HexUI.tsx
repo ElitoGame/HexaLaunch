@@ -2,7 +2,6 @@ import HexTile from './HexUI/Components/HexTile';
 import HexTileData from './DataModel/HexTileData';
 import { Box, Center, HStack, Input, InputGroup, InputLeftElement } from '@hope-ui/solid';
 
-import { appWindow } from '@tauri-apps/api/window';
 import { createSignal, For, Show } from 'solid-js';
 import { openApp, runAction } from './hexUImain';
 import {
@@ -21,7 +20,6 @@ import {
 } from './main';
 import { BsSearch } from 'solid-icons/bs';
 import { externalAppManager } from './externalAppManager';
-import HexUiData from './DataModel/HexUiData';
 const HexUI = () => {
   let searchBar: HTMLInputElement | undefined;
   const [getPage, setPage] = createSignal<number>(0);
@@ -159,7 +157,7 @@ const HexUI = () => {
       <div
         class={`${
           isSearchVisible() ? 'block' : 'hidden'
-        } h-full z-40 relative my-10 left-1/2 -translate-x-1/2 w-1/4  min-w-[640px]`}
+        } h-full z-40 relative py-10 left-1/2 -translate-x-1/2 w-1/4  min-w-[640px]`}
         style={{ 'font-size': '16px' }}
       >
         <InputGroup class="h-10">

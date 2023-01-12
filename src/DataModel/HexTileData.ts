@@ -1,6 +1,3 @@
-import { fs } from '@tauri-apps/api';
-import { externalAppManager } from '../externalAppManager';
-
 export type actionType =
   | 'App'
   | 'Web'

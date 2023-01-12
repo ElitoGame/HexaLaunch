@@ -1,7 +1,5 @@
 import {
-  updateFormField,
   restrictValue,
-  updateBorderStyle,
   changeWindow,
   updateSettingData,
   useMainHexagonInput,
@@ -21,10 +19,9 @@ import {
   Stack,
 } from '@hope-ui/solid';
 
-import { ColorInput } from './ColorInput';
 import Themes from '../Themes/Themes';
-import { createSignal, Show } from 'solid-js';
-import { themes, setThemes } from '../themes';
+import { Show } from 'solid-js';
+import { setThemes } from '../themes';
 import { produce } from 'solid-js/store';
 import { lastActiveTheme, setLastActiveTheme } from './appearanceTab';
 
@@ -747,7 +744,9 @@ export const NewThemeTab = () => {
               getSettingsData()?.setCurrentTheme(
                 getSettingsData()?.getThemes()[getSettingsData()?.getThemes().length - 1]
               );
-              setLastActiveTheme(getSettingsData()?.getThemes()[getSettingsData()?.getThemes().length - 1])
+              setLastActiveTheme(
+                getSettingsData()?.getThemes()[getSettingsData()?.getThemes().length - 1]
+              );
               let theme = new Themes(
                 '',
                 '#414141',
@@ -772,8 +771,6 @@ export const NewThemeTab = () => {
 
               tempSubHexData = theme;
               updateSettingData();
-
-
             }}
           >
             Save

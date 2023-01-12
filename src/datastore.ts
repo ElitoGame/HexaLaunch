@@ -247,18 +247,16 @@ export class UserSettings {
     }
     // check if the file exists and if the changes are actually changes
     if (
-      (await fs.exists('user-settings.json', { dir: fs.BaseDirectory.AppConfig })) &&
+      (await fs.exists('user-settings.json', { dir: fs.BaseDirectory.AppData })) &&
       JSON.stringify(data) ===
         JSON.stringify(
-          JSON.parse(
-            await fs.readTextFile('user-settings.json', { dir: fs.BaseDirectory.AppConfig })
-          )
+          JSON.parse(await fs.readTextFile('user-settings.json', { dir: fs.BaseDirectory.AppData }))
         )
     ) {
       console.log('No changes to settings');
     } else {
       await fs.writeTextFile('user-settings.json', JSON.stringify(data), {
-        dir: fs.BaseDirectory.AppConfig,
+        dir: fs.BaseDirectory.AppData,
       });
       console.log('Settings saved');
     }

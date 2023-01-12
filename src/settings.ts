@@ -5,19 +5,10 @@ import { getAll } from '@tauri-apps/api/window';
 import { window } from '@tauri-apps/api';
 import { UserSettings } from './datastore';
 import HexUiData from './DataModel/HexUiData';
-import {
-  getHexMargin,
-  getHexSize,
-  getHexUiData,
-  setHexMargin,
-  setHexSize,
-  setHexUiData,
-} from './main';
+import { getHexUiData, setHexUiData } from './main';
 import { actionType } from './DataModel/HexTileData';
 import { unregister, isRegistered, register } from '@tauri-apps/api/globalShortcut';
-import { emit, listen } from '@tauri-apps/api/event';
-import { themes, setThemes } from './themes';
-import Themes from './Themes/Themes';
+import { emit } from '@tauri-apps/api/event';
 
 const appWindow = getAll().find((w) => w.label === 'settings');
 export const userSettings: UserSettings = await UserSettings.load();

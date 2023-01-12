@@ -17,12 +17,7 @@
         "all": true
       },
       "window": {
-        "all": true,
-        "create": true,
-        "center": true,
-        "requestUserAttention": true,
-        "setResizable": true,
-        "setTitle": true,
+        "all": false,
         "maximize": true,
         "unmaximize": true,
         "minimize": true,
@@ -30,45 +25,32 @@
         "show": true,
         "hide": true,
         "close": true,
-        "setDecorations": true,
-        "setAlwaysOnTop": true,
         "setSize": true,
-        "setMinSize": true,
-        "setMaxSize": true,
         "setPosition": true,
-        "setFullscreen": true,
         "setFocus": true,
-        "setIcon": true,
-        "setSkipTaskbar": true,
-        "setCursorGrab": true,
-        "setCursorVisible": true,
-        "setCursorIcon": true,
-        "setCursorPosition": true,
-        "setIgnoreCursorEvents": true,
-        "startDragging": true,
-        "print": true
+        "startDragging": true
       },
       "fs": {
         "all": true,
         "readFile": true,
         "writeFile": true,
-        "readDir": true,
-        "copyFile": true,
         "createDir": true,
-        "removeDir": true,
-        "removeFile": true,
-        "renameFile": true,
         "exists": true,
-        "scope": ["*"]
-      },
-      "os": {
-        "all": true
+        "scope": [
+          "$APPDATA/appData.json",
+          "$APPDATA/appDataRelevant.json",
+          "$APPDATA/appDataRunning.json",
+          "$APPDATA/appPathsCustom.json",
+          "$APPDATA/appScores.json",
+          "$APPDATA/user-settings.json",
+          "$APPDATA/",
+          "$TEMP/zRadialAppNames0.json"
+        ]
       },
       "shell": {
-        "all": true,
+        "all": false,
         "execute": true,
         "sidecar": true,
-        "open": true,
         "scope": [
           {
             "name": "open",
@@ -78,31 +60,6 @@
           {
             "name": "clearbin",
             "args": ["-Command", "Clear-RecycleBin", "-Force"],
-            "cmd": "powershell.exe"
-          },
-          {
-            "name": "queryRunningProcesses",
-            "args": true,
-            "cmd": "powershell.exe"
-          },
-          {
-            "name": "queryRelevantApps",
-            "args": true,
-            "cmd": "powershell.exe"
-          },
-          {
-            "name": "queryAdditionalApps",
-            "args": true,
-            "cmd": "powershell.exe"
-          },
-          {
-            "name": "queryGameLibrary",
-            "args": true,
-            "cmd": "powershell.exe"
-          },
-          {
-            "name": "queryAppIcon",
-            "args": true,
             "cmd": "powershell.exe"
           },
           {
@@ -116,10 +73,6 @@
             "sidecar": true
           }
         ]
-      },
-      "protocol": {
-        "asset": true,
-        "assetScope": ["*"]
       }
     },
     "bundle": {

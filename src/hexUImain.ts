@@ -3,29 +3,24 @@ import { Command } from '@tauri-apps/api/shell';
 import { currentMonitor, getAll, LogicalPosition } from '@tauri-apps/api/window';
 import { createEffect, createSignal } from 'solid-js';
 import HexTileData from './DataModel/HexTileData';
-import HexUiData from './DataModel/HexUiData';
 import { UserSettings } from './datastore';
 import {
   getCurrentRadiant,
   getCursorPosition,
   getHexMargin,
   getHexSize,
-  getHexUiData,
   getShowPosition,
   isHexUiVisible,
   isMoveToCursor,
   isSearchVisible,
   setCurrentRadiant,
   setCursorPosition,
-  setHexMargin,
-  setHexSize,
   setHexUiData,
   setIsHexUiVisible,
   setIsSearchVisible,
   setSelectedHexTile,
   setShowPosition,
 } from './main';
-import SettingsData from './Settings/SettingsData';
 
 /*
  █████   █████                      █████  █████ █████                                    ██████   ███          

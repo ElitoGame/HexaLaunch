@@ -18,9 +18,7 @@ import {
 } from 'solid-icons/fa';
 import { invoke } from '@tauri-apps/api';
 import { externalAppManager } from '../../externalAppManager';
-import { IoTrashBin } from 'solid-icons/io';
 import { getSettingsData } from '../../settings';
-import Themes from '../../Themes/Themes';
 
 const HexIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
 

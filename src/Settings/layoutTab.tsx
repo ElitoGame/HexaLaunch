@@ -1,14 +1,12 @@
 import { getAllApps, getRelevantApps, isDraggingTiles, setIsDraggingTiles } from '../settings';
-import { Box, Input, Center, HStack, InputGroup, InputLeftElement } from '@hope-ui/solid';
+import { Box, Input, HStack, InputGroup, InputLeftElement } from '@hope-ui/solid';
 
-import { createSignal, For, Match, onMount, Show, Switch } from 'solid-js';
-import { getHexUiData, getSearchResults, searchAppDB, setHexUiData } from '../main';
-import HexTile from '../HexUI/Components/HexTile';
+import { createSignal, For, Match, Show, Switch } from 'solid-js';
+import { getHexUiData, getSearchResults, searchAppDB } from '../main';
 import HexTileData, { actionType } from '../DataModel/HexTileData';
 import { externalApp } from '../externalAppManager';
 import { UserSettings } from '../datastore';
 import { setSettingsGridTiles, setOptionsVisible, setOverWriteWarning } from './SettingsMenu';
-import { IoTrashBin } from 'solid-icons/io';
 import { BsSearch } from 'solid-icons/bs';
 import { FaSolidMusic, FaSolidTrashCan } from 'solid-icons/fa';
 

@@ -15,49 +15,25 @@ import {
   Switch as HopeSwitch,
 } from '@hope-ui/solid';
 
-import {
-  batch,
-  createEffect,
-  createResource,
-  For,
-  lazy,
-  Match,
-  onMount,
-  Show,
-  Switch,
-} from 'solid-js';
+import { createEffect, createResource, For, Match, Show, Switch } from 'solid-js';
 
 //import '../../assets/index.css';
 import HexTile from '../HexUI/Components/HexTile';
 import HexTileData, { actionType } from '../DataModel/HexTileData';
-import {
-  getCurrentRadiant,
-  getHexMargin,
-  getHexSize,
-  getHexUiData,
-  getShowPosition,
-  isValidUrl,
-  setSearchResults,
-} from '../main';
+import { getHexMargin, getHexSize, getHexUiData, isValidUrl } from '../main';
 import { NewThemeTab } from './newThemeTab';
 import { AppearanceTab } from './appearanceTab';
 import { LayoutTab } from './layoutTab';
 import { PreferencesTab } from './preferencesTab';
 import { setCurrentTab, getCurrentTab } from '../settings';
-import { RetrievedDoc, search, SearchResult } from '@lyrasearch/lyra';
 
 import { createSignal } from 'solid-js';
-import { createStore } from 'solid-js/store';
-import { getSearchResults } from '../main';
-import HexUiData from '../DataModel/HexUiData';
 import { appWindow } from '@tauri-apps/api/window';
 import { VsChromeMaximize, VsChromeMinimize, VsChromeRestore, VsClose } from 'solid-icons/vs';
 import { UserSettings } from '../datastore';
-import { externalApp, externalAppManager } from '../externalAppManager';
+import { externalAppManager } from '../externalAppManager';
 import { IoArrowForward, IoTrashBin } from 'solid-icons/io';
-import { invoke } from '@tauri-apps/api';
 import { emit, listen } from '@tauri-apps/api/event';
-import { BsPen } from 'solid-icons/bs';
 import { FaSolidMusic, FaSolidPen, FaSolidTrashCan } from 'solid-icons/fa';
 
 //import { MultipleListsExample } from './App';
@@ -606,7 +582,11 @@ const HexUIGrid = () => {
           </div>
         </Show>
         <Show when={getGridScale() !== 1}>
-          <span class="absolute bottom-2 right-2 text-text brightness-50">
+          <span
+            class={`absolute right-2 text-text brightness-50 ${
+              getCurrentTab() === 'Appearance' ? 'bottom-[3rem] ' : 'bottom-2'
+            }`}
+          >
             Scaled to {Math.floor(getGridScale() * 100)}%
           </span>
         </Show>

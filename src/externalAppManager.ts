@@ -1,9 +1,9 @@
-import { fs, os } from '@tauri-apps/api';
-import { create, insert, insertBatch, Lyra, search, SearchResult } from '@lyrasearch/lyra';
+import { fs } from '@tauri-apps/api';
+import { create, insertBatch, Lyra, search, SearchResult } from '@lyrasearch/lyra';
 import { Command } from '@tauri-apps/api/shell';
-import { queryIconOfExe, queryNamesOfExes, queryOtherApps, queryRelevantApps } from './queryApps';
+import { queryNamesOfExes } from './queryApps';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
-import { getRelevantApps, setAllApps, setRelevantApps } from './settings';
+import { setAllApps, setRelevantApps } from './settings';
 import { BaseDirectory } from '@tauri-apps/api/fs';
 import { listen } from '@tauri-apps/api/event';
 
@@ -70,7 +70,7 @@ export class externalAppManager {
           this.updateSearchDatabase();
         });
 
-        if (fs.exists('appDataRelevant.json', { dir: BaseDirectory.AppData })) {
+        if (await fs.exists('appDataRelevant.json', { dir: BaseDirectory.AppData })) {
           const relevantData = await fs.readTextFile('appDataRelevant.json', {
             dir: BaseDirectory.AppData,
           });
@@ -83,7 +83,7 @@ export class externalAppManager {
           );
           setRelevantApps(this.appDataRelevant);
         }
-        if (fs.exists('appData.json', { dir: BaseDirectory.AppData })) {
+        if (await fs.exists('appData.json', { dir: BaseDirectory.AppData })) {
           const data = await fs.readTextFile('appData.json', { dir: BaseDirectory.AppData });
           const parsed = JSON.parse(data);
           this.appData = parsed.map((x) => new externalApp(x.executable, x.name, x.icon, 'App'));
@@ -92,7 +92,7 @@ export class externalAppManager {
           );
           setAllApps(this.appData);
         }
-        if (fs.exists('appPathsCustom.json', { dir: BaseDirectory.AppData })) {
+        if (await fs.exists('appPathsCustom.json', { dir: BaseDirectory.AppData })) {
           const data = await fs.readTextFile('appPathsCustom.json', { dir: BaseDirectory.AppData });
           const parsed = JSON.parse(data);
           this.appDataCustomApps = parsed.map(
@@ -162,14 +162,35 @@ export class externalAppManager {
   }
 
   public static async getIconOfActionExe(executable: string): Promise<string> {
-    if (this.appDataRelevant.length === 0) {
-      const relevantData = await fs.readTextFile('appDataRelevant.json', {
-        dir: BaseDirectory.AppData,
-      });
-      const parsedRelevant = JSON.parse(relevantData);
-      this.appDataRelevant = parsedRelevant.map(
-        (x) => new externalApp(x.executable, x.name, x.icon, 'App')
-      );
+    if (fs.exists('', { dir: BaseDirectory.AppData })) {
+      if (
+        this.appDataRelevant.length === 0 &&
+        fs.exists('appDataRelevant.json', {
+          dir: BaseDirectory.AppData,
+        })
+      ) {
+        const relevantData = await fs.readTextFile('appDataRelevant.json', {
+          dir: BaseDirectory.AppData,
+        });
+        const parsedRelevant = JSON.parse(relevantData);
+        this.appDataRelevant = parsedRelevant.map(
+          (x) => new externalApp(x.executable, x.name, x.icon, 'App')
+        );
+      }
+      if (
+        this.appDataCustomApps.length === 0 &&
+        (await fs.exists('appPathsCustom.json', {
+          dir: BaseDirectory.AppData,
+        }))
+      ) {
+        const customData = await fs.readTextFile('appPathsCustom.json', {
+          dir: BaseDirectory.AppData,
+        });
+        const parsedCustom = JSON.parse(customData);
+        this.appDataCustomApps = parsedCustom.map(
+          (x) => new externalApp(x.executable, x.name, x.icon, 'App')
+        );
+      }
     }
     // check if the executable is in the appData or appDataRelevant array
     const app = this.appData.find(
@@ -178,6 +199,13 @@ export class externalAppManager {
     if (app !== undefined) {
       return app.icon;
     }
+    const appCustom = this.appDataCustomApps.find(
+      (x) => x.executable.replace(/\\+/g, '/') === executable.replace(/\\+/g, '/')
+    );
+    if (appCustom !== undefined) {
+      return appCustom.icon;
+    }
+
     const appRelevant = this.appDataRelevant.find(
       (x) => x.executable.replace(/\\+/g, '/') === executable.replace(/\\+/g, '/')
     );
@@ -196,8 +224,10 @@ export class externalAppManager {
   public static async addCustomApp(executable: string) {
     if (this.appDataCustomApps.find((x) => x.executable === executable) === undefined) {
       let now = new Date().getTime();
-      if (this.dropTimeout < now + 1000 && this.dropTimeout !== 0) return;
+      let diff = now - this.dropTimeout;
+      if (diff < 1000) return;
       this.dropTimeout = now;
+
       // First make sure the file exists and has not been added yet.
       if (
         (await fs.exists(executable)) &&

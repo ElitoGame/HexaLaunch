@@ -5,7 +5,6 @@ import { fs, invoke } from '@tauri-apps/api';
 import { externalAppManager } from './externalAppManager';
 import { emit, listen } from '@tauri-apps/api/event';
 import Themes from './Themes/Themes';
-import { createStore } from 'solid-js/store';
 
 export const [getShowPosition, setShowPosition] = createSignal({ x: 0, y: 0 });
 export const [getCursorPosition, setCursorPosition] = createSignal({

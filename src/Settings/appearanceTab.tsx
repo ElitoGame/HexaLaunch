@@ -3,7 +3,6 @@ import {
   Box,
   Grid,
   GridItem,
-  Radio,
   Input,
   InputGroup,
   InputRightElement,
@@ -15,19 +14,15 @@ import {
   ModalOverlay,
   Button,
   createDisclosure,
-  HStack,
   Tooltip,
 } from '@hope-ui/solid';
 import { primaryMonitor } from '@tauri-apps/api/window';
 import { createSignal, For, Show } from 'solid-js';
-import { themes } from '../themes';
 import Themes from '../Themes/Themes';
-import HexTile from '../HexUI/Components/HexTile';
 import { FaSolidMoon } from 'solid-icons/fa';
 import { FaSolidSun } from 'solid-icons/fa';
 import { FaSolidCircleCheck } from 'solid-icons/fa';
 import { FaSolidPen } from 'solid-icons/fa';
-import { theme } from './newThemeTab';
 
 const [getSize, setSize] = createSignal<number>(0);
 export const [lastActiveTheme, setLastActiveTheme] = createSignal();
