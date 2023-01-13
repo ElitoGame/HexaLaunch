@@ -28,7 +28,8 @@
         "setSize": true,
         "setPosition": true,
         "setFocus": true,
-        "startDragging": true
+        "startDragging": true,
+        "setIgnoreCursorEvents": true
       },
       "fs": {
         "all": true,

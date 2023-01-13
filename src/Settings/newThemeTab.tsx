@@ -19,13 +19,13 @@ import {
   Stack,
 } from '@hope-ui/solid';
 
-import Themes from '../Themes/Themes';
+import Theme from '../Themes/Theme';
 import { Show } from 'solid-js';
 import { setThemes } from '../themes';
 import { produce } from 'solid-js/store';
 import { lastActiveTheme, setLastActiveTheme } from './appearanceTab';
 
-export const theme = new Themes(
+export const theme = new Theme(
   '',
   '#414141',
   '#DFDFDF',
@@ -47,7 +47,7 @@ export const theme = new Themes(
   'none'
 );
 
-let tempSubHexData: Themes;
+let tempSubHexData: Theme;
 
 export const NewThemeTab = () => {
   return (
@@ -105,13 +105,13 @@ export const NewThemeTab = () => {
               type="number"
               max="50"
               min="0"
-              value={getSettingsData()?.getNewTheme()?.getMainHexagonWidth()}
+              value={getSettingsData()?.getNewTheme()?.getMainHexagonBorderWidth()}
               onInput={(e: Event) => {
                 const inputElement = e.currentTarget as HTMLInputElement;
                 restrictValue(e);
-                getSettingsData()?.getNewTheme()?.setMainHexagonWidth(inputElement.value);
+                getSettingsData()?.getNewTheme()?.setMainHexagonBorderWidth(inputElement.value);
                 if (useMainHexagonInput() == true) {
-                  getSettingsData()?.getNewTheme()?.setSubHexagonWidth(inputElement.value);
+                  getSettingsData()?.getNewTheme()?.setSubHexagonBorderWidth(inputElement.value);
                 }
                 getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
                 updateSettingData();
@@ -294,8 +294,8 @@ export const NewThemeTab = () => {
           checked={useMainHexagonInput()}
           onChange={() => {
             if (useMainHexagonInput() === false) {
-              let newObject = Themes.fromJSON(getSettingsData()?.getNewTheme().toJSON());
-              tempSubHexData = newObject as Themes;
+              let newObject = Theme.fromJSON(getSettingsData()?.getNewTheme().toJSON());
+              tempSubHexData = newObject as Theme;
 
               getSettingsData()
                 ?.getNewTheme()
@@ -316,7 +316,9 @@ export const NewThemeTab = () => {
                 );
               getSettingsData()
                 ?.getNewTheme()
-                ?.setSubHexagonWidth(getSettingsData()?.getNewTheme()?.getMainHexagonWidth());
+                ?.setSubHexagonBorderWidth(
+                  getSettingsData()?.getNewTheme()?.getMainHexagonBorderWidth()
+                );
               getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
               updateSettingData();
               setUseMainHexagonInput(!useMainHexagonInput());
@@ -338,7 +340,7 @@ export const NewThemeTab = () => {
                 ?.setSubHexagonBorderStyle(tempSubHexData.getSubHexagonBorderStyle());
               getSettingsData()
                 ?.getNewTheme()
-                ?.setSubHexagonWidth(tempSubHexData.getSubHexagonWidth());
+                ?.setSubHexagonBorderWidth(tempSubHexData.getSubHexagonBorderWidth());
               getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
               updateSettingData();
               setUseMainHexagonInput(!useMainHexagonInput());
@@ -382,11 +384,11 @@ export const NewThemeTab = () => {
                 type="number"
                 max="50"
                 min="0"
-                value={getSettingsData()?.getNewTheme()?.getSubHexagonWidth()}
+                value={getSettingsData()?.getNewTheme()?.getSubHexagonBorderWidth()}
                 onInput={(e: Event) => {
                   const inputElement = e.currentTarget as HTMLInputElement;
                   restrictValue(e);
-                  getSettingsData()?.getNewTheme()?.setSubHexagonWidth(inputElement.value);
+                  getSettingsData()?.getNewTheme()?.setSubHexagonBorderWidth(inputElement.value);
                   getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
                   updateSettingData();
                 }}
@@ -570,12 +572,12 @@ export const NewThemeTab = () => {
               type="number"
               max="50"
               min="0"
-              value={getSettingsData()?.getNewTheme()?.getHoverHexagonWidth()}
+              value={getSettingsData()?.getNewTheme()?.getHoverHexagonBorderWidth()}
               onInput={(e: Event) => {
                 const inputElement = e.currentTarget as HTMLInputElement;
                 restrictValue(e);
-                getSettingsData()?.getNewTheme()?.setHoverHexagonWidth(inputElement.value);
-                getSettingsData()?.setCurrentTheme(theme);
+                getSettingsData()?.getNewTheme()?.setHoverHexagonBorderWidth(inputElement.value);
+                getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
                 updateSettingData();
               }}
               placeholder="0"
@@ -739,6 +741,29 @@ export const NewThemeTab = () => {
                   ?.getNewTheme()
                   ?.setThemeName(`Custom Theme ` + `${getSettingsData()?.getThemes().length - 2}`);
               }
+              // add a number to the end of the theme name if it already exists
+              let themeName = getSettingsData()?.getNewTheme()?.getThemeName();
+              let themeNameExists = false;
+              for (let i = 0; i < getSettingsData()?.getThemes().length; i++) {
+                if (getSettingsData()?.getThemes()[i].getThemeName() == themeName) {
+                  themeNameExists = true;
+                }
+              }
+              if (themeNameExists) {
+                let themeNameNumber = 1;
+                while (themeNameExists) {
+                  themeName =
+                    getSettingsData()?.getNewTheme()?.getThemeName() + ` (${themeNameNumber})`;
+                  themeNameExists = false;
+                  for (let i = 0; i < getSettingsData()?.getThemes().length; i++) {
+                    if (getSettingsData()?.getThemes()[i].getThemeName() == themeName) {
+                      themeNameExists = true;
+                    }
+                  }
+                  themeNameNumber++;
+                }
+                getSettingsData()?.getNewTheme()?.setThemeName(themeName);
+              }
               setThemes(produce((store) => store.themes.push(getSettingsData()?.getNewTheme())));
               getSettingsData()?.getThemes().push(getSettingsData()?.getNewTheme());
               getSettingsData()?.setCurrentTheme(
@@ -747,25 +772,25 @@ export const NewThemeTab = () => {
               setLastActiveTheme(
                 getSettingsData()?.getThemes()[getSettingsData()?.getThemes().length - 1]
               );
-              let theme = new Themes(
+              let theme = new Theme(
                 '',
                 '#414141',
                 '#DFDFDF',
-                '',
-                '',
-                '3px',
+                '#000000',
+                '0',
+                '10',
                 'none',
                 '#414141',
                 '#DFDFDF',
-                '',
-                '',
-                '3px',
+                '#000000',
+                '0',
+                '10',
                 'none',
                 '#31247B',
                 '#DFDFDF',
-                '',
-                '',
-                '3px',
+                '#000000',
+                '0',
+                '10',
                 'none'
               );
 
@@ -788,29 +813,9 @@ export const NewThemeTab = () => {
             size="xs"
             onClick={() => {
               changeWindow();
-              getSettingsData()?.setCurrentTheme(lastActiveTheme() as Themes);
-              let theme = new Themes(
-                '',
-                '#414141',
-                '#DFDFDF',
-                '',
-                '',
-                '3px',
-                'none',
-                '#414141',
-                '#DFDFDF',
-                '',
-                '',
-                '3px',
-                'none',
-                '#31247B',
-                '#DFDFDF',
-                '',
-                '',
-                '3px',
-                'none'
-              );
-              // getSettingsData()?.setNewTheme(theme);
+              console.log(lastActiveTheme());
+              getSettingsData()?.setCurrentTheme(lastActiveTheme());
+              getSettingsData()?.setNewTheme(getSettingsData()?.getCurrentTheme());
 
               updateSettingData();
             }}

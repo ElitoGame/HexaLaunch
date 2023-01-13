@@ -18,14 +18,17 @@ import {
 } from '@hope-ui/solid';
 import { primaryMonitor } from '@tauri-apps/api/window';
 import { createSignal, For, Show } from 'solid-js';
-import Themes from '../Themes/Themes';
+import Theme from '../Themes/Theme';
 import { FaSolidMoon } from 'solid-icons/fa';
 import { FaSolidSun } from 'solid-icons/fa';
 import { FaSolidCircleCheck } from 'solid-icons/fa';
 import { FaSolidPen } from 'solid-icons/fa';
+import HexTile from '../HexUI/Components/HexTile';
 
 const [getSize, setSize] = createSignal<number>(0);
-export const [lastActiveTheme, setLastActiveTheme] = createSignal();
+export const [lastActiveTheme, setLastActiveTheme] = createSignal<Theme>(
+  getSettingsData().getCurrentTheme()
+);
 setSize((await primaryMonitor()).size.height);
 
 export const AppearanceTab = () => {
@@ -36,7 +39,7 @@ export const AppearanceTab = () => {
       <Box w="100%" pt="10px" pb="50px" class="flex justify-between gap-3">
         {' '}
         <For each={getSettingsData()?.getThemes()}>
-          {(themeVar: Themes) => (
+          {(themeVar: Theme) => (
             <Show
               when={
                 themeVar.getThemeName() == 'Honey' ||
@@ -135,88 +138,15 @@ export const AppearanceTab = () => {
                     class=" left-[30px] top-[-9px] hexPreview pointer-events-none hexTile absolute bg-transparent  cursor-pointer inline-block"
                     style="clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%); transform-origin: center center;  width: 93px; margin: 5px; height: 108.717px; 10; transform: scale(1);"
                   >
-                    <div
-                      style={`fill:${themeVar.getMainHexagonBg()}; transform-origin: center center; clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%); left: -2.5px; bottom: -2.5px; width: 88px; margin: 5px; height: 102.872px;`}
-                      class={` absolute cursor-pointer inline-block `}
-                      id="radiant:0"
-                    >
-                      <svg width="98" height="102.872">
-                        <clipPath id="hexClip">
-                          <circle cx="40" cy="35" r="35"></circle>
-                          <path
-                            id="radiant:0"
-                            d="
-        M 44.45597072760119,0
-        Q 44.45597072760119,0 44.45597072760119,0
-
-        L 88.91194145520238,25.666666666666664
-        Q 88.91194145520238,25.666666666666664 88.91194145520238,25.666666666666664
-
-        L 88.91194145520238,77
-        Q 88.91194145520238,77 88.91194145520238,77
-
-        L 44.45597072760119,102.66666666666666
-        Q 44.45597072760119,102.66666666666666 44.45597072760119,102.66666666666666
-        
-        L 0,77
-        Q 0,77 0,77
-        
-        L 0,25.666666666666664
-        Q 0,25.666666666666664 0,25.666666666666664
-        Z
-      "
-                            style="transform: translate(-0.1%, 5%);"
-                          ></path>
-                        </clipPath>
-                        <path
-                          d="
-        M 44.01141102032518,0
-        Q 44.01141102032518,0 44.01141102032518,0
-
-        L 88.02282204065035,25.409999999999997
-        Q 88.02282204065035,25.409999999999997 88.02282204065035,25.409999999999997
-
-        L 88.02282204065035,76.22999999999999
-        Q 88.02282204065035,76.22999999999999 88.02282204065035,76.22999999999999
-
-        L 44.01141102032518,101.63999999999999
-        Q 44.01141102032518,101.63999999999999 44.01141102032518,101.63999999999999
-        
-        L 0,76.22999999999999
-        Q 0,76.22999999999999 0,76.22999999999999
-        
-        L 0,25.409999999999997
-        Q 0,25.409999999999997 0,25.409999999999997
-        Z
-      "
-                          style={`fill:${themeVar.getMainHexagonBorder()}; transform: translate(0.9%, 0.9%);`}
-                        ></path>
-                        <path
-                          d="
-        M 40.01037365484107,0
-        Q 40.01037365484107,0 40.01037365484107,0
-
-        L 80.02074730968214,23.099999999999998
-        Q 80.02074730968214,23.099999999999998 80.02074730968214,23.099999999999998
-
-        L 80.02074730968214,69.3
-        Q 80.02074730968214,69.3 80.02074730968214,69.3
-
-        L 40.01037365484107,92.39999999999999
-        Q 40.01037365484107,92.39999999999999 40.01037365484107,92.39999999999999
-        
-        L 0,69.3
-        Q 0,69.3 0,69.3
-        
-        L 0,23.099999999999998
-        Q 0,23.099999999999998 0,23.099999999999998
-        Z
-      "
-                          style="transform: translate(5%, 5%);"
-                        ></path>
-                      </svg>
-                      <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></span>
-                    </div>
+                    <HexTile
+                      radiant={0}
+                      x={1.165}
+                      y={0.94}
+                      customTheme={themeVar}
+                      scale={133.3333}
+                      hasAnimation={false}
+                      scaleWithHexSize={false}
+                    />
                   </div>
 
                   <p class="top-[12px] left-[-8px] relative flex" id="label">
@@ -289,29 +219,9 @@ export const AppearanceTab = () => {
           <Button
             onClick={() => {
               changeWindow();
-              getSettingsData()?.setNewTheme(
-                new Themes(
-                  '',
-                  '#414141',
-                  '#DFDFDF',
-                  '',
-                  '',
-                  '3px',
-                  'none',
-                  '#414141',
-                  '#DFDFDF',
-                  '',
-                  '',
-                  '3px',
-                  'none',
-                  '#31247B',
-                  '#DFDFDF',
-                  '',
-                  '',
-                  '3px',
-                  'none'
-                )
-              );
+              let clonedTheme = getSettingsData().getCurrentTheme().clone();
+              clonedTheme.setThemeName('');
+              getSettingsData()?.setNewTheme(clonedTheme);
               updateSettingData();
               getSettingsData()?.setCurrentTheme(getSettingsData()?.getNewTheme());
             }}
@@ -327,7 +237,7 @@ export const AppearanceTab = () => {
       <Box w="100%" pb="50px" class="flex customThemes w-full overflow-x-auto">
         {' '}
         <For each={getSettingsData()?.getThemes()}>
-          {(themeVar: Themes, i) => (
+          {(themeVar: Theme, i) => (
             <Show
               when={
                 themeVar.getThemeName() !== 'Honey' &&
@@ -380,88 +290,15 @@ export const AppearanceTab = () => {
                     class=" left-[30px] top-[-9px] hexPreview pointer-events-none hexTile absolute bg-transparent  cursor-pointer inline-block"
                     style="clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%); transform-origin: center center;  width: 93px; margin: 5px; height: 108.717px; 10; transform: scale(1);"
                   >
-                    <div
-                      style={`fill:${themeVar.getMainHexagonBg()}; transform-origin: center center; clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%); left: -2.5px; bottom: -2.5px; width: 88px; margin: 5px; height: 102.872px;`}
-                      class={` absolute cursor-pointer inline-block `}
-                      id="radiant:0"
-                    >
-                      <svg width="98" height="102.872">
-                        <clipPath id="hexClip">
-                          <circle cx="40" cy="35" r="35"></circle>
-                          <path
-                            id="radiant:0"
-                            d="
-        M 44.45597072760119,0
-        Q 44.45597072760119,0 44.45597072760119,0
-
-        L 88.91194145520238,25.666666666666664
-        Q 88.91194145520238,25.666666666666664 88.91194145520238,25.666666666666664
-
-        L 88.91194145520238,77
-        Q 88.91194145520238,77 88.91194145520238,77
-
-        L 44.45597072760119,102.66666666666666
-        Q 44.45597072760119,102.66666666666666 44.45597072760119,102.66666666666666
-        
-        L 0,77
-        Q 0,77 0,77
-        
-        L 0,25.666666666666664
-        Q 0,25.666666666666664 0,25.666666666666664
-        Z
-      "
-                            style="transform: translate(-0.1%, 5%);"
-                          ></path>
-                        </clipPath>
-                        <path
-                          d="
-        M 44.01141102032518,0
-        Q 44.01141102032518,0 44.01141102032518,0
-
-        L 88.02282204065035,25.409999999999997
-        Q 88.02282204065035,25.409999999999997 88.02282204065035,25.409999999999997
-
-        L 88.02282204065035,76.22999999999999
-        Q 88.02282204065035,76.22999999999999 88.02282204065035,76.22999999999999
-
-        L 44.01141102032518,101.63999999999999
-        Q 44.01141102032518,101.63999999999999 44.01141102032518,101.63999999999999
-        
-        L 0,76.22999999999999
-        Q 0,76.22999999999999 0,76.22999999999999
-        
-        L 0,25.409999999999997
-        Q 0,25.409999999999997 0,25.409999999999997
-        Z
-      "
-                          style={`fill:${themeVar.getMainHexagonBorder()}; transform: translate(0.9%, 0.9%);`}
-                        ></path>
-                        <path
-                          d="
-        M 40.01037365484107,0
-        Q 40.01037365484107,0 40.01037365484107,0
-
-        L 80.02074730968214,23.099999999999998
-        Q 80.02074730968214,23.099999999999998 80.02074730968214,23.099999999999998
-
-        L 80.02074730968214,69.3
-        Q 80.02074730968214,69.3 80.02074730968214,69.3
-
-        L 40.01037365484107,92.39999999999999
-        Q 40.01037365484107,92.39999999999999 40.01037365484107,92.39999999999999
-        
-        L 0,69.3
-        Q 0,69.3 0,69.3
-        
-        L 0,23.099999999999998
-        Q 0,23.099999999999998 0,23.099999999999998
-        Z
-      "
-                          style="transform: translate(5%, 5%);"
-                        ></path>
-                      </svg>
-                      <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></span>
-                    </div>
+                    <HexTile
+                      radiant={0}
+                      x={1.165}
+                      y={0.94}
+                      customTheme={themeVar}
+                      scale={133.3333}
+                      hasAnimation={false}
+                      scaleWithHexSize={false}
+                    />
                   </div>
 
                   <p class="top-[12px] left-[-8px] relative flex" id="label">

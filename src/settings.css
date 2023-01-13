@@ -49,21 +49,21 @@
     --mainHexagonIcon: '#DFDFDF';
     --mainHexagonBorder: '#DFDFDF';
     --mainHexagonRadius: '';
-    --mainHexagonWidth: 3px;
+    --mainHexagonBorderWidth: 3px;
     --mainHexagonBorderStyle: 'solid';
 
     --subHexagonBg: #414141;
     --subHexagonIcon: '#DFDFDF';
     --subHexagonBorder: '';
     --subHexagonRadius: '';
-    --subHexagonWidth: 3px;
+    --subHexagonBorderWidth: 3px;
     --subHexagonBorderStyle: 'solid';
 
     --hoverHexagonBg: 'var(--hoverHexagonBg)';
     --hoverHexagonIcon: 'var(--hoverHexagonIcon)';
     --hoverHexagonBorder: 'var(--hoverHexagonBorder)';
     --hoverHexagonRadius: 'var(--hoverHexagonRadius)';
-    --hoverHexagonWidth: 'var(--hoverHexagonWidth)';
+    --hoverHexagonBorderWidth: 'var(--hoverHexagonBorderWidth)';
     --hoverHexagonBorderStyle: 'var(--hoverHexagonBorderStyle)';
     --hoverHexagonBg: 'var(--hoverHexagonBg)';
   }

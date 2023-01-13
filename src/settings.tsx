@@ -1,6 +1,6 @@
 import { render } from 'solid-js/web';
 import SettingsMenu from './Settings/SettingsMenu';
-import { HopeProvider, HopeThemeConfig } from '@hope-ui/solid';
+import { HopeProvider, HopeThemeConfig, NotificationsProvider } from '@hope-ui/solid';
 import './settings.css';
 
 render(() => {
@@ -15,7 +15,9 @@ render(() => {
 
   return (
     <HopeProvider config={config}>
-      <SettingsMenu />
+      <NotificationsProvider>
+        <SettingsMenu />
+      </NotificationsProvider>
     </HopeProvider>
   );
 }, document.getElementById('settings') as HTMLElement);

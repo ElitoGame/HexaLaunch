@@ -218,10 +218,16 @@ export const updateSettingData = () => {
   }
 
   console.log(userSettings.getSetting());
-  emit('updateSettings', {
-    settings: userSettings.getSetting(),
-    theme: getSettingsData()?.getCurrentTheme(),
-  });
+  if (
+    getSettingsData()
+      .getThemes()
+      .find((x) => x.getThemeName() === getSettingsData()?.getNewTheme().getThemeName())
+  ) {
+    emit('updateSettings', {
+      settings: userSettings.getSetting(),
+      theme: getSettingsData()?.getCurrentTheme(),
+    });
+  }
 };
 
 let oldShortcut = getSettingsData()?.getHotkeys().join('+') ?? 'Control+Shift+Space';

@@ -4,7 +4,7 @@ import HexUiData from './DataModel/HexUiData';
 import { fs, invoke } from '@tauri-apps/api';
 import { externalAppManager } from './externalAppManager';
 import { emit, listen } from '@tauri-apps/api/event';
-import Themes from './Themes/Themes';
+import Theme from './Themes/Theme';
 
 export const [getShowPosition, setShowPosition] = createSignal({ x: 0, y: 0 });
 export const [getCursorPosition, setCursorPosition] = createSignal({
@@ -41,7 +41,7 @@ await listen('updateSettings', (event) => {
       settingsTextColor: string;
       hexagonSize: string;
       hexagonMargin: string;
-      themes: Array<Themes>;
+      themes: Array<Theme>;
     };
     theme: {
       themeName: string;
@@ -50,21 +50,21 @@ await listen('updateSettings', (event) => {
       mainHexagonIcon: string;
       mainHexagonBorder: string;
       mainHexagonRadius: string;
-      mainHexagonWidth: string;
+      mainHexagonBorderWidth: string;
       mainHexagonBorderStyle: string;
 
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
-      subHexagonWidth: string;
+      subHexagonBorderWidth: string;
       subHexagonBorderStyle: string;
 
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
       hoverHexagonRadius: string;
-      hoverHexagonWidth: string;
+      hoverHexagonBorderWidth: string;
       hoverHexagonBorderStyle: string;
     };
   };
@@ -86,9 +86,18 @@ await listen('updateSettings', (event) => {
   document.documentElement.style.setProperty('--mainHexagonBorder', theme.mainHexagonBorder);
   document.documentElement.style.setProperty('--hoverHexagonBorder', theme.hoverHexagonBorder);
   document.documentElement.style.setProperty('--subHexagonBorder', theme.subHexagonBorder);
-  document.documentElement.style.setProperty('--mainHexagonWidth', theme.mainHexagonWidth);
-  document.documentElement.style.setProperty('--hoverHexagonWidth', theme.hoverHexagonWidth);
-  document.documentElement.style.setProperty('--subHexagonWidth', theme.subHexagonWidth);
+  document.documentElement.style.setProperty(
+    '--mainHexagonBorderWidth',
+    theme.mainHexagonBorderWidth
+  );
+  document.documentElement.style.setProperty(
+    '--hoverHexagonBorderWidth',
+    theme.hoverHexagonBorderWidth
+  );
+  document.documentElement.style.setProperty(
+    '--subHexagonBorderWidth',
+    theme.subHexagonBorderWidth
+  );
   document.documentElement.style.setProperty('--mainHexagonIcon', theme.mainHexagonIcon);
 });
 

@@ -21,6 +21,8 @@ import {
   setSelectedHexTile,
   setShowPosition,
 } from './main';
+import { getSettingsData } from './settings';
+import Theme from './Themes/Theme';
 
 /*
  █████   █████                      █████  █████ █████                                    ██████   ███          
@@ -315,4 +317,114 @@ await listen('hexTilesChanged', (e) => {
   });
   UserSettings.settings.getHexUI().setTiles(hexTiles);
   setHexUiData(UserSettings.settings.getHexUI());
+});
+
+await listen('updateSettings', (event) => {
+  const { settings, theme } = event.payload as {
+    settings: {
+      width: string;
+      borderWidth: string;
+      borderStyle: string;
+      borderRadius: string;
+      keyboardNavigation: boolean;
+      fullLayout: boolean;
+      moveToCursor: boolean;
+      hotkeys: string;
+      settingsBgColor: string;
+      settingsAccentColor: string;
+      settingsNeutralColor: string;
+      settingsTextColor: string;
+      hexagonSize: string;
+      hexagonMargin: string;
+      themes: Array<Theme>;
+    };
+    theme: {
+      themeName: string;
+
+      mainHexagonBg: string;
+      mainHexagonIcon: string;
+      mainHexagonBorder: string;
+      mainHexagonRadius: string;
+      mainHexagonBorderWidth: string;
+      mainHexagonBorderStyle: string;
+
+      subHexagonBg: string;
+      subHexagonIcon: string;
+      subHexagonBorder: string;
+      subHexagonRadius: string;
+      subHexagonBorderWidth: string;
+      subHexagonBorderStyle: string;
+
+      hoverHexagonBg: string;
+      hoverHexagonIcon: string;
+      hoverHexagonBorder: string;
+      hoverHexagonRadius: string;
+      hoverHexagonBorderWidth: string;
+      hoverHexagonBorderStyle: string;
+    };
+  };
+
+  if (theme.themeName) {
+    console.log('modified settings', settings);
+
+    settings.themes = settings.themes.map((t) => {
+      let ta = t as any;
+      const theme = new Theme(
+        ta.themeName,
+        ta.mainHexagonBg,
+        ta.mainHexagonIcon,
+        ta.mainHexagonBorder,
+        ta.mainHexagonRadius,
+        ta.mainHexagonBorderWidth,
+        ta.mainHexagonBorderStyle,
+
+        ta.subHexagonBg,
+        ta.subHexagonIcon,
+        ta.subHexagonBorder,
+        ta.subHexagonRadius,
+        ta.subHexagonBorderWidth,
+        ta.subHexagonBorderStyle,
+
+        ta.hoverHexagonBg,
+        ta.hoverHexagonIcon,
+        ta.hoverHexagonBorder,
+        ta.hoverHexagonRadius,
+        ta.hoverHexagonBorderWidth,
+        ta.hoverHexagonBorderStyle
+      );
+      return theme;
+    });
+
+    console.log('modified themes resulting in: ', settings.themes, theme.themeName);
+
+    getSettingsData().setThemes(settings.themes);
+
+    console.log('setting theme to', theme.themeName);
+    getSettingsData().setCurrentTheme(
+      settings.themes.find((t) => t.getThemeName() === theme.themeName)
+    );
+    document.documentElement.style.setProperty('--accent', settings.settingsAccentColor);
+    document.documentElement.style.setProperty('--neutral', settings.settingsNeutralColor);
+    document.documentElement.style.setProperty('--background', settings.settingsBgColor);
+    document.documentElement.style.setProperty('--text', settings.settingsTextColor);
+    document.documentElement.style.setProperty('--mainHexagonBg', theme.mainHexagonBg);
+    document.documentElement.style.setProperty('--hoverHexagonBg', theme.hoverHexagonBg);
+    document.documentElement.style.setProperty('--subHexagonBg', theme.subHexagonBg);
+    document.documentElement.style.setProperty('--mainHexagonBorder', theme.mainHexagonBorder);
+    document.documentElement.style.setProperty('--hoverHexagonBorder', theme.hoverHexagonBorder);
+    document.documentElement.style.setProperty('--subHexagonBorder', theme.subHexagonBorder);
+    document.documentElement.style.setProperty(
+      '--mainHexagonBorderWidth',
+      theme.mainHexagonBorderWidth
+    );
+    document.documentElement.style.setProperty(
+      '--hoverHexagonBorderWidth',
+      theme.hoverHexagonBorderWidth
+    );
+    document.documentElement.style.setProperty(
+      '--subHexagonBorderWidth',
+      theme.subHexagonBorderWidth
+    );
+    document.documentElement.style.setProperty('--mainHexagonIcon', theme.mainHexagonIcon);
+  }
 });

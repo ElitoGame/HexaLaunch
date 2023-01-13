@@ -6,7 +6,7 @@ import SettingsData from './Settings/SettingsData';
 import { invoke } from '@tauri-apps/api/tauri';
 import { setHexUiData } from './main';
 import { emit } from '@tauri-apps/api/event';
-import Themes from './Themes/Themes';
+import Theme from './Themes/Theme';
 
 export class UserSettings {
   public static settings: UserSettings; // Using a Singleton here to ensure that the settings are only loaded once.
@@ -38,6 +38,29 @@ export class UserSettings {
   constructor() {
     this.autoLaunch = true;
     this.language = 'en';
+
+    const darkTheme = new Theme(
+      'Dark',
+      '#414141',
+      '#DFDFDF',
+      '#000000',
+      '0',
+      '10',
+      'none',
+      '#414141',
+      '#DFDFDF',
+      '#000000',
+      '0',
+      '10',
+      'none',
+      '#31247B',
+      '#DFDFDF',
+      '#000000',
+      '0',
+      '10',
+      'none'
+    );
+
     this.settingsData = new SettingsData(
       0,
       0,
@@ -53,110 +76,50 @@ export class UserSettings {
       '#5C5C5C',
       66,
       4,
-      new Themes(
-        '',
-        '#414141',
-        '#DFDFDF',
-        '',
-        '',
-        '3px',
-        'solid',
-        '#414141',
-        '#DFDFDF',
-        '',
-        '',
-        '3px',
-        'solid',
-        '#31247B',
-        '#DFDFDF',
-        '',
-        '',
-        '3px',
-        'solid'
-      ),
-      new Themes(
-        'Dark',
-        '#414141',
-        '#DFDFDF',
-        '',
-        '',
-        '3px',
-        'solid',
-        '#414141',
-        '#DFDFDF',
-        '',
-        '',
-        '3px',
-        'solid',
-        '#31247B',
-        '#DFDFDF',
-        '',
-        '',
-        '3px',
-        'solid'
-      ),
+      darkTheme,
+      darkTheme,
       [
-        new Themes(
-          'Dark',
-          '#414141',
-          '#DFDFDF',
-          '',
-          '',
-          '3px',
-          'solid',
-          '#414141',
-          '#DFDFDF',
-          '',
-          '',
-          '3px',
-          'solid',
-          '#31247B',
-          '#DFDFDF',
-          '',
-          '',
-          '3px',
-          'solid'
-        ),
-        new Themes(
+        darkTheme,
+        new Theme(
           'Light',
           '#cacaca',
           '#343434',
-          '',
-          '',
-          '3px',
-          'solid',
+          '#000000',
+          '0',
+          '10',
+          'none',
           '#A2D6E1',
           '#DFDFDF',
-          '',
-          '',
-          '3px',
-          'solid',
+          '#000000',
+          '0',
+          '10',
+          'none',
           '#2DC6D0',
           '#DFDFDF',
-          '',
-          '',
-          '3px',
-          'solid'
+          '#000000',
+          '0',
+          '10',
+          'none'
         ),
-        new Themes(
+        new Theme(
           'Honey',
           '#F2B104',
           '#F76E02',
           '#F76E02',
-          '',
-          '3px',
+          '0',
+          '10',
           'solid',
           '#FFD66A',
           '#F76E02',
           '#F76E02',
-          '',
-          '3px',
+          '0',
+          '10',
           'solid',
           '#FD923E',
           '#F76E02',
           '#F76E02',
-          '',
-          '3px',
+          '0',
+          '10',
           'solid'
         ),
       ]

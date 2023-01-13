@@ -1,6 +1,6 @@
-import { ThemeStyleConfig } from "@hope-ui/solid";
-import { ThemeTokens } from "@stitches/core/types/stitches";
-import Themes from "../Themes/Themes";
+import { ThemeStyleConfig } from '@hope-ui/solid';
+import { ThemeTokens } from '@stitches/core/types/stitches';
+import Themes from '../Themes/Themes';
 
 export default class SettingsData {
   width: number;
@@ -76,7 +76,6 @@ export default class SettingsData {
   getNewThemes(): Themes;
   setNewThemes(x: Themes): void;
 
-
   toJSON(): {
     width: number;
     borderWidth: number;
@@ -99,21 +98,21 @@ export default class SettingsData {
       mainHexagonIcon: string;
       mainHexagonBorder: string;
       mainHexagonRadius: string;
-      mainHexagonWidth: string;
+      mainHexagonBorderWidth: string;
       mainHexagonBorderStyle: string;
-    
+
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
-      subHexagonWidth: string;
+      subHexagonBorderWidth: string;
       subHexagonBorderStyle: string;
-    
+
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
       hoverHexagonRadius: string;
-      hoverHexagonWidth: string;
+      hoverHexagonBorderWidth: string;
       hoverHexagonBorderStyle: string;
     };
     newTheme: {
@@ -123,21 +122,21 @@ export default class SettingsData {
       mainHexagonIcon: string;
       mainHexagonBorder: string;
       mainHexagonRadius: string;
-      mainHexagonWidth: string;
+      mainHexagonBorderWidth: string;
       mainHexagonBorderStyle: string;
-    
+
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
-      subHexagonWidth: string;
+      subHexagonBorderWidth: string;
       subHexagonBorderStyle: string;
-    
+
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
       hoverHexagonRadius: string;
-      hoverHexagonWidth: string;
+      hoverHexagonBorderWidth: string;
       hoverHexagonBorderStyle: string;
     };
     themes: Array<{
@@ -147,23 +146,23 @@ export default class SettingsData {
       mainHexagonIcon: string;
       mainHexagonBorder: string;
       mainHexagonRadius: string;
-      mainHexagonWidth: string;
+      mainHexagonBorderWidth: string;
       mainHexagonBorderStyle: string;
-    
+
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
-      subHexagonWidth: string;
+      subHexagonBorderWidth: string;
       subHexagonBorderStyle: string;
-    
+
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
       hoverHexagonRadius: string;
-      hoverHexagonWidth: string;
+      hoverHexagonBorderWidth: string;
       hoverHexagonBorderStyle: string;
-    }>
+    }>;
   };
   static fromJSON(data: {
     width: number;
@@ -187,21 +186,21 @@ export default class SettingsData {
       mainHexagonIcon: string;
       mainHexagonBorder: string;
       mainHexagonRadius: string;
-      mainHexagonWidth: string;
+      mainHexagonBorderWidth: string;
       mainHexagonBorderStyle: string;
-    
+
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
-      subHexagonWidth: string;
+      subHexagonBorderWidth: string;
       subHexagonBorderStyle: string;
-    
+
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
       hoverHexagonRadius: string;
-      hoverHexagonWidth: string;
+      hoverHexagonBorderWidth: string;
       hoverHexagonBorderStyle: string;
     };
     newTheme: {
@@ -211,21 +210,21 @@ export default class SettingsData {
       mainHexagonIcon: string;
       mainHexagonBorder: string;
       mainHexagonRadius: string;
-      mainHexagonWidth: string;
+      mainHexagonBorderWidth: string;
       mainHexagonBorderStyle: string;
-    
+
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
-      subHexagonWidth: string;
+      subHexagonBorderWidth: string;
       subHexagonBorderStyle: string;
-    
+
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
       hoverHexagonRadius: string;
-      hoverHexagonWidth: string;
+      hoverHexagonBorderWidth: string;
       hoverHexagonBorderStyle: string;
     };
     themes: Array<{
@@ -235,22 +234,22 @@ export default class SettingsData {
       mainHexagonIcon: string;
       mainHexagonBorder: string;
       mainHexagonRadius: string;
-      mainHexagonWidth: string;
+      mainHexagonBorderWidth: string;
       mainHexagonBorderStyle: string;
-    
+
       subHexagonBg: string;
       subHexagonIcon: string;
       subHexagonBorder: string;
       subHexagonRadius: string;
-      subHexagonWidth: string;
+      subHexagonBorderWidth: string;
       subHexagonBorderStyle: string;
-    
+
       hoverHexagonBg: string;
       hoverHexagonIcon: string;
       hoverHexagonBorder: string;
       hoverHexagonRadius: string;
-      hoverHexagonWidth: string;
+      hoverHexagonBorderWidth: string;
       hoverHexagonBorderStyle: string;
-    }>
-  }): SettingsData
+    }>;
+  }): SettingsData;
 }

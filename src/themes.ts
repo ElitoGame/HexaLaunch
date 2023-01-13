@@ -1,7 +1,7 @@
 import { createStore } from 'solid-js/store';
-import Themes from './Themes/Themes';
+import Theme from './Themes/Theme';
 
-const dark = new Themes(
+const dark = new Theme(
   'Dark',
   '#414141',
   '#DFDFDF',
@@ -22,7 +22,7 @@ const dark = new Themes(
   '3px',
   'solid'
 );
-const light = new Themes(
+const light = new Theme(
   'Light',
   '#cacaca',
   '#343434',
@@ -43,7 +43,7 @@ const light = new Themes(
   '3px',
   'solid'
 );
-const honey = new Themes(
+const honey = new Theme(
   'Honey',
   '#F2B104',
   '#F76E02',

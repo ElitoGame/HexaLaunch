@@ -5,21 +5,21 @@ export default class Themes {
   mainHexagonIcon: string;
   mainHexagonBorder: string;
   mainHexagonRadius: string;
-  mainHexagonWidth: string;
+  mainHexagonBorderWidth: string;
   mainHexagonBorderStyle: string;
 
   subHexagonBg: string;
   subHexagonIcon: string;
   subHexagonBorder: string;
   subHexagonRadius: string;
-  subHexagonWidth: string;
+  subHexagonBorderWidth: string;
   subHexagonBorderStyle: string;
 
   hoverHexagonBg: string;
   hoverHexagonIcon: string;
   hoverHexagonBorder: string;
   hoverHexagonRadius: string;
-  hoverHexagonWidth: string;
+  hoverHexagonBorderWidth: string;
   hoverHexagonBorderStyle: string;
 
   constructor(
@@ -29,82 +29,77 @@ export default class Themes {
     mainHexagonIcon: string,
     mainHexagonBorder: string,
     mainHexagonRadius: string,
-    mainHexagonWidth: string,
+    mainHexagonBorderWidth: string,
     mainHexagonBorderStyle: string,
-  
+
     subHexagonBg: string,
     subHexagonIcon: string,
     subHexagonBorder: string,
     subHexagonRadius: string,
-    subHexagonWidth: string,
+    subHexagonBorderWidth: string,
     subHexagonBorderStyle: string,
-  
+
     hoverHexagonBg: string,
     hoverHexagonIcon: string,
     hoverHexagonBorder: string,
     hoverHexagonRadius: string,
-    hoverHexagonWidth: string,
+    hoverHexagonBorderWidth: string,
     hoverHexagonBorderStyle: string
   );
 
-  getThemeName() : string;
-  setThemeName(v : string);
-    
-  getMainHexagonBg() : string;
-  setMainHexagonBg(v : string);
-  
-  getMainHexagonIcon() : string;
-  setMainHexagonIcon(v : string);
+  getThemeName(): string;
+  setThemeName(v: string);
 
-   getMainHexagonBorder() : string;
-   setMainHexagonBorder(v : string);
+  getMainHexagonBg(): string;
+  setMainHexagonBg(v: string);
 
-   getMainHexagonRadius() : string;
-   setMainHexagonRadius(v : string);
+  getMainHexagonIcon(): string;
+  setMainHexagonIcon(v: string);
 
-   getMainHexagonWidth() : string;
-   setMainHexagonWidth(v : string);
-   getMainHexagonBorderStyle() : string;
-   setMainHexagonBorderStyle(v : string);
+  getMainHexagonBorder(): string;
+  setMainHexagonBorder(v: string);
 
+  getMainHexagonRadius(): string;
+  setMainHexagonRadius(v: string);
 
-   
-  
-   getSubHexagonBg() : string;
-   setSubHexagonBg(v : string);
-  
-   getSubHexagonIcon() : string;
-   setSubHexagonIcon(v : string);
+  getMainHexagonBorderWidth(): string;
+  setMainHexagonBorderWidth(v: string);
+  getMainHexagonBorderStyle(): string;
+  setMainHexagonBorderStyle(v: string);
 
-   getSubHexagonBorder() : string;
-   setSubHexagonBorder(v : string);
+  getSubHexagonBg(): string;
+  setSubHexagonBg(v: string);
 
-   getSubHexagonRadius() : string;
-   setSubHexagonRadius(v : string);
+  getSubHexagonIcon(): string;
+  setSubHexagonIcon(v: string);
 
-   getSubHexagonWidth() : string;
-   setSubHexagonWidth(v : string);
-   getSubHexagonBorderStyle() : string;
-   setSubHexagonBorderStyle(v : string);
+  getSubHexagonBorder(): string;
+  setSubHexagonBorder(v: string);
 
+  getSubHexagonRadius(): string;
+  setSubHexagonRadius(v: string);
 
+  getSubHexagonBorderWidth(): string;
+  setSubHexagonBorderWidth(v: string);
+  getSubHexagonBorderStyle(): string;
+  setSubHexagonBorderStyle(v: string);
 
-   getHoverHexagonBg() : string;
-   setHoverHexagonBg(v : string);
-  
-   getHoverHexagonIcon() : string;
-   setHoverHexagonIcon(v : string);
+  getHoverHexagonBg(): string;
+  setHoverHexagonBg(v: string);
 
-   getHoverHexagonBorder() : string;
-   setHoverHexagonBorder(v : string);
+  getHoverHexagonIcon(): string;
+  setHoverHexagonIcon(v: string);
 
-   getHoverHexagonRadius() : string;
-   setHoverexagonRadius(v : string);
+  getHoverHexagonBorder(): string;
+  setHoverHexagonBorder(v: string);
 
-   getHoverHexagonWidth() : string;
-   setHoverHexagonWidth(v : string);
-   getHoverHexagonBorderStyle() : string;
-   setHoverHexagonBorderStyle(v : string);
+  getHoverHexagonRadius(): string;
+  setHoverexagonRadius(v: string);
+
+  getHoverHexagonBorderWidth(): string;
+  setHoverHexagonBorderWidth(v: string);
+  getHoverHexagonBorderStyle(): string;
+  setHoverHexagonBorderStyle(v: string);
 
   toJSON(): {
     themeName: string;
@@ -113,21 +108,21 @@ export default class Themes {
     mainHexagonIcon: string;
     mainHexagonBorder: string;
     mainHexagonRadius: string;
-    mainHexagonWidth: string;
+    mainHexagonBorderWidth: string;
     mainHexagonBorderStyle: string;
-  
+
     subHexagonBg: string;
     subHexagonIcon: string;
     subHexagonBorder: string;
     subHexagonRadius: string;
-    subHexagonWidth: string;
+    subHexagonBorderWidth: string;
     subHexagonBorderStyle: string;
-  
+
     hoverHexagonBg: string;
     hoverHexagonIcon: string;
     hoverHexagonBorder: string;
     hoverHexagonRadius: string;
-    hoverHexagonWidth: string;
+    hoverHexagonBorderWidth: string;
     hoverHexagonBorderStyle: string;
   };
   fromJSON(data: {
@@ -137,21 +132,21 @@ export default class Themes {
     mainHexagonIcon: string;
     mainHexagonBorder: string;
     mainHexagonRadius: string;
-    mainHexagonWidth: string;
+    mainHexagonBorderWidth: string;
     mainHexagonBorderStyle: string;
-  
+
     subHexagonBg: string;
     subHexagonIcon: string;
     subHexagonBorder: string;
     subHexagonRadius: string;
-    subHexagonWidth: string;
+    subHexagonBorderWidth: string;
     subHexagonBorderStyle: string;
-  
+
     hoverHexagonBg: string;
     hoverHexagonIcon: string;
     hoverHexagonBorder: string;
     hoverHexagonRadius: string;
-    hoverHexagonWidth: string;
+    hoverHexagonBorderWidth: string;
     hoverHexagonBorderStyle: string;
   }): Themes;
 }

@@ -16,22 +16,22 @@ module.exports = {
         mainHexagonIcon: 'var(--mainHexagonIcon)',
         mainHexagonBorder: 'var(--mainHexagonBorder)',
         mainHexagonRadius: 'var(--mainHexagonRadius)',
-        mainHexagonWidth: 'var(--mainHexagonWidth)',
+        mainHexagonBorderWidth: 'var(--mainHexagonBorderWidth)',
         mainHexagonBorderStyle: 'var(--mainHexagonBorderStyle)',
-      
+
         subHexagonBg: 'var(--subHexagonBg)',
         subHexagonIcon: 'var(--subHexagonIcon)',
         subHexagonBorder: 'var(--subHexagonBorder)',
         subHexagonRadius: 'var(--subHexagonRadius)',
-        subHexagonWidth:  'var(--subHexagonWidth)',
-        subHexagonBorderStyle:  'var(--subHexagonBorderStyle)',
-      
-        hoverHexagonBg:  'var(--hoverHexagonBg)',
+        subHexagonBorderWidth: 'var(--subHexagonBorderWidth)',
+        subHexagonBorderStyle: 'var(--subHexagonBorderStyle)',
+
+        hoverHexagonBg: 'var(--hoverHexagonBg)',
         hoverHexagonIcon: 'var(--hoverHexagonIcon)',
         hoverHexagonBorder: 'var(--hoverHexagonBorder)',
         hoverHexagonRadius: 'var(--hoverHexagonRadius)',
-        hoverHexagonWidth: 'var(--hoverHexagonWidth)',
-        hoverHexagonBorderStyle:'var(--hoverHexagonBorderStyle)',
+        hoverHexagonBorderWidth: 'var(--hoverHexagonBorderWidth)',
+        hoverHexagonBorderStyle: 'var(--hoverHexagonBorderStyle)',
         hoverHexagonBg: 'var(--hoverHexagonBg)',
       },
       scale: {

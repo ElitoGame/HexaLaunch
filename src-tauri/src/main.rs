@@ -8,9 +8,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::fs::{self, create_dir_all, File, OpenOptions};
 use std::io::{BufReader, Cursor, ErrorKind, Read, Write};
-use std::os::windows::process::CommandExt;
+// use std::os::windows::process::CommandExt;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+// use std::process::Command;
 use std::{env, time::Instant};
 use tauri::api::path::{resolve_path, BaseDirectory};
 use tauri::api::process::CommandEvent;
@@ -369,13 +369,13 @@ fn query_apps(handle: AppHandle) {
                 query_relevant_apps(relevant_handle).await;
             })
         });
-        let current_handle = handle.clone();
-        std::thread::spawn(move || {
-            loop {
-                let _ = query_current_apps(current_handle.clone());
-                std::thread::sleep(std::time::Duration::from_secs(300)); //every 5 mins
-            }
-        });
+        // let current_handle = handle.clone();
+        // std::thread::spawn(move || {
+        //     loop {
+        //         let _ = query_current_apps(current_handle.clone());
+        //         std::thread::sleep(std::time::Duration::from_secs(300)); //every 5 mins
+        //     }
+        // });
     }
 }
 
@@ -495,140 +495,140 @@ async fn query_relevant_apps(handle: AppHandle) {
     save_app_data(apps, "appDataRelevant.json".to_string(), handle);
 }
 
-fn query_current_apps(handle: AppHandle) {
-    //start a timer
-    let start = Instant::now();
-    // query the currently running apps
-    let output = Command::new("powershell.exe").creation_flags(0x08000000).arg("-WindowStyle").arg("Hidden").arg("-Command")
-        .arg("$relevant = @();
-        [void] [System.Reflection.Assembly]::LoadWithPartialName('System.Drawing');
-        foreach ($file in Get-Process | Where-Object {$_.MainWindowTitle -ne \"\"} | Select-Object -Expand MainModule -ErrorAction SilentlyContinue | Select-Object -Property FileName) {
-            try {
-                $path = ($file | Format-table -HideTableHeaders | Out-String).Trim();
-                $name = ((($file | Format-table -HideTableHeaders | Out-String).Trim() -split \"\\.exe\")[0] -split \"\\\\\")[-1];
-                $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
-                $memoryStream = New-Object System.IO.MemoryStream
-                $icon.ToBitmap().Save($memoryStream, 'Png')
-                $base64String = [Convert]::ToBase64String($memoryStream.ToArray())
-                if ($path.EndsWith(\".exe\",\"CurrentCultureIgnoreCase\")){
-                    $relevant += [PSCustomObject]@{name = $name; executable = $path; icon = $base64String};
-                }
-            } catch {}
-        }
-        $relevant | Select-Object -Property name, executable, icon | ConvertTo-Json -Compress;")
-        .output()
-        .expect("failed to execute process");
-    let json: Value =
-        serde_json::from_str(String::from_utf8_lossy(&output.stdout).to_string().as_str()).unwrap();
-    // convert the json to a vector of apps
-    let mut apps: Vec<App> = Vec::new();
-    for app in json.as_array().unwrap() {
-        apps.push(App {
-            name: app["name"].to_string().replace("\"", ""),
-            executable: app["executable"].to_string().replace("\"", ""),
-            icon: app["icon"].to_string().replace("\"", ""),
-        });
-    }
+// fn query_current_apps(handle: AppHandle) {
+//     //start a timer
+//     let start = Instant::now();
+//     // query the currently running apps
+//     let output = Command::new("powershell.exe").creation_flags(0x08000000).arg("-WindowStyle").arg("Hidden").arg("-Command")
+//         .arg("$relevant = @();
+//         [void] [System.Reflection.Assembly]::LoadWithPartialName('System.Drawing');
+//         foreach ($file in Get-Process | Where-Object {$_.MainWindowTitle -ne \"\"} | Select-Object -Expand MainModule -ErrorAction SilentlyContinue | Select-Object -Property FileName) {
+//             try {
+//                 $path = ($file | Format-table -HideTableHeaders | Out-String).Trim();
+//                 $name = ((($file | Format-table -HideTableHeaders | Out-String).Trim() -split \"\\.exe\")[0] -split \"\\\\\")[-1];
+//                 $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+//                 $memoryStream = New-Object System.IO.MemoryStream
+//                 $icon.ToBitmap().Save($memoryStream, 'Png')
+//                 $base64String = [Convert]::ToBase64String($memoryStream.ToArray())
+//                 if ($path.EndsWith(\".exe\",\"CurrentCultureIgnoreCase\")){
+//                     $relevant += [PSCustomObject]@{name = $name; executable = $path; icon = $base64String};
+//                 }
+//             } catch {}
+//         }
+//         $relevant | Select-Object -Property name, executable, icon | ConvertTo-Json -Compress;")
+//         .output()
+//         .expect("failed to execute process");
+//     let json: Value =
+//         serde_json::from_str(String::from_utf8_lossy(&output.stdout).to_string().as_str()).unwrap();
+//     // convert the json to a vector of apps
+//     let mut apps: Vec<App> = Vec::new();
+//     for app in json.as_array().unwrap() {
+//         apps.push(App {
+//             name: app["name"].to_string().replace("\"", ""),
+//             executable: app["executable"].to_string().replace("\"", ""),
+//             icon: app["icon"].to_string().replace("\"", ""),
+//         });
+//     }
 
-    // Until I find a more reliable solution, remove the apps that are in the WindowsApps folder as this folder is not accessible by the user
-    // Also filter out SystemApps, as those are unlikely relevant. (I think)
-    apps.retain(|app| {
-        !app.executable.contains("WindowsApps")
-            && !app.executable.contains("SystemApps")
-            && !app.executable.to_lowercase().contains("system32")
-    });
-    // for app in &mut apps {
-    //     // Apps inside the WindowsApps folder need to be modified to be able to launch them
-    //     if app.executable.contains("WindowsApps") {
-    //         // Turn paths like "C:\\Program Files\\WindowsApps\\SpotifyAB.SpotifyMusic_1.200.1165.0_x86__zpdnekdrzrea0\\Spotify.exe"
-    //         // into "shell:appsFolder\SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify"
-    //         let path = PathBuf::from(&app.executable);
-    //         let name = path
-    //             .file_name()
-    //             .unwrap()
-    //             .to_str()
-    //             .unwrap()
-    //             .split(".")
-    //             .collect::<Vec<&str>>()[0]
-    //             .to_string();
-    //         let parent_folder = path.parent().unwrap().to_str().unwrap().to_string();
+//     // Until I find a more reliable solution, remove the apps that are in the WindowsApps folder as this folder is not accessible by the user
+//     // Also filter out SystemApps, as those are unlikely relevant. (I think)
+//     apps.retain(|app| {
+//         !app.executable.contains("WindowsApps")
+//             && !app.executable.contains("SystemApps")
+//             && !app.executable.to_lowercase().contains("system32")
+//     });
+//     // for app in &mut apps {
+//     //     // Apps inside the WindowsApps folder need to be modified to be able to launch them
+//     //     if app.executable.contains("WindowsApps") {
+//     //         // Turn paths like "C:\\Program Files\\WindowsApps\\SpotifyAB.SpotifyMusic_1.200.1165.0_x86__zpdnekdrzrea0\\Spotify.exe"
+//     //         // into "shell:appsFolder\SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify"
+//     //         let path = PathBuf::from(&app.executable);
+//     //         let name = path
+//     //             .file_name()
+//     //             .unwrap()
+//     //             .to_str()
+//     //             .unwrap()
+//     //             .split(".")
+//     //             .collect::<Vec<&str>>()[0]
+//     //             .to_string();
+//     //         let parent_folder = path.parent().unwrap().to_str().unwrap().to_string();
 
-    //         // Get the path after WindowsApps
-    //         let mut dir = parent_folder.split("WindowsApps").collect::<Vec<&str>>()[1].to_string();
-    //         // Replace any version string between this regex "_.*?_.*?_" with ""
-    //         let re = Regex::new("_.*?_.*?_").unwrap();
-    //         dir = re.replace(dir.as_str(), "").to_string();
-    //         // remove the leading backslash
-    //         dir = dir[2..].to_string();
+//     //         // Get the path after WindowsApps
+//     //         let mut dir = parent_folder.split("WindowsApps").collect::<Vec<&str>>()[1].to_string();
+//     //         // Replace any version string between this regex "_.*?_.*?_" with ""
+//     //         let re = Regex::new("_.*?_.*?_").unwrap();
+//     //         dir = re.replace(dir.as_str(), "").to_string();
+//     //         // remove the leading backslash
+//     //         dir = dir[2..].to_string();
 
-    //         let launch_path = r"shell:appsFolder\".to_string() + dir.as_str() + "!" + &name;
-    //         app.executable = launch_path;
-    //     }
-    // }
+//     //         let launch_path = r"shell:appsFolder\".to_string() + dir.as_str() + "!" + &name;
+//     //         app.executable = launch_path;
+//     //     }
+//     // }
 
-    // end the timer
-    let duration = start.elapsed();
-    println!(
-        "Time elapsed in query_current_apps() is: {:?} for {} apps",
-        duration,
-        apps.len()
-    );
-    // get the appDataRunning.json file from the Appdata folder if it exists
-    let app_dir = resolve_path(
-        &handle.config(),
-        handle.package_info(),
-        &handle.env(),
-        "",
-        Some(BaseDirectory::AppData),
-    )
-    .unwrap_or_default();
+//     // end the timer
+//     let duration = start.elapsed();
+//     println!(
+//         "Time elapsed in query_current_apps() is: {:?} for {} apps",
+//         duration,
+//         apps.len()
+//     );
+//     // get the appDataRunning.json file from the Appdata folder if it exists
+//     let app_dir = resolve_path(
+//         &handle.config(),
+//         handle.package_info(),
+//         &handle.env(),
+//         "",
+//         Some(BaseDirectory::AppData),
+//     )
+//     .unwrap_or_default();
 
-    let app_data_running = app_dir.join("appDataRunning.json");
+//     let app_data_running = app_dir.join("appDataRunning.json");
 
-    if app_data_running.clone().exists() {
-        let mut file = File::open(app_data_running.clone()).unwrap();
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).unwrap();
-        let json: Value = serde_json::from_str(contents.as_str()).unwrap();
-        for app in json.as_array().unwrap() {
-            apps.push(App {
-                name: app["name"].to_string().replace(r"\\\\", r"\\"),
-                executable: app["executable"]
-                    .to_string()
-                    .to_string()
-                    .replace(r"\\\\", r"\\"),
-                icon: app["icon"].to_string().to_string().replace(r"\\\\", r"\\"),
-            });
-        }
-    }
+//     if app_data_running.clone().exists() {
+//         let mut file = File::open(app_data_running.clone()).unwrap();
+//         let mut contents = String::new();
+//         file.read_to_string(&mut contents).unwrap();
+//         let json: Value = serde_json::from_str(contents.as_str()).unwrap();
+//         for app in json.as_array().unwrap() {
+//             apps.push(App {
+//                 name: app["name"].to_string().replace(r"\\\\", r"\\"),
+//                 executable: app["executable"]
+//                     .to_string()
+//                     .to_string()
+//                     .replace(r"\\\\", r"\\"),
+//                 icon: app["icon"].to_string().to_string().replace(r"\\\\", r"\\"),
+//             });
+//         }
+//     }
 
-    // filter out duplicate executables
-    apps.dedup_by(|a, b| a.executable == b.executable);
+//     // filter out duplicate executables
+//     apps.dedup_by(|a, b| a.executable == b.executable);
 
-    // filter out apps that don't exist anymore
-    apps.retain(|app| !Path::new(&app.executable).exists());
+//     // filter out apps that don't exist anymore
+//     apps.retain(|app| !Path::new(&app.executable).exists());
 
-    match File::create(app_data_running.clone()) {
-        Ok(mut file) => {
-            // save the appDataRunning.json file
-            file.write_all(serde_json::to_string(&apps).unwrap().as_bytes())
-                .unwrap();
-        }
-        Err(_e) => {
-            // create the appData folder if it doesn't exist
-            if !app_dir.exists() {
-                std::fs::create_dir_all(app_dir).unwrap();
-            }
-            // create the appDataRunning.json file
-            let mut file = File::create(app_data_running).unwrap();
-            // save the appDataRunning.json file
-            file.write_all(serde_json::to_string(&apps).unwrap().as_bytes())
-                .unwrap();
-        }
-    }
+//     match File::create(app_data_running.clone()) {
+//         Ok(mut file) => {
+//             // save the appDataRunning.json file
+//             file.write_all(serde_json::to_string(&apps).unwrap().as_bytes())
+//                 .unwrap();
+//         }
+//         Err(_e) => {
+//             // create the appData folder if it doesn't exist
+//             if !app_dir.exists() {
+//                 std::fs::create_dir_all(app_dir).unwrap();
+//             }
+//             // create the appDataRunning.json file
+//             let mut file = File::create(app_data_running).unwrap();
+//             // save the appDataRunning.json file
+//             file.write_all(serde_json::to_string(&apps).unwrap().as_bytes())
+//                 .unwrap();
+//         }
+//     }
 
-    let _ = handle.emit_all("finish_query_current", &apps);
-}
+//     let _ = handle.emit_all("finish_query_current", &apps);
+// }
 
 async fn query_other_apps(handle: AppHandle) {
     let start = Instant::now();

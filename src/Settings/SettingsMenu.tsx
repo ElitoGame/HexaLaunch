@@ -13,6 +13,7 @@ import {
   Button,
   Input,
   Switch as HopeSwitch,
+  notificationService,
 } from '@hope-ui/solid';
 
 import { createEffect, createResource, For, Match, Show, Switch } from 'solid-js';
@@ -188,21 +189,21 @@ const HexUIGrid = () => {
   let tileList: HTMLDivElement | undefined;
 
   const [getGridScale, setGridScale] = createSignal(
-    getHexSize() * 9 + getHexMargin() * 7 > rightPanelWindow.clientWidth
-      ? rightPanelWindow.clientWidth / (getHexSize() * 9 + getHexMargin() * 7 + 20)
+    getHexSize() * 9 + getHexMargin() * 7 > rightPanelWindow?.clientWidth
+      ? rightPanelWindow?.clientWidth / (getHexSize() * 9 + getHexMargin() * 7 + 20)
       : 1
   );
 
   window.onresize = () =>
     setGridScale(() =>
-      getHexSize() * 9 + getHexMargin() * 7 > rightPanelWindow.clientWidth
-        ? rightPanelWindow.clientWidth / (getHexSize() * 9 + getHexMargin() * 7 + 20)
+      getHexSize() * 9 + getHexMargin() * 7 > rightPanelWindow?.clientWidth
+        ? rightPanelWindow?.clientWidth / (getHexSize() * 9 + getHexMargin() * 7 + 20)
         : 1
     );
   createEffect(() => {
     setGridScale(() =>
-      getHexSize() * 9 + getHexMargin() * 7 > rightPanelWindow.clientWidth
-        ? rightPanelWindow.clientWidth / (getHexSize() * 9 + getHexMargin() * 7 + 20)
+      getHexSize() * 9 + getHexMargin() * 7 > rightPanelWindow?.clientWidth
+        ? rightPanelWindow?.clientWidth / (getHexSize() * 9 + getHexMargin() * 7 + 20)
         : 1
     );
   });
@@ -227,7 +228,8 @@ const HexUIGrid = () => {
                 onMouseDown={(e) => {
                   if (
                     e.target.classList.contains('hexOptions') ||
-                    e.target.parentElement.classList.contains('hexOptions')
+                    e.target.parentElement.classList.contains('hexOptions') ||
+                    getCurrentTab() !== 'Layout'
                   ) {
                     return;
                   }
@@ -265,7 +267,8 @@ const HexUIGrid = () => {
                   when={
                     getOptionsVisible().visible &&
                     getOptionsVisible().x === tile.getX() &&
-                    getOptionsVisible().y === tile.getY()
+                    getOptionsVisible().y === tile.getY() &&
+                    getCurrentTab() === 'Layout'
                   }
                 >
                   <div
@@ -339,7 +342,9 @@ const HexUIGrid = () => {
                   radiant={tile.getRadiant()}
                   title={
                     tile.getAction() === 'Unset'
-                      ? '+'
+                      ? getCurrentTab() === 'Layout'
+                        ? '+'
+                        : ''
                       : tile
                           .getApp()
                           ?.split('.')[0]
@@ -356,6 +361,43 @@ const HexUIGrid = () => {
                   url={tile.getUrl()?.trim() ?? ''}
                   hasAnimation={false}
                   isSettings={true}
+                  onClick={() => {
+                    if (tile.getAction() === 'Unset' && getCurrentTab() === 'Layout') {
+                      notificationService.show({
+                        status: 'info',
+                        title: 'Drag and drop an app here!',
+                        description: 'Use the left sidebar to add apps to your layout.',
+                        render: (props) => (
+                          <HStack
+                            bg="$loContrast"
+                            rounded="$md"
+                            border="1px solid $neutral7"
+                            shadow="$lg"
+                            p="$4"
+                            w="$full"
+                            class="bg-background border-0 text-text"
+                          >
+                            <VStack alignItems="flex-start">
+                              <span class="text-md">Drag and drop an app here!</span>
+                              <p>
+                                Use the left sidebar in the Layout Tab to add apps to your layout.
+                              </p>
+                            </VStack>
+                            <Button
+                              variant="ghost"
+                              colorScheme="accent"
+                              size="sm"
+                              ml="auto"
+                              onClick={() => props.close()}
+                              class="bg-background border-0 text-lg text-text"
+                            >
+                              <VsClose />
+                            </Button>
+                          </HStack>
+                        ),
+                      });
+                    }
+                  }}
                 ></HexTile>
               </span>
             )}
@@ -809,7 +851,12 @@ const SettingsMenu = () => {
           </VStack>
         </GridItem>
         <GridItem rowSpan={1} colSpan={2} h="100%" ref={rightPanelWindow}>
-          <Show when={getCurrentTab() == 'Layout' || isOverWritingHexGridDisplayType()}>
+          <Show
+            when={
+              getCurrentTab() == 'Layout' ||
+              (isOverWritingHexGridDisplayType() && getCurrentTab() === 'Appearance')
+            }
+          >
             <HexUIGrid></HexUIGrid>
           </Show>
           <Show when={getCurrentTab() == 'Appearance' && !isOverWritingHexGridDisplayType()}>
