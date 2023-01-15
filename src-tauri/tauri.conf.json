@@ -1,0 +1,153 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
+    "devPath": "http://localhost:3000",
+    "distDir": "../dist"
+  },
+  "package": {
+    "productName": "HexaLaunch",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "globalShortcut": {
+        "all": true
+      },
+      "window": {
+        "all": false,
+        "maximize": true,
+        "unmaximize": true,
+        "minimize": true,
+        "unminimize": true,
+        "show": true,
+        "hide": true,
+        "close": true,
+        "setSize": true,
+        "setPosition": true,
+        "setFocus": true,
+        "startDragging": true,
+        "setIgnoreCursorEvents": true
+      },
+      "fs": {
+        "all": true,
+        "readFile": true,
+        "writeFile": true,
+        "createDir": true,
+        "exists": true,
+        "scope": [
+          "$APPDATA/appData.json",
+          "$APPDATA/appDataRelevant.json",
+          "$APPDATA/appDataRunning.json",
+          "$APPDATA/appPathsCustom.json",
+          "$APPDATA/appScores.json",
+          "$APPDATA/user-settings.json",
+          "$APPDATA/",
+          "$TEMP/zRadialAppNames0.json"
+        ]
+      },
+      "shell": {
+        "all": false,
+        "execute": true,
+        "sidecar": true,
+        "scope": [
+          {
+            "name": "open",
+            "args": true,
+            "cmd": "powershell.exe"
+          },
+          {
+            "name": "clearbin",
+            "args": ["-Command", "Clear-RecycleBin", "-Force"],
+            "cmd": "powershell.exe"
+          },
+          {
+            "name": "queryAppName",
+            "args": true,
+            "cmd": "powershell.exe"
+          },
+          {
+            "name": "binaries/CSharpIntegration",
+            "args": true,
+            "sidecar": true
+          }
+        ]
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "Productivity",
+      "copyright": "",
+      "deb": {
+        "depends": []
+      },
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "identifier": "hexalaunch",
+      "longDescription": "",
+      "macOS": {
+        "entitlements": null,
+        "exceptionDomain": "",
+        "frameworks": [],
+        "providerShortName": null,
+        "signingIdentity": null
+      },
+      "resources": [],
+      "shortDescription": "",
+      "targets": "all",
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
+      },
+      "externalBin": ["binaries/CSharpIntegration"]
+    },
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; asset: https://asset.localhost"
+    },
+    "updater": {
+      "active": false
+    },
+    "windows": [
+      {
+        "label": "main",
+        "fullscreen": false,
+        "height": 1,
+        "resizable": false,
+        "title": "HexaLaunch",
+        "width": 1,
+        "transparent": true,
+        "decorations": false,
+        "skipTaskbar": true,
+        "alwaysOnTop": true,
+        "visible": false,
+        "theme": "Dark",
+        "url": "index.html"
+      },
+      {
+        "label": "settings",
+        "height": 600,
+        "resizable": true,
+        "title": "HexaLaunch Settings",
+        "width": 800,
+        "url": "settings.html",
+        "visible": false,
+        "theme": "Dark",
+        "transparent": true,
+        "fileDropEnabled": true,
+        "decorations": false
+      }
+    ],
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
+    }
+  }
+}

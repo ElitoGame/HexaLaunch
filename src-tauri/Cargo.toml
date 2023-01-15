@@ -1,0 +1,62 @@
+[package]
+name = "app"
+version = "0.1.0"
+description = "A App Launcher for Windows"
+authors = ["ElitoGame", "chpenz", "Karo"]
+license = ""
+repository = ""
+default-run = "app"
+edition = "2021"
+rust-version = "1.59"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1.2.0", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "1.2.0", features = ["devtools", "fs-all", "global-shortcut-all", "shell-execute", "shell-sidecar", "system-tray", "window-close", "window-hide", "window-maximize", "window-minimize", "window-set-focus", "window-set-ignore-cursor-events", "window-set-position", "window-set-size", "window-show", "window-start-dragging", "window-unmaximize", "window-unminimize"] }
+tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/tauri-plugin-single-instance" }
+rdev = "0.5.2"
+base64 = "0.20.0"
+parselnk = "0.1.1"
+path-clean = "0.1.0"
+walkdir = "2.3.2"
+pelite = "0.10.0"
+winreg = "0.10.1"
+futures = "0.3.25"
+lazy_static = "1.4.0"
+window-vibrancy = "0.3.2"
+image = "0.24.5"
+# image = "0.24.5"
+
+[dependencies.tauri-plugin-autostart]
+git = "https://github.com/tauri-apps/tauri-plugin-autostart"
+#branch = "main"
+
+[dependencies.windows]
+version = "0.43.0"
+features = [
+    "Data_Xml_Dom",
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_Threading",
+    "Win32_UI_WindowsAndMessaging",
+    "Media_Control",
+    "Foundation",
+    "Storage_Streams",
+    "Win32_System_WinRT",
+    "Win32_UI_Shell",
+    "Win32_Storage_FileSystem",
+    # "Win32_Graphics_Gdi",
+]
+
+[features]
+# by default Tauri runs in production mode
+# when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
+default = [ "custom-protocol" ]
+# this feature is used for production builds where `devPath` points to the filesystem
+# DO NOT remove this
+custom-protocol = [ "tauri/custom-protocol" ]

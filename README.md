@@ -1,4 +1,4 @@
-# RadialHexUI
+# HexaLaunch
 
 A radial hexagon menu to boost productivity
 
@@ -6,25 +6,25 @@ A radial hexagon menu to boost productivity
 
 ### Essentials
 
-- [X] Launching Apps
+- [x] Launching Apps
 - [x] Auto Start with Windows(/Mac)
 - [ ] Settings Menu for essential settings like:
   - [ ] Themes
   - [ ] Hotkey
   - [ ] App layout customization
-- [X] Essential Extensions
-  - [X] Browser Launcher
-  - [X] Empty Paper bin
+- [x] Essential Extensions
+  - [x] Browser Launcher
+  - [x] Empty Paper bin
 - [ ] Auto Updating (Windows 100%, Mac potentially harder due to notarizing)
-- [X] Add a possibility to add Apps to the Launcher without pasting the Apps install location. This can be one or multiple of these:
-  - [X] Uninstall Registy
-  - [X] Apps linked in the startMenu
+- [x] Add a possibility to add Apps to the Launcher without pasting the Apps install location. This can be one or multiple of these:
+  - [x] Uninstall Registy
+  - [x] Apps linked in the startMenu
   - [x] Detecting steam games
   - [x] Detecting epic games
   - [x] Finding executables in the program files folders
   - [x] Finding linked files on the (public & useres) desktop
-  - [X] Via Drap & Drop
-  - [X] Via detecting active processes
+  - [x] Via Drap & Drop
+  - [x] Via detecting active processes
 
 ### Optional
 
@@ -34,11 +34,11 @@ A radial hexagon menu to boost productivity
   - [ ] ~~Bluetooth Connector~~
   - [ ] Windows Media Player Extension (or Spotify alternatively)
   - [ ] System Stats (RAM, CPU, Storage, GPU)
-  - [X] Searchbar (Depends highly on App detection)
+  - [x] Searchbar (Depends highly on App detection)
   - [ ] Browser Bookmarks (Chrome & Firefox for now)
 - [ ] Animations in the Hex UI
-  - [ ] Opening and Closing the UI
-  - [ ] Moving the Mouse to show different hexagons fields
+  - [ ] ~~Opening~~ and Closing the UI
+  - [x] Moving the Mouse to show different hexagons fields
   - [ ] Opening special fields like the Searchbar
 - [ ] Mac Support (Not required since no Mac Users in the team, so nice to have) - many extensions don't work on linux, so sadly no support there...
 
@@ -50,7 +50,7 @@ A radial hexagon menu to boost productivity
 
 ### Install
 
-Requires at least Node v14.18+
+The Tauri prerequisites need to be fulfilled: https://tauri.app/v1/guides/getting-started/prerequisites
 
 ```bash
 $ npm install
@@ -59,18 +59,13 @@ $ npm install
 ### Development
 
 ```bash
-$ npm run dev
+$ npm run tauri dev
 ```
 
 ### Build
 
+Builds a executable for your current platform. Additional build platforms can be added via Github Actions. See: https://tauri.app/v1/guides/building/cross-platform
+
 ```bash
-# For windows
-$ npm run build:win
-
-# For macOS
-$ npm run build:mac
-
-# For Linux
-$ npm run build:linux
+$ npm run tauri build
 ```
