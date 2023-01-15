@@ -1,4 +1,4 @@
-import { updateSettingData, changeWindow, getSettingsData } from '../settings';
+import { updateSettingData, changeWindow, getSettingsData, removeThemeWithName } from '../settings';
 import {
   Box,
   Grid,
@@ -15,24 +15,32 @@ import {
   Button,
   createDisclosure,
   Tooltip,
+  HStack,
+  VStack,
 } from '@hope-ui/solid';
 import { primaryMonitor } from '@tauri-apps/api/window';
 import { createSignal, For, Show } from 'solid-js';
-import Theme from '../Themes/Themes';
+import Theme from '../Themes/Theme';
 import { FaSolidMoon } from 'solid-icons/fa';
 import { FaSolidSun } from 'solid-icons/fa';
 import { FaSolidCircleCheck } from 'solid-icons/fa';
-import { FaSolidPen} from 'solid-icons/fa';
-import { FaSolidPlus} from 'solid-icons/fa';
-import { FaSolidTrash} from 'solid-icons/fa';
+import { FaSolidPen } from 'solid-icons/fa';
 import HexTile from '../HexUI/Components/HexTile';
 import { HoverActions } from './HoverActions';
+import { produce } from 'solid-js/store';
+import { setThemes, themes } from '../themes';
 
 const [getSize, setSize] = createSignal<number>(0);
 export const [lastActiveTheme, setLastActiveTheme] = createSignal<Theme>(
   getSettingsData().getCurrentTheme()
 );
 setSize((await primaryMonitor()).size.height);
+
+export const [getThemeDeletionData, setThemeDeletionData] = createSignal<{
+  themeToDelete?: Theme;
+  isOpen: boolean;
+  index: number;
+}>({ themeToDelete: undefined, isOpen: false, index: 0 }, { equals: false });
 
 export const AppearanceTab = () => {
   const { isOpen, onOpen, onClose } = createDisclosure();
@@ -67,9 +75,8 @@ export const AppearanceTab = () => {
                     updateSettingData();
                   }}
                 />{' '}
-              <HoverActions themesVar={themeVar} index={i()} editEnabled={false}></HoverActions>
+                <HoverActions themesVar={themeVar} index={i()} editEnabled={false}></HoverActions>
                 <label class="pointer-events-none" for="card1">
-          
                   <Show when={themeVar.getThemeName() == 'Honey'}>
                     <svg
                       style={` color:${themeVar.getMainHexagonIcon()}; font-size:30px;`}
@@ -553,6 +560,108 @@ export const AppearanceTab = () => {
             Reset
           </Button>
         </GridItem>
+        <Show when={getThemeDeletionData().isOpen}>
+          <div
+            style={{
+              position: 'absolute',
+              top: `50%`,
+              left: `50%`,
+              transform: `translate(-50%, -50%)`,
+            }}
+            class="text-base z-40"
+          >
+            <div class="bg-background p-4 px-8 rounded-md border-neutral border-solid border-2">
+              <VStack>
+                <div class=" group mr-[11px] rounded-lg mt-2 focus:bg-accent hoverEffect card bg-neutral border-0">
+                  <label class="pointer-events-none" for="card1">
+                    <FaSolidPen
+                      color={`${getThemeDeletionData().themeToDelete?.getMainHexagonIcon()}`}
+                      size={21}
+                      class="z-20 absolute top-[40px] left-[72px]"
+                    />
+                    <span class="colorPreview">
+                      <div
+                        class="position-absolute w-5 h-5 m-1 rounded-sm"
+                        style={`background-color:${getThemeDeletionData().themeToDelete?.getMainHexagonBg()}`}
+                      ></div>
+                      <div
+                        class="position-absolute w-5 h-5 m-1 rounded-sm"
+                        style={`background-color:${getThemeDeletionData().themeToDelete?.getMainHexagonIcon()}`}
+                      ></div>
+                      <div
+                        class="position-absolute w-5 h-5 m-1 rounded-sm"
+                        style={`background-color:${getThemeDeletionData().themeToDelete?.getSubHexagonBg()}`}
+                      ></div>
+                      <div
+                        class="position-absolute w-5 h-5 m-1 rounded-sm"
+                        style={`background-color:${getThemeDeletionData().themeToDelete?.getHoverHexagonBg()}`}
+                      ></div>
+                    </span>
+
+                    <div
+                      class=" left-[30px] top-[-9px] hexPreview pointer-events-none hexTile absolute bg-transparent  cursor-pointer inline-block mb-8"
+                      style="clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%); transform-origin: center center;  width: 93px; margin: 5px; height: 108.717px; 10; transform: scale(1);"
+                    >
+                      <HexTile
+                        radiant={0}
+                        x={1.165}
+                        y={0.94}
+                        customTheme={getThemeDeletionData().themeToDelete}
+                        scale={133.3333}
+                        hasAnimation={false}
+                        scaleWithHexSize={false}
+                      />
+                    </div>
+                  </label>
+                </div>
+                <p class="mb-4" id="label">
+                  {getThemeDeletionData().themeToDelete?.getThemeName()}
+                </p>
+                <p>
+                  Are you sure you want to delete this Theme?
+                  <br />
+                  This action cannot be undone.
+                </p>
+                <HStack>
+                  <Button
+                    class="text-accent underline bg-transparent hover:bg-transparent hover:text-accent hover:brightness-125"
+                    onClick={() => {
+                      setThemeDeletionData({ isOpen: false, themeToDelete: undefined, index: 0 });
+                      console.log('canceled');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    class="bg-accent hover:bg-accent hover:brightness-125 text-text"
+                    onClick={() => {
+                      if (getThemeDeletionData().index > -1) {
+                        setThemes({ themes: getSettingsData().getThemes() });
+                        let newThemesArray = removeThemeWithName(
+                          themes.themes,
+                          getThemeDeletionData().themeToDelete?.getThemeName()
+                        );
+                        setThemes(
+                          produce((store) =>
+                            removeThemeWithName(
+                              store.themes,
+                              getThemeDeletionData().themeToDelete?.getThemeName()
+                            )
+                          )
+                        );
+                        getSettingsData()?.setThemes(newThemesArray);
+                      }
+                      updateSettingData();
+                      setThemeDeletionData({ isOpen: false, themeToDelete: undefined, index: 0 });
+                    }}
+                  >
+                    Continue
+                  </Button>
+                </HStack>
+              </VStack>
+            </div>
+          </div>
+        </Show>
       </Grid>
     </>
   );

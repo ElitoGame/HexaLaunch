@@ -48,6 +48,7 @@ export const [getOverWriteWarning, setOverWriteWarning] = createSignal({
   newTile: null,
 });
 const iconGetter = async (app: string) => await externalAppManager.getIconOfActionExe(app);
+// edit
 const [overwriteTargetSignal, setOverwriteTargetSignal] = createSignal<string | null>(null);
 const [overwriteNewSignal, setOverwriteNewSignal] = createSignal<string | null>(null);
 const [overwriteTargetIcon] = createResource(overwriteTargetSignal, iconGetter);
@@ -58,7 +59,6 @@ createEffect(() => {
     setOverwriteNewSignal(getOverWriteWarning().newTile.app);
   }
 });
-
 export const [getEditDialog, setEditDialog] = createSignal({
   visible: false,
   targetTile: null,
@@ -70,6 +70,19 @@ createEffect(() => {
     setEditTargetSignal(getEditDialog().targetTile.getApp());
   }
 });
+// delete
+const [deleteTargetSignal, setDeleteTargetSignal] = createSignal<string | null>(null);
+const [deleteIcon] = createResource(deleteTargetSignal, iconGetter);
+const [getDeleteDialog, setDeleteDialog] = createSignal({
+  visible: false,
+  targetTile: null,
+});
+createEffect(() => {
+  if (getDeleteDialog().visible) {
+    setDeleteTargetSignal(getDeleteDialog().targetTile.app);
+  }
+});
+
 let urlInput: HTMLInputElement | undefined;
 
 let rightPanelWindow: HTMLDivElement | undefined;
@@ -183,6 +196,20 @@ listen('hexUiDataLoaded', () => {
   setSettingsGridTiles(getHexUiData().getTiles());
 });
 
+/*
+ █████   █████                      █████  █████ █████      █████████             ███      █████
+░░███   ░░███                      ░░███  ░░███ ░░███      ███░░░░░███           ░░░      ░░███ 
+ ░███    ░███   ██████  █████ █████ ░███   ░███  ░███     ███     ░░░  ████████  ████   ███████ 
+ ░███████████  ███░░███░░███ ░░███  ░███   ░███  ░███    ░███         ░░███░░███░░███  ███░░███ 
+ ░███░░░░░███ ░███████  ░░░█████░   ░███   ░███  ░███    ░███    █████ ░███ ░░░  ░███ ░███ ░███ 
+ ░███    ░███ ░███░░░    ███░░░███  ░███   ░███  ░███    ░░███  ░░███  ░███      ░███ ░███ ░███ 
+ █████   █████░░██████  █████ █████ ░░████████   █████    ░░█████████  █████     █████░░████████
+░░░░░   ░░░░░  ░░░░░░  ░░░░░ ░░░░░   ░░░░░░░░   ░░░░░      ░░░░░░░░░  ░░░░░     ░░░░░  ░░░░░░░░ 
+                                                                                                
+                                                                                                
+                                                                                                
+*/
+
 const HexUIGrid = () => {
   console.log('found hexUIData: ', getHexUiData());
 
@@ -295,33 +322,38 @@ const HexUIGrid = () => {
                   >
                     <IoTrashBin
                       class="hexOptions bin fill-text w-6"
-                      onClick={() => {
-                        console.log('remove tile');
-                        // remove tile
-                        const oldTile = new HexTileData(
-                          tile.getX(),
-                          tile.getY(),
-                          tile.getRadiant(),
-                          'Unset',
-                          '',
-                          ''
-                        );
-                        console.log('oldTile', oldTile, getHexTileData());
-                        UserSettings.setHexTileData(oldTile);
-                        let tiles = getHexUiData()
-                          ?.getTiles()
-                          .map((x) => {
-                            if (
-                              x.getX() === tile.getX() &&
-                              x.getY() === tile.getY() &&
-                              x.getRadiant() === tile.getRadiant()
-                            ) {
-                              return oldTile;
-                            }
-                            return x;
+                      onClick={(e) => {
+                        if (e.shiftKey) {
+                          const oldTile = new HexTileData(
+                            tile.getX(),
+                            tile.getY(),
+                            tile.getRadiant(),
+                            'Unset',
+                            '',
+                            ''
+                          );
+                          console.log('oldTile', oldTile, getHexTileData());
+                          UserSettings.setHexTileData(oldTile);
+                          let tiles = getHexUiData()
+                            ?.getTiles()
+                            .map((x) => {
+                              if (
+                                x.getX() === tile.getX() &&
+                                x.getY() === tile.getY() &&
+                                x.getRadiant() === tile.getRadiant()
+                              ) {
+                                return oldTile;
+                              }
+                              return x;
+                            });
+                          setSettingsGridTiles(tiles);
+                          getHexUiData()?.setTiles(tiles);
+                        } else {
+                          setDeleteDialog({
+                            visible: true,
+                            targetTile: tile,
                           });
-                        setSettingsGridTiles(tiles);
-                        getHexUiData()?.setTiles(tiles);
+                        }
                         setOptionsVisible({ visible: false, x: tile.getX(), y: tile.getY() });
                       }}
                     />
@@ -403,6 +435,81 @@ const HexUIGrid = () => {
             )}
           </For>
         </div>
+        <Show when={getDeleteDialog().visible}>
+          <div
+            style={{
+              position: 'absolute',
+              top: `50%`,
+              left: `50%`,
+              transform: `translate(-50%, -50%)`,
+            }}
+            class="text-base text-text"
+          >
+            <div class="bg-background p-4 rounded-md">
+              <Center class="pb-2">
+                <Switch
+                  fallback={
+                    <Show
+                      when={deleteIcon.loading || deleteIcon() === '' || !deleteIcon()}
+                      fallback={<img src={deleteIcon()} alt="" class="w-10 h-10" />}
+                    >
+                      <span class="">{'Image Unavailable'}</span>
+                    </Show>
+                  }
+                >
+                  <Match when={getDeleteDialog().targetTile.action === 'MediaPlayer'}>
+                    <FaSolidMusic class="w-5 h-5 text-text" />
+                  </Match>
+                  <Match when={getDeleteDialog().targetTile.action === 'PaperBin'}>
+                    <FaSolidTrashCan class="w-5 h-5 text-text" />
+                  </Match>
+                </Switch>
+              </Center>
+              <HStack class="mt-2">
+                <Button
+                  class="text-accent underline bg-transparent hover:bg-transparent hover:text-accent hover:brightness-125"
+                  onClick={() => setDeleteDialog({ visible: false, targetTile: null })}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  class="bg-accent hover:bg-accent hover:brightness-125 text-text"
+                  onClick={() => {
+                    // remove tile
+                    const oldTile = new HexTileData(
+                      getDeleteDialog().targetTile.getX(),
+                      getDeleteDialog().targetTile.getY(),
+                      getDeleteDialog().targetTile.getRadiant(),
+                      'Unset',
+                      '',
+                      ''
+                    );
+                    console.log('oldTile', oldTile, getHexTileData());
+                    UserSettings.setHexTileData(oldTile);
+                    let tiles = getHexUiData()
+                      ?.getTiles()
+                      .map((x) => {
+                        if (
+                          x.getX() === getDeleteDialog().targetTile.getX() &&
+                          x.getY() === getDeleteDialog().targetTile.getY() &&
+                          x.getRadiant() === getDeleteDialog().targetTile.getRadiant()
+                        ) {
+                          return oldTile;
+                        }
+                        return x;
+                      });
+                    setSettingsGridTiles(tiles);
+                    getHexUiData()?.setTiles(tiles);
+                    setDeleteDialog({ visible: false, targetTile: null });
+                  }}
+                >
+                  Delete
+                </Button>
+              </HStack>
+            </div>
+          </div>
+        </Show>
+
         <Show when={getEditDialog().visible}>
           <div
             ref={tileList}
@@ -436,17 +543,8 @@ const HexUIGrid = () => {
                       <Match when={getEditDialog().targetTile.action === 'PaperBin'}>
                         <span class="">🗑</span>
                       </Match>
-                      {/* <Match when={getEditDialog().targetTile.action === 'Web'}>
-                      <span class="">🌐</span>
-                    </Match> */}
                     </Switch>
                   </span>
-                  {/* <Button
-                    class="text-accent text-sm underline hover:bg-transparent hover:text-accent hover:brightness-125"
-                    onClick={() => setEditDialog({ visible: false, targetTile: null })}
-                  >
-                    Change Icon
-                  </Button> */}
                 </VStack>
                 <VStack class="justify-end items-end">
                   <div class="flex justify-start flex-col">
@@ -687,6 +785,20 @@ const HexUIGrid = () => {
   );
 };
 
+/*
+ █████   █████                         ███████████                                  ███                          
+░░███   ░░███                         ░░███░░░░░███                                ░░░                           
+ ░███    ░███   ██████  █████ █████    ░███    ░███ ████████   ██████  █████ █████ ████   ██████  █████ ███ █████
+ ░███████████  ███░░███░░███ ░░███     ░██████████ ░░███░░███ ███░░███░░███ ░░███ ░░███  ███░░███░░███ ░███░░███ 
+ ░███░░░░░███ ░███████  ░░░█████░      ░███░░░░░░   ░███ ░░░ ░███████  ░███  ░███  ░███ ░███████  ░███ ░███ ░███ 
+ ░███    ░███ ░███░░░    ███░░░███     ░███         ░███     ░███░░░   ░░███ ███   ░███ ░███░░░   ░░███████████  
+ █████   █████░░██████  █████ █████    █████        █████    ░░██████   ░░█████    █████░░██████   ░░████░████   
+░░░░░   ░░░░░  ░░░░░░  ░░░░░ ░░░░░    ░░░░░        ░░░░░      ░░░░░░     ░░░░░    ░░░░░  ░░░░░░     ░░░░ ░░░░    
+                                                                                                                 
+                                                                                                                 
+                                                                                                                 
+*/
+
 const HexUIPreview = () => {
   return (
     <>
@@ -734,6 +846,20 @@ const HexUIPreview = () => {
     </>
   );
 };
+
+/*
+  █████████            █████     █████     ███                                 ██████   ██████                               
+ ███░░░░░███          ░░███     ░░███     ░░░                                 ░░██████ ██████                                
+░███    ░░░   ██████  ███████   ███████   ████  ████████    ███████  █████     ░███░█████░███   ██████  ████████   █████ ████
+░░█████████  ███░░███░░░███░   ░░░███░   ░░███ ░░███░░███  ███░░███ ███░░      ░███░░███ ░███  ███░░███░░███░░███ ░░███ ░███ 
+ ░░░░░░░░███░███████   ░███      ░███     ░███  ░███ ░███ ░███ ░███░░█████     ░███ ░░░  ░███ ░███████  ░███ ░███  ░███ ░███ 
+ ███    ░███░███░░░    ░███ ███  ░███ ███ ░███  ░███ ░███ ░███ ░███ ░░░░███    ░███      ░███ ░███░░░   ░███ ░███  ░███ ░███ 
+░░█████████ ░░██████   ░░█████   ░░█████  █████ ████ █████░░███████ ██████     █████     █████░░██████  ████ █████ ░░████████
+ ░░░░░░░░░   ░░░░░░     ░░░░░     ░░░░░  ░░░░░ ░░░░ ░░░░░  ░░░░░███░░░░░░     ░░░░░     ░░░░░  ░░░░░░  ░░░░ ░░░░░   ░░░░░░░░ 
+                                                           ███ ░███                                                          
+                                                          ░░██████                                                           
+                                                           ░░░░░░                                                            
+*/
 const SettingsMenu = () => {
   const [isMaximized, setMaximized] = createSignal(false);
   const [getMaxStatus] = createResource(isMaximized, async () => await appWindow.isMaximized());

@@ -9,7 +9,7 @@ import { getHexUiData, setHexUiData } from './main';
 import { actionType } from './DataModel/HexTileData';
 import { unregister, isRegistered, register } from '@tauri-apps/api/globalShortcut';
 import { emit } from '@tauri-apps/api/event';
-import Themes from './Themes/Themes';
+import Themes from './Themes/Theme';
 
 const appWindow = getAll().find((w) => w.label === 'settings');
 export const userSettings: UserSettings = await UserSettings.load();

@@ -19,12 +19,11 @@ import {
   Stack,
 } from '@hope-ui/solid';
 
-import Theme from '../Themes/Themes';
+import Theme from '../Themes/Theme';
 import { createSignal, Show } from 'solid-js';
 import { setThemes } from '../themes';
 import { produce } from 'solid-js/store';
 import { lastActiveTheme, setLastActiveTheme } from './appearanceTab';
-
 
 export const theme = new Theme(
   '',
@@ -60,7 +59,7 @@ export const NewThemeTab = () => {
         <Input
           size="xs"
           class="text-text mr-2"
-          value={editingTheme() ? getSettingsData().getCurrentTheme().getThemeName() : ""}
+          value={editingTheme() ? getSettingsData().getCurrentTheme().getThemeName() : ''}
           placeholder={`Custom Theme ` + `${getSettingsData()?.getThemes().length - 2}`}
           onInput={(e: Event) => {
             const inputElement = e.currentTarget as HTMLInputElement;
@@ -70,10 +69,22 @@ export const NewThemeTab = () => {
           }}
         ></Input>
         <div class="bg-neutral flex rounded-sm">
-          <div style={`background-color:${getSettingsData().getCurrentTheme().getMainHexagonBg()}`} class="w-5 h-5 m-1 rounded-sm"></div>
-          <div style={`background-color:${getSettingsData().getCurrentTheme().getMainHexagonIcon()}`}class="w-5 h-5 m-1 rounded-sm "></div>
-          <div style={`background-color:${getSettingsData().getCurrentTheme().getSubHexagonBg()}`}class="w-5 h-5 m-1  rounded-sm"></div>
-          <div style={`background-color:${getSettingsData().getCurrentTheme().getHoverHexagonBg()}`}class="w-5 h-5 m-1 rounded-sm"></div>
+          <div
+            style={`background-color:${getSettingsData().getCurrentTheme().getMainHexagonBg()}`}
+            class="w-5 h-5 m-1 rounded-sm"
+          ></div>
+          <div
+            style={`background-color:${getSettingsData().getCurrentTheme().getMainHexagonIcon()}`}
+            class="w-5 h-5 m-1 rounded-sm "
+          ></div>
+          <div
+            style={`background-color:${getSettingsData().getCurrentTheme().getSubHexagonBg()}`}
+            class="w-5 h-5 m-1  rounded-sm"
+          ></div>
+          <div
+            style={`background-color:${getSettingsData().getCurrentTheme().getHoverHexagonBg()}`}
+            class="w-5 h-5 m-1 rounded-sm"
+          ></div>
         </div>
       </Stack>
       <h2 class="pt-7">Main Hexagon</h2>
@@ -746,39 +757,40 @@ export const NewThemeTab = () => {
                   ?.getNewTheme()
                   ?.setThemeName(`Custom Theme ` + `${getSettingsData()?.getThemes().length - 2}`);
               }
-              if(!editingTheme()){
-              // add a number to the end of the theme name if it already exists
-              let themeName = getSettingsData()?.getNewTheme()?.getThemeName();
-              let themeNameExists = false;
-              for (let i = 0; i < getSettingsData()?.getThemes().length; i++) {
-                if (getSettingsData()?.getThemes()[i].getThemeName() == themeName) {
-                  themeNameExists = true;
-                }
-              }
-              if (themeNameExists) {
-                let themeNameNumber = 1;
-                while (themeNameExists) {
-                  themeName =
-                    getSettingsData()?.getNewTheme()?.getThemeName() + ` (${themeNameNumber})`;
-                  themeNameExists = false;
-                  for (let i = 0; i < getSettingsData()?.getThemes().length; i++) {
-                    if (getSettingsData()?.getThemes()[i].getThemeName() == themeName) {
-                      themeNameExists = true;
-                    }
+              if (!editingTheme()) {
+                // add a number to the end of the theme name if it already exists
+                let themeName = getSettingsData()?.getNewTheme()?.getThemeName();
+                let themeNameExists = false;
+                for (let i = 0; i < getSettingsData()?.getThemes().length; i++) {
+                  if (getSettingsData()?.getThemes()[i].getThemeName() == themeName) {
+                    themeNameExists = true;
                   }
-                  themeNameNumber++;
                 }
-                getSettingsData()?.getNewTheme()?.setThemeName(themeName);
+                if (themeNameExists) {
+                  let themeNameNumber = 1;
+                  while (themeNameExists) {
+                    themeName =
+                      getSettingsData()?.getNewTheme()?.getThemeName() + ` (${themeNameNumber})`;
+                    themeNameExists = false;
+                    for (let i = 0; i < getSettingsData()?.getThemes().length; i++) {
+                      if (getSettingsData()?.getThemes()[i].getThemeName() == themeName) {
+                        themeNameExists = true;
+                      }
+                    }
+                    themeNameNumber++;
+                  }
+                  getSettingsData()?.getNewTheme()?.setThemeName(themeName);
+                }
+                setThemes(produce((store) => store.themes.push(getSettingsData()?.getNewTheme())));
+                getSettingsData()?.getThemes().push(getSettingsData()?.getNewTheme());
+                getSettingsData()?.setCurrentTheme(
+                  getSettingsData()?.getThemes()[getSettingsData()?.getThemes().length - 1]
+                );
+
+                setLastActiveTheme(
+                  getSettingsData()?.getThemes()[getSettingsData()?.getThemes().length - 1]
+                );
               }
-              setThemes(produce((store) => store.themes.push(getSettingsData()?.getNewTheme())));
-              getSettingsData()?.getThemes().push(getSettingsData()?.getNewTheme());
-              getSettingsData()?.setCurrentTheme(
-                getSettingsData()?.getThemes()[getSettingsData()?.getThemes().length - 1]
-              );
-          
-              setLastActiveTheme(
-                getSettingsData()?.getThemes()[getSettingsData()?.getThemes().length - 1]
-              );  }
               let theme = new Theme(
                 '',
                 '#414141',
@@ -803,9 +815,10 @@ export const NewThemeTab = () => {
 
               tempSubHexData = theme;
               updateSettingData();
-              if(editingTheme){
+              if (editingTheme) {
                 setEditingTheme(false);
-            }}}
+              }
+            }}
           >
             Save
           </Button>
@@ -836,5 +849,3 @@ export const NewThemeTab = () => {
     </>
   );
 };
-
-
