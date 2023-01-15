@@ -7,8 +7,10 @@ import { setAllApps, setRelevantApps } from './settings';
 import { BaseDirectory } from '@tauri-apps/api/fs';
 import { listen } from '@tauri-apps/api/event';
 
-const defaultIcon =
+const defaultIcon: string =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEaSURBVFhH7ZTbCoJAEIYlgoggguhZiw5QVBdB14HQ00T0CqUP4AN41puJAVe92F3HRZegHfgQFvH7/1nQMmPmZ+Z8uYJOCm01vJe64PF8cZ+Ftho89DxPC8IAeZ73QpZlJWmattsAfsBavsk0yRsD3Ox7ST3A4uTC/OjC7ODCdO/AZOfAeOvAaPOB4foDg1UVwLZtIUmSqG2AIq9vgNcc5coBKHIWgNec0RhAdAUUOSJrjsRxrLYBihxBMa85QzkARY7ImjOkAURXQJEjKOY1Z0RRpLYBihyRNUe5cgCKHEEprzmjMYDoCqjImiNhGKptgApvA3V57wFkzbUGEMmDIGgfAKH84ShypQBdyn3fFwfQSaE1Y+bvx7K+Vs0alqBeFFIAAAAASUVORK5CYII=\r';
+const defaultIcon2: string =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEbSURBVFhH7ZTbCoJAEIaNICKIIHrWosNFUV0EXQdCTxPRK5Q+gA/gWW8mBlz1YncdF12CduBDWMTv/2dBy4yZn5nz5Qo6KbTV8F7qgsfzxX0W2mrw0PM8LQgD5HneC1mWlaRp2m4D+AFr+SbTJG8McLPvJfUAi5ML86MLs4ML070Dk50D460Do80HhusPDFZVANu2hSRJorYBiry+AV5zlCsHoMhZAF5zRmMA0RVQ5IisORLHsdoGKHIExbzmDOUAFDkia86QBhBdAUWOoJjXnBFFkdoGKHJE1hzlygEocgSlvOaMxgCiK6Aia46EYai2ASq8DdTlvQeQNdcaQCQPgqB9AITyh6PIlQJ0Kfd9XxxAJ4XWjJm/H8v6AjOfGdkUG8+QAAAAAElFTkSuQmCC\r';
 
 export class externalAppManager {
   private static appData: Array<externalApp> = [];
@@ -50,7 +52,8 @@ export class externalAppManager {
             (x) => new externalApp(x.executable, x.name, x.icon, 'App')
           );
           this.appDataRelevant = this.appDataRelevant.filter(
-            (x) => x.name !== '' && x.icon !== '' && x.icon !== defaultIcon
+            (x) =>
+              x.name !== '' && x.icon !== '' && x.icon !== defaultIcon && x.icon !== defaultIcon2
           );
           setRelevantApps(this.appDataRelevant);
           this.updateSearchDatabase();
@@ -64,7 +67,8 @@ export class externalAppManager {
             (x) => new externalApp(x.executable, x.name, x.icon, 'App')
           );
           this.appData = this.appData.filter(
-            (x) => x.name !== '' && x.icon !== '' && x.icon !== defaultIcon
+            (x) =>
+              x.name !== '' && x.icon !== '' && x.icon !== defaultIcon && x.icon !== defaultIcon2
           );
           setAllApps(this.appData);
           this.updateSearchDatabase();
@@ -79,7 +83,8 @@ export class externalAppManager {
             (x) => new externalApp(x.executable, x.name, x.icon, 'App')
           );
           this.appDataRelevant = this.appDataRelevant.filter(
-            (x) => x.name !== '' && x.icon !== '' && x.icon !== defaultIcon
+            (x) =>
+              x.name !== '' && x.icon !== '' && x.icon !== defaultIcon && x.icon !== defaultIcon2
           );
           setRelevantApps(this.appDataRelevant);
         }
@@ -88,7 +93,8 @@ export class externalAppManager {
           const parsed = JSON.parse(data);
           this.appData = parsed.map((x) => new externalApp(x.executable, x.name, x.icon, 'App'));
           this.appData = this.appData.filter(
-            (x) => x.name !== '' && x.icon !== '' && x.icon !== defaultIcon
+            (x) =>
+              x.name !== '' && x.icon !== '' && x.icon !== defaultIcon && x.icon !== defaultIcon2
           );
           setAllApps(this.appData);
         }
@@ -99,7 +105,8 @@ export class externalAppManager {
             (x) => new externalApp(x.executable, x.name, x.icon, 'App')
           );
           this.appDataCustomApps = this.appDataCustomApps.filter(
-            (x) => x.name !== '' && x.icon !== '' && x.icon !== defaultIcon
+            (x) =>
+              x.name !== '' && x.icon !== '' && x.icon !== defaultIcon && x.icon !== defaultIcon2
           );
           this.appDataRelevant = this.appDataRelevant
             .concat(this.appDataCustomApps)

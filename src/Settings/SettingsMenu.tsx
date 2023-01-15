@@ -35,7 +35,7 @@ import { UserSettings } from '../datastore';
 import { externalAppManager } from '../externalAppManager';
 import { IoArrowForward, IoTrashBin } from 'solid-icons/io';
 import { emit, listen } from '@tauri-apps/api/event';
-import { FaSolidMusic, FaSolidPen, FaSolidTrashCan } from 'solid-icons/fa';
+import { FaSolidMusic, FaSolidLink, FaSolidTrashCan } from 'solid-icons/fa';
 
 //import { MultipleListsExample } from './App';
 let dragElement: HTMLImageElement | undefined;
@@ -326,7 +326,7 @@ const HexUIGrid = () => {
                       }}
                     />
                     <Show when={tile.getAction() === 'App'}>
-                      <FaSolidPen
+                      <FaSolidLink
                         class="hexOptions bin fill-text"
                         onClick={() => {
                           setEditDialog({ visible: true, targetTile: tile });
