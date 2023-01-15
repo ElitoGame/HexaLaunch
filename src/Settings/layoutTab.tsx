@@ -1,5 +1,19 @@
 import { getAllApps, getRelevantApps, isDraggingTiles, setIsDraggingTiles } from '../settings';
-import { Box, Input, HStack, InputGroup, InputLeftElement } from '@hope-ui/solid';
+import {
+  Box,
+  Input,
+  HStack,
+  InputGroup,
+  InputLeftElement,
+  Button,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+} from '@hope-ui/solid';
 
 import { createSignal, For, Match, Show, Switch } from 'solid-js';
 import { getHexUiData, getSearchResults, searchAppDB } from '../main';
@@ -11,7 +25,6 @@ import { BsSearch } from 'solid-icons/bs';
 import { FaSolidMusic, FaSolidTrashCan } from 'solid-icons/fa';
 
 export const LayoutTab = () => {
-  const [getPage, setPage] = createSignal<number>(0);
   let searchBar: HTMLInputElement | undefined;
   let dragElement: HTMLImageElement | undefined;
 
@@ -98,7 +111,6 @@ export const LayoutTab = () => {
           class="text-text placeholder-text rounded-md"
           onInput={(e) => {
             searchAppDB((e.target as HTMLInputElement).value);
-            setPage(0);
           }}
           placeholder={`Search all available apps (${getAllApps()?.length ?? 0})`}
         />
@@ -133,7 +145,6 @@ export const LayoutTab = () => {
                               searchBar.value = newPath;
 
                               searchAppDB(newPath);
-                              setPage(0);
                               searchBar.focus();
                             }
                           }
@@ -235,58 +246,67 @@ export const LayoutTab = () => {
       <p>Actions</p>
       <Box borderRadius="$lg" class="p-2 py-2 bg-neutral">
         <HStack gap={'$2'}>
-          <Box
-            class="p-3.5 bg-background cursor-pointer"
-            borderRadius="$lg"
-            onMouseDown={(e) => {
-              console.log('mouse down');
-              setIsDraggingTiles(true);
-              setIsDraggingFromSidebar(true);
-              setHexTileData(new dragData('MediaPlayer', '', '', ''));
-              e.preventDefault();
-              dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
-              dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
-            }}
-            draggable={false}
-          >
-            <div class="w-25">
-              <FaSolidMusic class="w-4 h-4 text-text" />
-            </div>
-          </Box>
-          <Box
-            class="p-3.5 bg-background cursor-pointer"
-            borderRadius="$lg"
-            onMouseDown={(e) => {
-              console.log('mouse down');
-              setIsDraggingTiles(true);
-              setIsDraggingFromSidebar(true);
-              setHexTileData(new dragData('PaperBin', '', '', ''));
-              e.preventDefault();
-              dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
-              dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
-            }}
-            draggable={false}
-          >
-            <div class="w-25">
-              <FaSolidTrashCan class="w-4 h-4 text-text" />
-            </div>
-          </Box>
-          {/* <Box
-              class="my-2 p-3.5 bg-background"
-              borderRadius="$lg"
-              onMouseDown={(e) => {
-                console.log('mouse down');
-                setIsDraggingTiles(true);
-                setIsDraggingFromSidebar(true);
-                setHexTileData(new dragData('Web', '', '', ''));
-                e.preventDefault();
-                dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
-                dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
-              }}
-              draggable={false}
-            >
-              <div class="w-25">🌐</div>
-            </Box> */}
+          <Popover triggerMode="hover">
+            <PopoverTrigger>
+              <Box
+                class="p-3.5 bg-background cursor-pointer"
+                borderRadius="$lg"
+                onMouseDown={(e) => {
+                  console.log('mouse down');
+                  setIsDraggingTiles(true);
+                  setIsDraggingFromSidebar(true);
+                  setHexTileData(new dragData('MediaPlayer', '', '', ''));
+                  e.preventDefault();
+                  dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
+                  dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
+                }}
+                draggable={false}
+              >
+                <div class="w-25">
+                  <FaSolidMusic class="w-4 h-4 text-text" />
+                </div>
+              </Box>
+            </PopoverTrigger>
+            <PopoverContent class="bg-neutral border-background text-text">
+              <PopoverArrow />
+              <PopoverHeader>Media Action</PopoverHeader>
+              <PopoverBody>
+                This Action allows you to play/pause your current playing Media. Wether it's a
+                spotify, youtube or some other form of playing Media. Some Media also allows
+                skipping to the next/previous Media.
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+          <Popover triggerMode="hover">
+            <PopoverTrigger>
+              <Box
+                class="p-3.5 bg-background cursor-pointer"
+                borderRadius="$lg"
+                onMouseDown={(e) => {
+                  console.log('mouse down');
+                  setIsDraggingTiles(true);
+                  setIsDraggingFromSidebar(true);
+                  setHexTileData(new dragData('PaperBin', '', '', ''));
+                  e.preventDefault();
+                  dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
+                  dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
+                }}
+                draggable={false}
+              >
+                <div class="w-25">
+                  <FaSolidTrashCan class="w-4 h-4 text-text" />
+                </div>
+              </Box>
+            </PopoverTrigger>
+            <PopoverContent class="bg-neutral border-background text-text">
+              <PopoverArrow />
+              <PopoverHeader>Paperbin Action</PopoverHeader>
+              <PopoverBody>
+                This Action is a shortcut to your paper bin. It allows you to delete all files with
+                just one click!
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
         </HStack>
       </Box>
       <Show when={isDraggingTiles() && isDraggingFromSidebar()}>
@@ -309,11 +329,6 @@ export const LayoutTab = () => {
               <FaSolidTrashCan class="w-5 h-5 text-text" />
             </span>
           </Match>
-          {/* <Match when={getHexTileData()?.type === 'Web'}>
-              <span class="w-8 h-8 absolute z-40 cursor-pointer" ref={dragElement}>
-                🌐
-              </span>
-            </Match> */}
         </Switch>
       </Show>
     </div>

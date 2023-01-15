@@ -7,6 +7,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { setHexUiData } from './main';
 import { emit } from '@tauri-apps/api/event';
 import Theme from './Themes/Theme';
+import { getAll } from '@tauri-apps/api/window';
 
 export class UserSettings {
   public static settings: UserSettings; // Using a Singleton here to ensure that the settings are only loaded once.
@@ -233,8 +234,11 @@ export class UserSettings {
       if (!(await fs.exists('user-settings.json', { dir: fs.BaseDirectory.AppData }))) {
         // No data has been setup yet, so set default values here:
         console.log('No user-settings.json found. Using default settings.');
-        UserSettings.settings.save();
+        await UserSettings.settings.save();
         invoke('plugin:autostart|enable');
+        getAll()
+          .find((x) => x.label === 'settings')
+          ?.show();
       }
       try {
         const data = JSON.parse(
