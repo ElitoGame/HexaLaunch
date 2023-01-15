@@ -305,10 +305,6 @@
     cursor: pointer;
     outline: none;
   }
-  /* .themes:checked{
-  border: 3px solid var(--accent);
-  
-} */
 
   label {
     top: 8px;
@@ -317,48 +313,5 @@
     cursor: pointer;
   }
 
-  /* input[type="radio"]:hover{
-  transform: scale(1.05);
-} */
-  /* 
-.card{
-    height: 150px;
-    width: 200px;
-    position: relative;
-}
-
-
-#tp_appearance > div.hope-c-PJLV.hope-c-PJLV-ieoERol-css{
-  padding-top:0px;
-}
-input[type="radio"]:after{
-    content: "";
-    position: absolute;
-    height: 10px;
-    width: 10px;
-    background-color: transparent;
-    border-radius: 50%;
-    top: 108px;
-    right: 87px;
-}
-
-input[type="radio"]:hover{
-    transform: scale(1.05);
-}
-input[type="radio"]:checked{
-    border: 3px solid #478bfb;
-}
-input[type="radio"]:checked:after{
-    background-color: #478bfb;
-} */
-  /* Themes */
-
-  /* div[id*='radiant:0'] {
-  fill: var(--mainHexagonBg) !important;
-
-}
-.border[id*='radiant:0'] {
-  fill: var(--mainHexagonBorder) !important;
   
-} */
 }

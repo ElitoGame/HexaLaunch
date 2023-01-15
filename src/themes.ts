@@ -1,5 +1,5 @@
 import { createStore } from 'solid-js/store';
-import Theme from './Themes/Theme';
+import Theme from './Themes/Themes';
 
 const dark = new Theme(
   'Dark',

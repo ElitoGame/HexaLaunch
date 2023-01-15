@@ -19,7 +19,7 @@ import {
 import { invoke } from '@tauri-apps/api';
 import { externalAppManager } from '../../externalAppManager';
 import { getSettingsData } from '../../settings';
-import Theme, { ThemePart } from '../../Themes/Theme';
+import Theme, { ThemePart } from '../../Themes/Themes';
 
 const HexIcon = async (app: string) => await externalAppManager.getIconOfActionExe(app);
 

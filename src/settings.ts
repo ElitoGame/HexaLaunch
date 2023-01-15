@@ -9,6 +9,7 @@ import { getHexUiData, setHexUiData } from './main';
 import { actionType } from './DataModel/HexTileData';
 import { unregister, isRegistered, register } from '@tauri-apps/api/globalShortcut';
 import { emit } from '@tauri-apps/api/event';
+import Themes from './Themes/Themes';
 
 const appWindow = getAll().find((w) => w.label === 'settings');
 export const userSettings: UserSettings = await UserSettings.load();
@@ -57,6 +58,16 @@ export const [getCurrentTab, setCurrentTab] = createSignal('Appearance');
 
 export const [getNewTheme, setNewTheme] = createSignal(false);
 export const changeWindow = () => setNewTheme(!getNewTheme());
+
+export function removeThemeWithName(themeArr: Themes[], name: string) {
+  const objWithIdIndex = themeArr.findIndex((obj) => obj.getThemeName() === name);
+
+  if (objWithIdIndex > -1) {
+    themeArr.splice(objWithIdIndex, 1);
+  }
+
+  return themeArr;
+}
 
 let hotkeys: string[] = [];
 

@@ -1,4 +1,4 @@
-import Theme from '../Themes/Theme';
+import Theme from '../Themes/Themes';
 
 export default class SettingsData {
   private width = 0;

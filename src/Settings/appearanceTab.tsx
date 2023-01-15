@@ -18,12 +18,15 @@ import {
 } from '@hope-ui/solid';
 import { primaryMonitor } from '@tauri-apps/api/window';
 import { createSignal, For, Show } from 'solid-js';
-import Theme from '../Themes/Theme';
+import Theme from '../Themes/Themes';
 import { FaSolidMoon } from 'solid-icons/fa';
 import { FaSolidSun } from 'solid-icons/fa';
 import { FaSolidCircleCheck } from 'solid-icons/fa';
-import { FaSolidPen } from 'solid-icons/fa';
+import { FaSolidPen} from 'solid-icons/fa';
+import { FaSolidPlus} from 'solid-icons/fa';
+import { FaSolidTrash} from 'solid-icons/fa';
 import HexTile from '../HexUI/Components/HexTile';
+import { HoverActions } from './HoverActions';
 
 const [getSize, setSize] = createSignal<number>(0);
 export const [lastActiveTheme, setLastActiveTheme] = createSignal<Theme>(
@@ -39,7 +42,7 @@ export const AppearanceTab = () => {
       <Box w="100%" pt="10px" pb="50px" class="flex justify-between gap-3">
         {' '}
         <For each={getSettingsData()?.getThemes()}>
-          {(themeVar: Theme) => (
+          {(themeVar: Theme, i) => (
             <Show
               when={
                 themeVar.getThemeName() == 'Honey' ||
@@ -47,9 +50,9 @@ export const AppearanceTab = () => {
                 themeVar.getThemeName() == 'Dark'
               }
             >
-              <div class="rounded-lg card w-1/3">
+              <div class="group rounded-lg card w-1/3">
                 <input
-                  class="hoverEffect border-2 themes w-full rounded-md"
+                  class="hoverEffect group border-2 themes w-full rounded-md"
                   type="radio"
                   name="theme"
                   value={`${themeVar.getThemeName()}`}
@@ -64,7 +67,9 @@ export const AppearanceTab = () => {
                     updateSettingData();
                   }}
                 />{' '}
+              <HoverActions themesVar={themeVar} index={i()} editEnabled={false}></HoverActions>
                 <label class="pointer-events-none" for="card1">
+          
                   <Show when={themeVar.getThemeName() == 'Honey'}>
                     <svg
                       style={` color:${themeVar.getMainHexagonIcon()}; font-size:30px;`}
@@ -245,9 +250,9 @@ export const AppearanceTab = () => {
                 themeVar.getThemeName() !== 'Dark'
               }
             >
-              <div class=" mr-[11px] rounded-lg mt-10 focus:bg-accent hoverEffect card bg-neutral border-0">
+              <div class=" group mr-[11px] rounded-lg mt-10 focus:bg-accent hoverEffect card bg-neutral border-0">
                 <input
-                  class="hoverEffect border-2 themes rounded-md"
+                  class="group hoverEffect border-2 themes rounded-md"
                   type="radio"
                   checked={
                     themeVar.getThemeName() ===
@@ -261,6 +266,7 @@ export const AppearanceTab = () => {
                     updateSettingData();
                   }}
                 />{' '}
+                <HoverActions themesVar={themeVar} index={i()} editEnabled={true}></HoverActions>
                 <label class="pointer-events-none" for="card1">
                   <FaSolidPen
                     color={`${themeVar.getMainHexagonIcon()}`}

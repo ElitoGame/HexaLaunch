@@ -6,7 +6,7 @@ import SettingsData from './Settings/SettingsData';
 import { invoke } from '@tauri-apps/api/tauri';
 import { setHexUiData } from './main';
 import { emit } from '@tauri-apps/api/event';
-import Theme from './Themes/Theme';
+import Theme from './Themes/Themes';
 
 export class UserSettings {
   public static settings: UserSettings; // Using a Singleton here to ensure that the settings are only loaded once.
