@@ -551,6 +551,8 @@ export const AppearanceTab = () => {
               getSettingsData()?.setSettingsBgColor('#343434');
               getSettingsData()?.setSettingsNeutralColor('#5C5C5C');
               getSettingsData()?.setSettingsTextColor('#DFDFDF');
+              getSettingsData()?.setHexagonSize(66);
+              getSettingsData()?.setHexagonMargin(4);
               updateSettingData();
             }}
             class="bg-accent hoverEffect text-text"

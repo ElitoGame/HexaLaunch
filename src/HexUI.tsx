@@ -135,10 +135,12 @@ const HexUI = () => {
         let tile = getHexUiData()
           ?.getTiles()
           .find((t) => t.getX() === selectedHexTile().x && t.getY() === selectedHexTile().y);
-        if (tile.getAction() === 'App') {
-          openApp(tile.getApp(), tile.getUrl());
-        } else if (tile.getAction() === 'PaperBin') {
-          runAction('PaperBin');
+        if (tile) {
+          if (tile.getAction() === 'App') {
+            openApp(tile.getApp(), tile.getUrl());
+          } else if (tile.getAction() === 'PaperBin') {
+            runAction('PaperBin');
+          }
         }
       }
     }
@@ -146,12 +148,16 @@ const HexUI = () => {
 
   const [getSelectedSearchResult, setSelectedSearchResult] = createSignal(0);
 
+  let searchResult: HTMLDivElement | null = null;
+
   return (
     <div
       class={`${isSearchVisible() ? 'h-screen bg-zinc-800 bg-opacity-50' : 'h-0'}`}
       onFocusOut={() => {
-        setIsSearchVisible(false);
-        setSelectedSearchResult(0);
+        setTimeout(() => {
+          setIsSearchVisible(false);
+          setSelectedSearchResult(0);
+        }, 100);
       }}
     >
       <div
@@ -162,23 +168,24 @@ const HexUI = () => {
       >
         <InputGroup class="h-10">
           <InputLeftElement class="text-neutral-300">
-            <BsSearch />
+            <BsSearch class="fill-mainHexagonIcon" />
           </InputLeftElement>
           <Input
             type="text"
             ref={searchBar}
-            class="p-2 rounded-md pl-12"
-            style={{ 'background-color': '#595959', color: '#C3C2C2' }}
+            class="p-2 rounded-md pl-12 bg-mainHexagonBg text-mainHexagonIcon"
             onKeyDown={(e) => {
               if (e.key === 'ArrowUp') {
                 if (getSelectedSearchResult() > 0) {
                   setSelectedSearchResult(getSelectedSearchResult() - 1);
+                  searchResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
                 e.preventDefault();
                 console.log('arrow up');
               } else if (e.key === 'ArrowDown') {
                 if (getSelectedSearchResult() < getSearchResults()?.hits.length - 1) {
                   setSelectedSearchResult(getSelectedSearchResult() + 1);
+                  searchResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
                 e.preventDefault();
                 console.log('arrow down');
@@ -211,14 +218,7 @@ const HexUI = () => {
             each={getSearchResults()?.hits ?? []}
             fallback={
               <li>
-                <Box
-                  class="my-2 p-2"
-                  style={{
-                    'background-color': '#343434',
-                    color: '#FFFFFF',
-                  }}
-                  borderRadius="$lg"
-                >
+                <Box class="my-2 p-2 bg-mainHexagonBg text-mainHexagonIcon" borderRadius="$lg">
                   <Center>Search something to see results!</Center>
                 </Box>
               </li>
@@ -227,11 +227,13 @@ const HexUI = () => {
             {(res, i) => (
               <li>
                 <Box
-                  class="my-2 p-2 overflow-x-hidden"
-                  style={{
-                    'background-color':
-                      i() === getSelectedSearchResult() ? 'var(--neutral)' : 'var(--background)',
-                    color: '#FFFFFF',
+                  class={`my-2 p-2 overflow-x-hidden text-mainHexagonIcon ${
+                    i() === getSelectedSearchResult() ? 'bg-hoverHexagonBg' : 'bg-mainHexagonBg'
+                  }`}
+                  ref={(el) => {
+                    if (i() === getSelectedSearchResult()) {
+                      searchResult = el;
+                    }
                   }}
                   borderRadius="$lg"
                   onClick={() => {
@@ -258,17 +260,11 @@ const HexUI = () => {
                   }}
                 >
                   <HStack>
-                    <img src={res.document.icon} class="w-10 pr-2"></img>
+                    <img src={res.document.icon} class="w-10 pr-2 text-mainHexagonIcon"></img>
                     <div>
                       <span>{res.document.name}</span>
                       <br />
-                      <em
-                        style={{
-                          color: '#C3C2C2',
-                        }}
-                      >
-                        {res.document.executable}
-                      </em>{' '}
+                      <em class="brightness-75">{res.document.executable}</em>{' '}
                     </div>
                   </HStack>
                 </Box>

@@ -139,6 +139,8 @@ await listen('updateSettings', (event) => {
     theme.subHexagonBorderWidth
   );
   document.documentElement.style.setProperty('--mainHexagonIcon', theme.mainHexagonIcon);
+  document.documentElement.style.setProperty('--subHexagonIcon', theme.subHexagonIcon);
+  document.documentElement.style.setProperty('--hoverHexagonIcon', theme.hoverHexagonIcon);
 });
 
 try {

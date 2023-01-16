@@ -121,7 +121,7 @@ const HexTile = (props: {
       class: '',
       customTheme: null,
       scale: 100,
-      scaleWithHexSize: 66,
+      scaleWithHexSize: true,
     },
     props
   );
@@ -137,8 +137,8 @@ const HexTile = (props: {
 
   // console.log(merged.radiant, props.radiant, merged.hasAnimation);
   const [getScale, setScale] = createSignal(merged.hasAnimation ? 0 : merged.scale);
-  const customSize = merged.scaleWithHexSize ? getHexSize() : 66;
-  const customMargin = merged.scaleWithHexSize ? getHexMargin() : 4;
+  const customSize = () => (merged.scaleWithHexSize ? getHexSize() : 66);
+  const customMargin = () => (merged.scaleWithHexSize ? getHexMargin() : 4);
   let delay = 1;
   if (merged.hasAnimation) {
     // give a delay according to these coordinates
@@ -187,19 +187,19 @@ const HexTile = (props: {
         ", "title":"${merged.title.replaceAll('\\', '')}"}`}
         style={{
           left: `${
-            merged.x * (customSize + customMargin) - // maybe hexsize  * 0.98
-            (merged.y % 2 === 0 ? 0 : (customSize + customMargin) / 2) -
-            customSize / 2 -
-            (customMargin / 8) * 11.75
+            merged.x * (customSize() + customMargin()) - // maybe hexsize  * 0.98
+            (merged.y % 2 === 0 ? 0 : (customSize() + customMargin()) / 2) -
+            customSize() / 2 -
+            (customMargin() / 8) * 11.75
           }px`,
           bottom: `${
-            merged.y * (customSize * 0.86 + customMargin) - // maybe hexsize  * 0.85
-            (customSize / 13) * 8 -
-            (customMargin / 8) * 11.75
+            merged.y * (customSize() * 0.86 + customMargin()) - // maybe hexsize  * 0.85
+            (customSize() / 13) * 8 -
+            (customMargin() / 8) * 11.75
           }px`,
-          width: `${customSize + customMargin}px`,
-          margin: `${customMargin}px`,
-          height: `${(customSize + customMargin) * 1.169}px`,
+          width: `${customSize() + customMargin()}px`,
+          margin: `${customMargin()}px`,
+          height: `${(customSize() + customMargin()) * 1.169}px`,
           'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
           'z-index': merged.zIndex ?? 0,
           'transform-origin': 'center',
@@ -212,11 +212,11 @@ const HexTile = (props: {
           class={'group absolute hover:scale-97'}
           id={`radiant:${merged.radiant}`}
           style={{
-            left: `${(customMargin / 2) * -1}px`,
-            bottom: `${(customMargin / 2) * -1}px`,
-            width: `${customSize}px`,
-            margin: `${customMargin}px`,
-            height: `${customSize * 1.169}px`,
+            left: `${(customMargin() / 2) * -1}px`,
+            bottom: `${(customMargin() / 2) * -1}px`,
+            width: `${customSize()}px`,
+            margin: `${customMargin()}px`,
+            height: `${customSize() * 1.169}px`,
             'transform-origin': 'center',
             'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
             'z-index': (merged.zIndex ?? 0) + 1,
@@ -229,7 +229,7 @@ const HexTile = (props: {
           }}
           onClick={merged.onClick}
         >
-          <svg width={customSize + customMargin * 2} height={customSize * 1.169}>
+          <svg width={customSize() + customMargin() * 2} height={customSize() * 1.169}>
             <Show when={merged.hasHoverEffect}>
               <HexPaths
                 part={
@@ -266,7 +266,11 @@ const HexTile = (props: {
 
           <Switch
             fallback={
-              <span class="text-xl text-mainHexagonIcon absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+              <span
+                class={`text-xl ${
+                  merged.radiant === 0 ? 'text-mainHexagonIcon' : 'text-subHexagonIcon'
+                } group-hover:text-hoverHexagonIcon absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`}
+              >
                 {merged.title}
               </span>
             }
@@ -304,10 +308,10 @@ const HexTile = (props: {
                         src={icon()}
                         class={`absolute`}
                         style={{
-                          width: `${customSize / 66}rem`,
-                          height: `${customSize / 66}rem`,
-                          top: `${customSize / 66}rem`,
-                          left: `${(customSize * 1.3) / 66}rem`,
+                          width: `${customSize() / 66}rem`,
+                          height: `${customSize() / 66}rem`,
+                          top: `${customSize() / 66}rem`,
+                          left: `${(customSize() * 1.3) / 66}rem`,
                         }}
                       ></img>
                     </div>
@@ -325,7 +329,11 @@ const HexTile = (props: {
                   when={!merged.isSettings || getCurrentMedia()?.title === undefined}
                   fallback={
                     <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                      <FaSolidMusic class="w-5 h-5 text-mainHexagonIcon" />
+                      <FaSolidMusic
+                        class={`w-5 h-5 ${
+                          merged.radiant === 0 ? 'text-mainHexagonIcon' : 'text-subHexagonIcon'
+                        } group-hover:text-hoverHexagonIcon`}
+                      />
                     </span>
                   }
                 >
@@ -335,8 +343,8 @@ const HexTile = (props: {
                       left: '50%',
                       top: '50%',
                       transform: 'translate(-50%, -50%)',
-                      width: `${customSize - merged.border}px`,
-                      height: `${(customSize - merged.border) * 1.169}px`,
+                      width: `${customSize() - merged.border}px`,
+                      height: `${(customSize() - merged.border) * 1.169}px`,
                       'clip-path': 'polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)',
                     }}
                   >
@@ -346,7 +354,7 @@ const HexTile = (props: {
                         getHovered() ? 'brightness-50' : ''
                       }`}
                       style={{
-                        height: `${(customSize - merged.border) * 1.169}px`,
+                        height: `${(customSize() - merged.border) * 1.169}px`,
                         'min-width': `min-content`,
                         display: isBrokenImage() ? 'none' : 'block',
                       }}
@@ -359,7 +367,11 @@ const HexTile = (props: {
                     />
                     <Show when={isBrokenImage()}>
                       <span class="text-xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                        <FaSolidMusic class="w-5 h-5 text-mainHexagonIcon" />
+                        <FaSolidMusic
+                          class={`w-5 h-5 ${
+                            merged.radiant === 0 ? 'text-mainHexagonIcon' : 'text-subHexagonIcon'
+                          } group-hover:text-hoverHexagonIcon`}
+                        />
                       </span>
                     </Show>
                     <Show when={getHovered() && getCurrentMedia() && getCurrentMedia().title}>
@@ -398,7 +410,11 @@ const HexTile = (props: {
               </>
             </Match>
             <Match when={merged.action === 'PaperBin'}>
-              <FaSolidTrashCan class="bin fill-mainHexagonIcon w-5 h-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none" />
+              <FaSolidTrashCan
+                class={`bin ${
+                  merged.radiant === 0 ? 'fill-mainHexagonIcon' : 'fill-subHexagonIcon'
+                } group-hover:fill-hoverHexagonIcon w-5 h-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none`}
+              />
             </Match>
           </Switch>
         </div>
@@ -410,10 +426,10 @@ const HexTile = (props: {
 export default HexTile;
 
 const HexPaths = (props: { part: ThemePart; class?: string; scaleWithHexSize?: boolean }) => {
-  console.log('Reading props part: ', props.part);
   // if (!props.part) return <></>;
+  const borderTranslation = () => parseInt(props.part?.getHexagonBorderWidth() ?? '10') / 2;
   return (
-    <g class={props.class ?? ''}>
+    <g class={props.class + ' relative' ?? 'relative'}>
       {/* Path to only show the bottom border */}
       <Switch>
         <Match when={props.part?.getHexagonBorderStyle() === 'shadow'}>
@@ -469,9 +485,7 @@ const HexPaths = (props: { part: ThemePart; class?: string; scaleWithHexSize?: b
             )}`}
             style={{
               fill: props.part.getHexagonBg(),
-              transform: `translate(${
-                parseInt(props.part?.getHexagonBorderWidth() ?? '10') / 2
-              }%, ${parseInt(props.part?.getHexagonBorderWidth() ?? '10') / 2}%)`,
+              transform: `translate(${borderTranslation()}%, ${borderTranslation()}%)`,
             }}
           />
         </Match>
