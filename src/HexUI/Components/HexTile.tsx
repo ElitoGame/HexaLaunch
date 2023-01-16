@@ -184,7 +184,7 @@ const HexTile = (props: {
         }", "app":"${merged.app.replaceAll('\\', '\\\\')}", "url":"${merged.url
           .trim()
           .replaceAll('\\', '\\\\')}
-        ", "title":"${merged.title.replace('\\', '')}"}`}
+        ", "title":"${merged.title.replaceAll('\\', '')}"}`}
         style={{
           left: `${
             merged.x * (customSize + customMargin) - // maybe hexsize  * 0.98
@@ -418,7 +418,13 @@ const HexPaths = (props: { part: ThemePart; class?: string; scaleWithHexSize?: b
       <Switch>
         <Match when={props.part?.getHexagonBorderStyle() === 'shadow'}>
           <path
-            d={`${getHexagonPathData(props.part.getHexagonRadius(), 0.985, 0, -1.3)}`}
+            d={`${getHexagonPathData(
+              props.part.getHexagonRadius(),
+              0.985,
+              0,
+              -1.3,
+              props.scaleWithHexSize
+            )}`}
             style={{
               fill: props.part.getHexagonBorder(),
               transform: `translate(0.5%, 0%)`,

@@ -1,10 +1,11 @@
-import { search, SearchResult } from '@lyrasearch/lyra';
+import { search } from '@lyrasearch/lyra';
 import { createSignal } from 'solid-js';
 import HexUiData from './DataModel/HexUiData';
 import { fs, invoke } from '@tauri-apps/api';
 import { externalAppManager } from './externalAppManager';
 import { emit, listen } from '@tauri-apps/api/event';
 import Theme from './Themes/Theme';
+import { SearchResult } from '@lyrasearch/lyra/dist/methods/search';
 
 export const [getShowPosition, setShowPosition] = createSignal({ x: 0, y: 0 });
 export const [getCursorPosition, setCursorPosition] = createSignal({
@@ -195,7 +196,7 @@ async function searchAppDBAsync(query: string, offset: number) {
       }
       return await externalAppManager.searchFileSystem(query, offset);
     } else {
-      let result = search(await externalAppManager.getSearchDatabase(), {
+      let result = await search(await externalAppManager.getSearchDatabase(), {
         term: query,
         properties: ['name', 'executable'],
         offset: offset,

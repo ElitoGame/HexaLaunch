@@ -1,11 +1,13 @@
 import { fs } from '@tauri-apps/api';
-import { create, insertBatch, Lyra, search, SearchResult } from '@lyrasearch/lyra';
+import { create, insertBatch, search } from '@lyrasearch/lyra';
 import { Command } from '@tauri-apps/api/shell';
 import { queryNamesOfExes } from './queryApps';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { setAllApps, setRelevantApps } from './settings';
 import { BaseDirectory } from '@tauri-apps/api/fs';
 import { listen } from '@tauri-apps/api/event';
+import { Lyra } from '@lyrasearch/lyra/dist/types';
+import { SearchResult } from '@lyrasearch/lyra/dist/methods/search';
 
 const defaultIcon: string =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEaSURBVFhH7ZTbCoJAEIYlgoggguhZiw5QVBdB14HQ00T0CqUP4AN41puJAVe92F3HRZegHfgQFvH7/1nQMmPmZ+Z8uYJOCm01vJe64PF8cZ+Ftho89DxPC8IAeZ73QpZlJWmattsAfsBavsk0yRsD3Ox7ST3A4uTC/OjC7ODCdO/AZOfAeOvAaPOB4foDg1UVwLZtIUmSqG2AIq9vgNcc5coBKHIWgNec0RhAdAUUOSJrjsRxrLYBihxBMa85QzkARY7ImjOkAURXQJEjKOY1Z0RRpLYBihyRNUe5cgCKHEEprzmjMYDoCqjImiNhGKptgApvA3V57wFkzbUGEMmDIGgfAKH84ShypQBdyn3fFwfQSaE1Y+bvx7K+Vs0alqBeFFIAAAAASUVORK5CYII=\r';
@@ -140,7 +142,7 @@ export class externalAppManager {
   }
 
   private static async updateSearchDatabase() {
-    this.appDB = create({
+    this.appDB = await create({
       schema: {
         executable: 'string',
         name: 'string',
@@ -290,7 +292,7 @@ export class externalAppManager {
     // New folder, so we need to query the folder.
     if (this.lastFileQuery !== fileFolder) {
       this.lastFileQuery = fileFolder;
-      this.fileSystemDB = create({
+      this.fileSystemDB = await create({
         schema: {
           name: 'string',
           executable: 'string',

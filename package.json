@@ -11,17 +11,17 @@
   "license": "MIT",
   "devDependencies": {
     "@tauri-apps/cli": "^1.2.2",
-    "@types/node": "^18.11.9",
-    "autoprefixer": "^10.4.8",
-    "postcss": "^8.4.16",
-    "tailwindcss": "^3.1.8",
-    "typescript": "^4.8.2",
-    "vite": "^3.0.9",
-    "vite-plugin-solid": "^2.3.0"
+    "@types/node": "^18.11.18",
+    "autoprefixer": "^10.4.13",
+    "postcss": "^8.4.21",
+    "tailwindcss": "^3.2.4",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.4",
+    "vite-plugin-solid": "^2.5.0"
   },
   "dependencies": {
     "@hope-ui/solid": "^0.6.7",
-    "@lyrasearch/lyra": "^0.3.1",
+    "@lyrasearch/lyra": "^0.4.1",
     "@node-steam/vdf": "^2.2.0",
     "@stitches/core": "^1.2.8",
     "@tauri-apps/api": "^1.2.0",
@@ -29,7 +29,7 @@
     "fetch-installed-software": "^0.0.7",
     "open": "^8.4.0",
     "solid-icons": "^1.0.4",
-    "solid-js": "^1.5.1",
+    "solid-js": "^1.6.9",
     "solid-transition-group": "^0.0.10"
   }
 }
