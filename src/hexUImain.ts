@@ -10,9 +10,11 @@ import {
   getHexMargin,
   getHexSize,
   getShowPosition,
+  isConfirmClearPaperBin,
   isHexUiVisible,
   isMoveToCursor,
   isSearchVisible,
+  setConfirmClearPaperBin,
   setCurrentRadiant,
   setCursorPosition,
   setHexUiData,
@@ -290,16 +292,27 @@ export const openApp = async (app: string, url: string) => {
     console.log('pid:', child.pid);
   }
 };
+let confirmClearPaperBinTimeoutReset: NodeJS.Timeout;
 export const runAction = async (action: string, option?: string) => {
   console.log('running action', action, option);
   if (action === 'PaperBin') {
-    const command = new Command('clearbin', ['-Command', 'Clear-RecycleBin', '-Force']);
-    command.on('close', (data) => {
-      toggleUI(true);
-      console.log(`command finished with code ${data.code} and signal ${data.signal}`);
-    });
-    const child = await command.spawn();
-    console.log('pid:', child.pid);
+    if (isConfirmClearPaperBin()) {
+      setConfirmClearPaperBin(false);
+      clearTimeout(confirmClearPaperBinTimeoutReset);
+      const command = new Command('clearbin', ['-Command', 'Clear-RecycleBin', '-Force']);
+      command.on('close', (data) => {
+        toggleUI(true);
+        console.log(`command finished with code ${data.code} and signal ${data.signal}`);
+      });
+      const child = await command.spawn();
+      console.log('pid:', child.pid);
+    } else {
+      setConfirmClearPaperBin(true);
+      clearTimeout(confirmClearPaperBinTimeoutReset);
+      confirmClearPaperBinTimeoutReset = setTimeout(() => {
+        setConfirmClearPaperBin(false);
+      }, 5000);
+    }
   }
   // window.electronAPI.runAction(action, option);
 };
@@ -426,5 +439,7 @@ await listen('updateSettings', (event) => {
       theme.subHexagonBorderWidth
     );
     document.documentElement.style.setProperty('--mainHexagonIcon', theme.mainHexagonIcon);
+    document.documentElement.style.setProperty('--subHexagonIcon', theme.subHexagonIcon);
+    document.documentElement.style.setProperty('--hoverHexagonIcon', theme.hoverHexagonIcon);
   }
 });

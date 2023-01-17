@@ -16,15 +16,28 @@ import {
 import { createSignal, For, Match, Show, Switch } from 'solid-js';
 import { getHexUiData, getSearchResults, searchAppDB } from '../main';
 import HexTileData, { actionType } from '../DataModel/HexTileData';
-import { externalApp } from '../externalAppManager';
+import { externalApp, getLatestCustomApp } from '../externalAppManager';
 import { UserSettings } from '../datastore';
 import { setSettingsGridTiles, setOptionsVisible, setOverWriteWarning } from './SettingsMenu';
 import { BsSearch } from 'solid-icons/bs';
 import { FaSolidMusic, FaSolidTrashCan } from 'solid-icons/fa';
+import { listen } from '@tauri-apps/api/event';
 
 export const LayoutTab = () => {
   let searchBar: HTMLInputElement | undefined;
   let dragElement: HTMLImageElement | undefined;
+  let newAddedItem: HTMLLIElement | undefined;
+
+  listen('customAppAdded', () => {
+    console.log('Custom app added: ' + getLatestCustomApp()?.executable);
+    setTimeout(() => {
+      newAddedItem?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      newAddedItem?.classList.add('bg-accent');
+      setTimeout(() => {
+        newAddedItem?.classList.remove('bg-accent');
+      }, 2000);
+    }, 100);
+  });
 
   const [isDraggingFromSidebar, setIsDraggingFromSidebar] = createSignal<boolean>(false);
 
@@ -110,7 +123,9 @@ export const LayoutTab = () => {
           onInput={(e) => {
             searchAppDB((e.target as HTMLInputElement).value);
           }}
-          placeholder={`Search all available apps (${getAllApps()?.length ?? 0})`}
+          placeholder={`Search all available apps (${
+            (getAllApps()?.length ?? 0) === 0 ? 'Loading...' : getAllApps().length
+          })`}
         />
       </InputGroup>
       <br />
@@ -187,7 +202,11 @@ export const LayoutTab = () => {
         }
       >
         <h2>
-          Apps <span class="text-neutral">({(getRelevantApps() ?? []).length} Relevant)</span>
+          Apps{' '}
+          <span class="text-neutral">
+            ({(getRelevantApps() ?? []).length === 0 ? 'Loading' : getRelevantApps().length}{' '}
+            Relevant)
+          </span>
         </h2>
         <p>
           This list only contains the most important Apps. If you do not find the App you are
@@ -206,6 +225,12 @@ export const LayoutTab = () => {
             <For each={getRelevantApps() ?? []}>
               {(res) => (
                 <li
+                  ref={(el) => {
+                    if (res.executable == getLatestCustomApp()?.executable) {
+                      newAddedItem = el;
+                    }
+                  }}
+                  class="select-none cursor-pointer pl-1 rounded-lg transition-colors"
                   onMouseDown={(e) => {
                     console.log('mouse down');
                     setIsDraggingTiles(true);

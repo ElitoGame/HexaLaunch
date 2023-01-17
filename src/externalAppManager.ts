@@ -5,10 +5,12 @@ import { queryNamesOfExes } from './queryApps';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { setAllApps, setRelevantApps } from './settings';
 import { BaseDirectory } from '@tauri-apps/api/fs';
-import { listen } from '@tauri-apps/api/event';
+import { emit, listen } from '@tauri-apps/api/event';
 import { Lyra } from '@lyrasearch/lyra/dist/types';
 import { SearchResult } from '@lyrasearch/lyra/dist/methods/search';
+import { createSignal } from 'solid-js';
 
+export const [getLatestCustomApp, setLatestCustomApp] = createSignal<externalApp | null>(null);
 const defaultIcon: string =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEaSURBVFhH7ZTbCoJAEIYlgoggguhZiw5QVBdB14HQ00T0CqUP4AN41puJAVe92F3HRZegHfgQFvH7/1nQMmPmZ+Z8uYJOCm01vJe64PF8cZ+Ftho89DxPC8IAeZ73QpZlJWmattsAfsBavsk0yRsD3Ox7ST3A4uTC/OjC7ODCdO/AZOfAeOvAaPOB4foDg1UVwLZtIUmSqG2AIq9vgNcc5coBKHIWgNec0RhAdAUUOSJrjsRxrLYBihxBMa85QzkARY7ImjOkAURXQJEjKOY1Z0RRpLYBihyRNUe5cgCKHEEprzmjMYDoCqjImiNhGKptgApvA3V57wFkzbUGEMmDIGgfAKH84ShypQBdyn3fFwfQSaE1Y+bvx7K+Vs0alqBeFFIAAAAASUVORK5CYII=\r';
 const defaultIcon2: string =
@@ -174,9 +176,9 @@ export class externalAppManager {
     if (fs.exists('', { dir: BaseDirectory.AppData })) {
       if (
         this.appDataRelevant.length === 0 &&
-        fs.exists('appDataRelevant.json', {
+        (await fs.exists('appDataRelevant.json', {
           dir: BaseDirectory.AppData,
-        })
+        }))
       ) {
         const relevantData = await fs.readTextFile('appDataRelevant.json', {
           dir: BaseDirectory.AppData,
@@ -269,6 +271,8 @@ export class externalAppManager {
             }
             return 0;
           });
+          emit('customAppAdded');
+          setLatestCustomApp(app);
           setRelevantApps(this.appDataRelevant);
           setAllApps(this.appData);
           this.saveAppDataToDisk();

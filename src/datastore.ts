@@ -236,9 +236,9 @@ export class UserSettings {
         console.log('No user-settings.json found. Using default settings.');
         await UserSettings.settings.save();
         invoke('plugin:autostart|enable');
-        getAll()
-          .find((x) => x.label === 'settings')
-          ?.show();
+        setTimeout(async () => {
+          await emit('first_run');
+        }, 2000);
       }
       try {
         const data = JSON.parse(

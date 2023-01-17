@@ -121,6 +121,12 @@ fn main() {
                     }
                 });
             }
+            let first_run_hanlde = app.handle().clone();
+            app.once_global("first_run", move |_event| {
+                let window = first_run_hanlde.get_window("settings").unwrap();
+                window.show().unwrap();
+                window.set_focus().unwrap();
+            });
             Ok(())
         })
         .plugin(tauri_plugin_autostart::init(
@@ -1017,6 +1023,7 @@ lazy_static! {
         "verif".to_string(),
         "crash".to_string(),
         "bug".to_string(),
+        "hexalaunch".to_string(),
     ];
 }
 fn is_valid(path: String, ignore_update: bool) -> bool {

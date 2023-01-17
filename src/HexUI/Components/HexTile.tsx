@@ -1,12 +1,21 @@
-import { createResource, createSignal, Match, mergeProps, onMount, Show, Switch } from 'solid-js';
+import {
+  createEffect,
+  createResource,
+  createSignal,
+  Match,
+  mergeProps,
+  onMount,
+  Show,
+  Switch,
+} from 'solid-js';
 import { JSX } from 'solid-js/jsx-runtime';
 import {
   getCurrentMedia,
   getHexMargin,
   getHexSize,
+  isConfirmClearPaperBin,
   isFullLayout,
   isValidUrl,
-  selectedHexTile,
 } from '../../main';
 
 import {
@@ -238,6 +247,7 @@ const HexTile = (props: {
                 }
                 class="group-hover:block hidden"
                 scaleWithHexSize={merged.scaleWithHexSize}
+                action={merged.action}
               ></HexPaths>
             </Show>
             <Show
@@ -250,6 +260,7 @@ const HexTile = (props: {
                   }
                   class={`${merged.hasHoverEffect ? 'group-hover:hidden' : ''}`}
                   scaleWithHexSize={merged.scaleWithHexSize}
+                  action={merged.action}
                 ></HexPaths>
               }
             >
@@ -260,6 +271,7 @@ const HexTile = (props: {
                 }
                 class={`${merged.hasHoverEffect ? 'group-hover:hidden' : ''}`}
                 scaleWithHexSize={merged.scaleWithHexSize}
+                action={merged.action}
               ></HexPaths>
             </Show>
           </svg>
@@ -425,9 +437,19 @@ const HexTile = (props: {
 
 export default HexTile;
 
-const HexPaths = (props: { part: ThemePart; class?: string; scaleWithHexSize?: boolean }) => {
+const HexPaths = (props: {
+  part: ThemePart;
+  class?: string;
+  scaleWithHexSize?: boolean;
+  action: string;
+}) => {
   // if (!props.part) return <></>;
   const borderTranslation = () => parseInt(props.part?.getHexagonBorderWidth() ?? '10') / 2;
+  const bgColor = (): string => {
+    return isConfirmClearPaperBin() && props.action === 'PaperBin'
+      ? '#ca4747'
+      : props.part.getHexagonBg();
+  };
   return (
     <g class={props.class + ' relative' ?? 'relative'}>
       {/* Path to only show the bottom border */}
@@ -455,7 +477,7 @@ const HexPaths = (props: { part: ThemePart; class?: string; scaleWithHexSize?: b
               props.scaleWithHexSize
             )}`}
             style={{
-              fill: props.part.getHexagonBg(),
+              fill: bgColor(),
               transform: `translate(0%, 0%)`,
             }}
           />
@@ -484,7 +506,7 @@ const HexPaths = (props: { part: ThemePart; class?: string; scaleWithHexSize?: b
               props.scaleWithHexSize
             )}`}
             style={{
-              fill: props.part.getHexagonBg(),
+              fill: bgColor(),
               transform: `translate(${borderTranslation()}%, ${borderTranslation()}%)`,
             }}
           />
@@ -499,7 +521,7 @@ const HexPaths = (props: { part: ThemePart; class?: string; scaleWithHexSize?: b
               props.scaleWithHexSize
             )}`}
             style={{
-              fill: props.part.getHexagonBg(),
+              fill: bgColor(),
               transform: `translate(0%, 0%)`,
             }}
           />

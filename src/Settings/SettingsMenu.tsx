@@ -447,23 +447,32 @@ const HexUIGrid = () => {
           >
             <div class="bg-background p-4 rounded-md">
               <Center class="pb-2">
-                <Switch
-                  fallback={
-                    <Show
-                      when={deleteIcon.loading || deleteIcon() === '' || !deleteIcon()}
-                      fallback={<img src={deleteIcon()} alt="" class="w-10 h-10" />}
-                    >
-                      <span class="">{'Image Unavailable'}</span>
-                    </Show>
-                  }
-                >
-                  <Match when={getDeleteDialog().targetTile.action === 'MediaPlayer'}>
-                    <FaSolidMusic class="w-5 h-5 text-text" />
-                  </Match>
-                  <Match when={getDeleteDialog().targetTile.action === 'PaperBin'}>
-                    <FaSolidTrashCan class="w-5 h-5 text-text" />
-                  </Match>
-                </Switch>
+                <VStack>
+                  <Switch
+                    fallback={
+                      <Show
+                        when={deleteIcon.loading || deleteIcon() === '' || !deleteIcon()}
+                        fallback={<img src={deleteIcon()} alt="" class="w-10 h-10" />}
+                      >
+                        <span class="">{'Image Unavailable'}</span>
+                      </Show>
+                    }
+                  >
+                    <Match when={getDeleteDialog().targetTile.action === 'MediaPlayer'}>
+                      <FaSolidMusic class="w-5 h-5 text-text" />
+                    </Match>
+                    <Match when={getDeleteDialog().targetTile.action === 'PaperBin'}>
+                      <FaSolidTrashCan class="w-5 h-5 text-text" />
+                    </Match>
+                  </Switch>
+                  <p class="w-48 pt-1">
+                    Are you sure you want to delete{' '}
+                    {getDeleteDialog().targetTile.action === 'App'
+                      ? 'this app'
+                      : 'the action ' + getDeleteDialog().targetTile.action}
+                    ?
+                  </p>
+                </VStack>
               </Center>
               <HStack class="mt-2">
                 <Button
@@ -894,7 +903,10 @@ const SettingsMenu = () => {
 
           <button
             class="text-text h-full px-2 focus:outline-none hover:bg-red-500"
-            onClick={() => {
+            onClick={async () => {
+              if (await appWindow.isMaximized()) {
+                await appWindow.unmaximize();
+              }
               appWindow.hide();
             }}
           >

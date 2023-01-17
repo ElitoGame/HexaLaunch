@@ -24,6 +24,7 @@ export const [isSearchVisible, setIsSearchVisible] = createSignal(false);
 export const [isHexUiVisible, setIsHexUiVisible] = createSignal(false);
 export const [getCurrentMedia, setCurrentMedia] = createSignal<MediaObject>();
 export const [selectedHexTile, setSelectedHexTile] = createSignal({ x: -99, y: -99 });
+export const [isConfirmClearPaperBin, setConfirmClearPaperBin] = createSignal(false);
 
 await listen('updateSettings', (event) => {
   const { settings, theme } = event.payload as {
