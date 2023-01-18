@@ -31,7 +31,7 @@ const light = new Theme(
   '3px',
   'solid',
   '#414141',
-  '#DFDFDF',
+  '#343434',
   '',
   '',
   '3px',

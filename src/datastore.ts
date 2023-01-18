@@ -90,7 +90,7 @@ export class UserSettings {
           '10',
           'none',
           '#A2D6E1',
-          '#DFDFDF',
+          '#343434',
           '#000000',
           '0',
           '10',
