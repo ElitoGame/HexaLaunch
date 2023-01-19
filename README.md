@@ -70,13 +70,14 @@ Builds a executable for your current platform. Additional build platforms can be
 $ npm run tauri build
 ```
 
+<br><br>
 
 # Getting started
 
 After installing and starting the application for the first time the settings should open right away.  
 If this is not the case, you can open the settings (and quit HexaLaunch) at any time by right-clicking the tray icon. 
 
-![systemTray](img/systemTray2.png)
+![systemTray](img/systemTray2.PNG)
 
 Jump to [Settings](#settings) to find out how to customize your application.  
 <br><br>
@@ -100,10 +101,11 @@ The sub hexagons will pop up when you hover over their main hexagon. You don't n
 ## Actions
 
 |  Icon 	|   Name	|Description   	|  
-|---	|---	|---	|	
+|:---	|:---	|:---	|	
 | ![Search](img/search.svg) 	|  Search 	| The search detects almost all installed applications. When the HexUI is open, you can start typing to search for something. The search action does not have to be added to your layout.  	|   	
 | ![Paper bin](img/paperBin.svg)  	| Paper_bin  	| The paper bin action can empty your paper bin with one click. You can add the paper bin action to your layout in the settings.   	|   	
-| ![Music](img/music.svg)  	| Music  	| Played music is detected and can be paused and skipped by hovering over the hexagon. You can add the music action to your layout in the settings. 	|   	
+| ![Music](img/music.svg)  	| Music  	| Played music is detected and can be paused and skipped by hovering over the hexagon. You can add the music action to your layout in the settings. 	|  
+
 <br><br>
 
 # Settings
