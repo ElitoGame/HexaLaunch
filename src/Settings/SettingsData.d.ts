@@ -1,6 +1,6 @@
 import { ThemeStyleConfig } from '@hope-ui/solid';
 import { ThemeTokens } from '@stitches/core/types/stitches';
-import Themes from '../Themes/Themes';
+import Themes from '../Themes/Theme';
 
 export default class SettingsData {
   width: number;

@@ -228,18 +228,27 @@ export const updateSettingData = () => {
     // console.error(e);
   }
 
+  
+   emit('updateNewTheme', {
+    theme: getSettingsData()?.getCurrentTheme(),
+  });
+
   console.log(userSettings.getSetting());
   if (
     getSettingsData()
       .getThemes()
       .find((x) => x.getThemeName() === getSettingsData()?.getNewTheme().getThemeName())
   ) {
+   
     emit('updateSettings', {
       settings: userSettings.getSetting(),
       theme: getSettingsData()?.getCurrentTheme(),
     });
+    
   }
 };
+
+
 
 let oldShortcut = getSettingsData()?.getHotkeys().join('+') ?? 'Control+Shift+Space';
 const mainWindow = window.getAll().find((w) => w.label === 'main');

@@ -204,10 +204,10 @@ export default class SettingsData {
   }
 
   public getNewTheme() {
-    return this.currentTheme;
+    return this.newTheme
   }
   public setNewTheme(x: Theme) {
-    this.currentTheme = x;
+    this.newTheme= x;
   }
 
   // Convert the Object to a JSON string

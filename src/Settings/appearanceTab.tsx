@@ -31,6 +31,7 @@ import { produce } from 'solid-js/store';
 import { setThemes, themes } from '../themes';
 
 const [getSize, setSize] = createSignal<number>(0);
+const[isCurrenTheme, setIsCurrentTheme] = createSignal(false);
 export const [lastActiveTheme, setLastActiveTheme] = createSignal<Theme>(
   getSettingsData().getCurrentTheme()
 );
@@ -637,24 +638,46 @@ export const AppearanceTab = () => {
                   <Button
                     class="bg-accent hover:bg-accent hover:brightness-125 text-text"
                     onClick={() => {
+                      
                       if (getThemeDeletionData().index > -1) {
+                        if(getSettingsData().getCurrentTheme().getThemeName() == getThemeDeletionData().themeToDelete.getThemeName()){
+                        setIsCurrentTheme(true);
+                        }
+                        if(getSettingsData().getNewTheme().getThemeName() == getThemeDeletionData().themeToDelete.getThemeName()){
+                          getSettingsData()?.setNewTheme(
+                          getSettingsData()?.getThemes()[0])
+                          }
+                        
                         setThemes({ themes: getSettingsData().getThemes() });
-                        let newThemesArray = removeThemeWithName(
-                          themes.themes,
-                          getThemeDeletionData().themeToDelete?.getThemeName()
-                        );
+                        
                         setThemes(
-                          produce((store) =>
-                            removeThemeWithName(
-                              store.themes,
-                              getThemeDeletionData().themeToDelete?.getThemeName()
-                            )
+                          produce((store) =>{
+                            const objWithIdIndex = store.themes.findIndex((obj) => obj.getThemeName() === getThemeDeletionData().themeToDelete.getThemeName());
+    
+                            if (objWithIdIndex > -1) {
+                              store.themes.splice(objWithIdIndex, 1);}}
                           )
                         );
-                        getSettingsData()?.setThemes(newThemesArray);
+                        console.log(JSON.stringify(themes.themes))
+
+                        getSettingsData()?.setThemes(removeThemeWithName(
+                          themes.themes,
+                          getThemeDeletionData().themeToDelete?.getThemeName()
+                        ));
+                        console.log(JSON.stringify(getSettingsData().getThemes()))
+                        console.log(JSON.stringify(getSettingsData().getCurrentTheme()))
                       }
-                      updateSettingData();
+                      if(isCurrenTheme()){
+                      getSettingsData()?.setCurrentTheme(
+                        getSettingsData()?.getThemes()[0]
+                        
+                      );};
+                   
+                      console.log(JSON.stringify(getSettingsData().getCurrentTheme()))
+                      
+                      setIsCurrentTheme(false);
                       setThemeDeletionData({ isOpen: false, themeToDelete: undefined, index: 0 });
+                      updateSettingData();
                     }}
                   >
                     Continue

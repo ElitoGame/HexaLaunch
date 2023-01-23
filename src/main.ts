@@ -144,6 +144,55 @@ await listen('updateSettings', (event) => {
   document.documentElement.style.setProperty('--hoverHexagonIcon', theme.hoverHexagonIcon);
 });
 
+await listen('updateNewTheme', (event) => {
+  const { theme } = event.payload as {
+   
+    theme: {
+      themeName: string;
+
+      mainHexagonBg: string;
+      mainHexagonIcon: string;
+      mainHexagonBorder: string;
+      mainHexagonRadius: string;
+      mainHexagonBorderWidth: string;
+      mainHexagonBorderStyle: string;
+
+      subHexagonBg: string;
+      subHexagonIcon: string;
+      subHexagonBorder: string;
+      subHexagonRadius: string;
+      subHexagonBorderWidth: string;
+      subHexagonBorderStyle: string;
+
+      hoverHexagonBg: string;
+      hoverHexagonIcon: string;
+      hoverHexagonBorder: string;
+      hoverHexagonRadius: string;
+      hoverHexagonBorderWidth: string;
+      hoverHexagonBorderStyle: string;
+    };
+  };
+ 
+
+  console.log('modified theme', theme);
+
+
+  document.documentElement.style.setProperty(
+    '--mainHexagonBg',
+    theme.mainHexagonBg
+  );
+  document.documentElement.style.setProperty(
+    '--hoverHexagonBg',
+    theme.hoverHexagonBg
+  );
+  document.documentElement.style.setProperty('--subHexagonBg', theme.subHexagonBg);
+  document.documentElement.style.setProperty('--mainHexagonIcon', theme.mainHexagonIcon);
+  document.documentElement.style.setProperty('--subHexagonIcon', theme.subHexagonIcon);
+  document.documentElement.style.setProperty('--hoverHexagonIcon', theme.hoverHexagonIcon);
+});
+
+
+
 try {
   // check if the user-settings.json file exists
   if (await fs.exists('user-settings.json', { dir: fs.BaseDirectory.AppData })) {

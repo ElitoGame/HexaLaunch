@@ -57,17 +57,31 @@ export const HoverActions = (props: { themesVar: Theme; index: number; editEnabl
               onClick={(e) => {
                 if (e.shiftKey) {
                   if (merged.index > -1) {
+                    console.log("removing" + merged.themesVar.getThemeName())
+                    if(getSettingsData().getNewTheme().getThemeName() == merged.themesVar.getThemeName()){
+                      getSettingsData()?.setNewTheme(
+                      getSettingsData()?.getThemes()[0])
+                      }
+                    if(getSettingsData().getCurrentTheme() == merged.themesVar){
+                      getSettingsData()?.setCurrentTheme(getSettingsData().getThemes()[0]);
+                    }
                     setThemes({ themes: getSettingsData().getThemes() });
-                    let newThemesArray = removeThemeWithName(
-                      themes.themes,
-                      merged.themesVar.getThemeName()
-                    );
+                  
                     setThemes(
-                      produce((store) =>
-                        removeThemeWithName(store.themes, merged.themesVar.getThemeName())
+                      produce((store) =>{
+                        const objWithIdIndex = store.themes.findIndex((obj) => obj.getThemeName() === merged.themesVar.getThemeName());
+
+                        if (objWithIdIndex > -1) {
+                          store.themes.splice(objWithIdIndex, 1);}}
                       )
                     );
-                    getSettingsData()?.setThemes(newThemesArray);
+                    console.log(JSON.stringify(themes.themes))
+                    
+                    getSettingsData()?.setThemes(removeThemeWithName(
+                      themes.themes,
+                      merged.themesVar.getThemeName()
+                    ));
+                    console.log(JSON.stringify(getSettingsData().getThemes()))
                   }
                   updateSettingData();
                 } else {
