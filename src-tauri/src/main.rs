@@ -42,7 +42,7 @@ use window_vibrancy::apply_blur;
 fn main() {
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let settings = CustomMenuItem::new("settings".to_string(), "Settings");
-    let tray_menu = SystemTrayMenu::new().add_item(quit).add_item(settings);
+    let tray_menu = SystemTrayMenu::new().add_item(settings).add_item(quit);
     let system_tray = SystemTray::new().with_menu(tray_menu);
     tauri::Builder::default()
         .setup(|app| {

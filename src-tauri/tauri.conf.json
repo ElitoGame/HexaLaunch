@@ -113,7 +113,10 @@
       "csp": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; asset: https://asset.localhost"
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": ["https://hexalaunch.vercel.app/api/{{target}}/{{current_version}}"],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEFBMDUyQUI1ODc2MzI1OUIKUldTYkpXT0h0U29GcW9kck1mcWFndDZxZEtkb2NWRE1RYkg5ZGxFNnQwSm5sVVhmNzZFTjFiUlAK"
     },
     "windows": [
       {

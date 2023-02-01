@@ -22,12 +22,8 @@
   "dependencies": {
     "@hope-ui/solid": "^0.6.7",
     "@lyrasearch/lyra": "^0.4.1",
-    "@node-steam/vdf": "^2.2.0",
     "@stitches/core": "^1.2.8",
     "@tauri-apps/api": "^1.2.0",
-    "binary-vdf": "^0.1.0",
-    "fetch-installed-software": "^0.0.7",
-    "open": "^8.4.0",
     "solid-icons": "^1.0.4",
     "solid-js": "^1.6.9",
     "solid-transition-group": "^0.0.10"
