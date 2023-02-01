@@ -1,4 +1,11 @@
-import { getNewTheme, isDraggingTiles, setIsDraggingTiles, wasDraggingTiles } from '../settings';
+import {
+  getNewTheme,
+  getSettingsData,
+  isDraggingTiles,
+  setIsDraggingTiles,
+  updateSettingData,
+  wasDraggingTiles,
+} from '../settings';
 import {
   Grid,
   GridItem,
@@ -82,6 +89,8 @@ createEffect(() => {
     setDeleteTargetSignal(getDeleteDialog().targetTile.app);
   }
 });
+// reset layout
+const [getResetLayoutDialog, setResetLayoutDialog] = createSignal(false);
 
 let urlInput: HTMLInputElement | undefined;
 
@@ -196,6 +205,13 @@ listen('hexUiDataLoaded', () => {
   setSettingsGridTiles(getHexUiData().getTiles());
 });
 
+const [isForcelayoutRefresh, setIsForcelayoutRefresh] = createSignal(false);
+createEffect(() => {
+  if (isForcelayoutRefresh()) {
+    setIsForcelayoutRefresh(false);
+  }
+});
+
 /*
  █████   █████                      █████  █████ █████      █████████             ███      █████
 ░░███   ░░███                      ░░███  ░░███ ░░███      ███░░░░░███           ░░░      ░░███ 
@@ -248,192 +264,194 @@ const HexUIGrid = () => {
             'font-size': '0',
           }}
         >
-          <For each={getSettingsGridTiles()}>
-            {(tile: HexTileData, i) => (
-              <span
-                class="select-none"
-                onMouseDown={(e) => {
-                  if (
-                    e.target.classList.contains('hexOptions') ||
-                    e.target.parentElement.classList.contains('hexOptions') ||
-                    getCurrentTab() !== 'Layout'
-                  ) {
-                    return;
-                  }
-                  console.log('mouse down');
-                  if (tile.getAction() === 'Unset') return;
-                  setIsDraggingTiles(true);
-                  setIsDraggingFromGrid(true);
-                  // setHexTileData(dragData.fromExternalApp(tile));
-                  setHexTileData(
-                    new dragHexData(
-                      tile.getAction() as actionType,
-                      tile.getApp(),
-                      tile.getUrl(),
-                      tile.getIcon(),
-                      tile.getX(),
-                      tile.getY(),
-                      tile.getRadiant()
-                    )
-                  );
-                  dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
-                  dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
-                  setHexAppIcon(tile.getApp());
-                  e.preventDefault();
-                }}
-                draggable={false}
-                onMouseOver={() => {
-                  if (tile.getAction() === 'Unset') return;
-                  setOptionsVisible({ visible: true, x: tile.getX(), y: tile.getY() });
-                }}
-                onMouseLeave={(e) => {
-                  setOptionsVisible({ visible: false, x: tile.getX(), y: tile.getY() });
-                }}
-              >
-                <Show
-                  when={
-                    getOptionsVisible().visible &&
-                    getOptionsVisible().x === tile.getX() &&
-                    getOptionsVisible().y === tile.getY() &&
-                    getCurrentTab() === 'Layout'
-                  }
+          <Show when={!isForcelayoutRefresh()}>
+            <For each={getSettingsGridTiles()}>
+              {(tile: HexTileData, i) => (
+                <span
+                  class="select-none"
+                  onMouseDown={(e) => {
+                    if (
+                      e.target.classList.contains('hexOptions') ||
+                      e.target.parentElement.classList.contains('hexOptions') ||
+                      getCurrentTab() !== 'Layout'
+                    ) {
+                      return;
+                    }
+                    console.log('mouse down');
+                    if (tile.getAction() === 'Unset') return;
+                    setIsDraggingTiles(true);
+                    setIsDraggingFromGrid(true);
+                    // setHexTileData(dragData.fromExternalApp(tile));
+                    setHexTileData(
+                      new dragHexData(
+                        tile.getAction() as actionType,
+                        tile.getApp(),
+                        tile.getUrl(),
+                        tile.getIcon(),
+                        tile.getX(),
+                        tile.getY(),
+                        tile.getRadiant()
+                      )
+                    );
+                    dragElement.style.left = e.clientX - dragElement.clientWidth / 2 + 'px';
+                    dragElement.style.top = e.clientY - dragElement.clientHeight / 2 + 'px';
+                    setHexAppIcon(tile.getApp());
+                    e.preventDefault();
+                  }}
+                  draggable={false}
+                  onMouseOver={() => {
+                    if (tile.getAction() === 'Unset') return;
+                    setOptionsVisible({ visible: true, x: tile.getX(), y: tile.getY() });
+                  }}
+                  onMouseLeave={(e) => {
+                    setOptionsVisible({ visible: false, x: tile.getX(), y: tile.getY() });
+                  }}
                 >
-                  <div
-                    class={`hexOptions absolute bg-accent rounded-full h-6 w-max p-1 flex items-center justify-center z-50 text-base -translate-x-1/2 translate-y-1/2 gap-1 cursor-pointer`}
-                    style={{
-                      left: `${
-                        getOptionsVisible().x * (getHexSize() + getHexMargin()) -
-                        (getOptionsVisible().y % 2 === 0
-                          ? 0
-                          : (getHexSize() + getHexMargin()) / 2) -
-                        getHexSize() / 2 -
-                        (getHexMargin() / 8) * 11.75 +
-                        getHexSize() / 2 +
-                        (getHexMargin() / 8) * 11.75
-                      }px`,
-                      bottom: `${
-                        getOptionsVisible().y * (getHexSize() * 0.86 + getHexMargin()) -
-                        (getHexSize() / 13) * 8 -
-                        (getHexMargin() / 8) * 11.75 +
-                        getHexSize() +
-                        (getHexMargin() / 8) * 11.75
-                      }px`,
-                    }}
+                  <Show
+                    when={
+                      getOptionsVisible().visible &&
+                      getOptionsVisible().x === tile.getX() &&
+                      getOptionsVisible().y === tile.getY() &&
+                      getCurrentTab() === 'Layout'
+                    }
                   >
-                    <IoTrashBin
-                      class="hexOptions bin fill-text w-6"
-                      onClick={(e) => {
-                        if (e.shiftKey) {
-                          const oldTile = new HexTileData(
-                            tile.getX(),
-                            tile.getY(),
-                            tile.getRadiant(),
-                            'Unset',
-                            '',
-                            ''
-                          );
-                          console.log('oldTile', oldTile, getHexTileData());
-                          UserSettings.setHexTileData(oldTile);
-                          let tiles = getHexUiData()
-                            ?.getTiles()
-                            .map((x) => {
-                              if (
-                                x.getX() === tile.getX() &&
-                                x.getY() === tile.getY() &&
-                                x.getRadiant() === tile.getRadiant()
-                              ) {
-                                return oldTile;
-                              }
-                              return x;
-                            });
-                          setSettingsGridTiles(tiles);
-                          getHexUiData()?.setTiles(tiles);
-                        } else {
-                          setDeleteDialog({
-                            visible: true,
-                            targetTile: tile,
-                          });
-                        }
-                        setOptionsVisible({ visible: false, x: tile.getX(), y: tile.getY() });
+                    <div
+                      class={`hexOptions absolute bg-accent rounded-full h-6 w-max p-1 flex items-center justify-center z-50 text-base -translate-x-1/2 translate-y-1/2 gap-1 cursor-pointer`}
+                      style={{
+                        left: `${
+                          getOptionsVisible().x * (getHexSize() + getHexMargin()) -
+                          (getOptionsVisible().y % 2 === 0
+                            ? 0
+                            : (getHexSize() + getHexMargin()) / 2) -
+                          getHexSize() / 2 -
+                          (getHexMargin() / 8) * 11.75 +
+                          getHexSize() / 2 +
+                          (getHexMargin() / 8) * 11.75
+                        }px`,
+                        bottom: `${
+                          getOptionsVisible().y * (getHexSize() * 0.86 + getHexMargin()) -
+                          (getHexSize() / 13) * 8 -
+                          (getHexMargin() / 8) * 11.75 +
+                          getHexSize() +
+                          (getHexMargin() / 8) * 11.75
+                        }px`,
                       }}
-                    />
-                    <Show when={tile.getAction() === 'App'}>
-                      <FaSolidLink
-                        class="hexOptions bin fill-text"
-                        onClick={() => {
-                          setEditDialog({ visible: true, targetTile: tile });
+                    >
+                      <IoTrashBin
+                        class="hexOptions bin fill-text w-6"
+                        onClick={(e) => {
+                          if (e.shiftKey) {
+                            const oldTile = new HexTileData(
+                              tile.getX(),
+                              tile.getY(),
+                              tile.getRadiant(),
+                              'Unset',
+                              '',
+                              ''
+                            );
+                            console.log('oldTile', oldTile, getHexTileData());
+                            UserSettings.setHexTileData(oldTile);
+                            let tiles = getHexUiData()
+                              ?.getTiles()
+                              .map((x) => {
+                                if (
+                                  x.getX() === tile.getX() &&
+                                  x.getY() === tile.getY() &&
+                                  x.getRadiant() === tile.getRadiant()
+                                ) {
+                                  return oldTile;
+                                }
+                                return x;
+                              });
+                            setSettingsGridTiles(tiles);
+                            getHexUiData()?.setTiles(tiles);
+                          } else {
+                            setDeleteDialog({
+                              visible: true,
+                              targetTile: tile,
+                            });
+                          }
+                          setOptionsVisible({ visible: false, x: tile.getX(), y: tile.getY() });
                         }}
                       />
-                    </Show>
-                  </div>
-                </Show>
-                <HexTile
-                  zIndex={10}
-                  x={tile.getX()}
-                  y={tile.getY()}
-                  radiant={tile.getRadiant()}
-                  title={
-                    tile.getAction() === 'Unset'
-                      ? getCurrentTab() === 'Layout'
-                        ? '+'
-                        : ''
-                      : tile
-                          .getApp()
-                          ?.split('.')[0]
-                          ?.split('/')
-                          [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
-                        tile
-                          .getUrl()
-                          ?.split('.')[0]
-                          ?.split('/')
-                          [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
-                  }
-                  action={tile.getAction()}
-                  app={tile.getApp()}
-                  url={tile.getUrl()?.trim() ?? ''}
-                  hasAnimation={false}
-                  isSettings={true}
-                  onClick={() => {
-                    if (tile.getAction() === 'Unset' && getCurrentTab() === 'Layout') {
-                      notificationService.show({
-                        status: 'info',
-                        title: 'Drag and drop an app here!',
-                        description: 'Use the left sidebar to add apps to your layout.',
-                        render: (props) => (
-                          <HStack
-                            bg="$loContrast"
-                            rounded="$md"
-                            border="1px solid $neutral7"
-                            shadow="$lg"
-                            p="$4"
-                            w="$full"
-                            class="bg-background border-0 text-text"
-                          >
-                            <VStack alignItems="flex-start">
-                              <span class="text-md">Drag and drop an app here!</span>
-                              <p>
-                                Use the left sidebar in the Layout Tab to add apps to your layout.
-                              </p>
-                            </VStack>
-                            <Button
-                              variant="ghost"
-                              colorScheme="accent"
-                              size="sm"
-                              ml="auto"
-                              onClick={() => props.close()}
-                              class="bg-background border-0 text-lg text-text"
-                            >
-                              <VsClose />
-                            </Button>
-                          </HStack>
-                        ),
-                      });
+                      <Show when={tile.getAction() === 'App'}>
+                        <FaSolidLink
+                          class="hexOptions bin fill-text"
+                          onClick={() => {
+                            setEditDialog({ visible: true, targetTile: tile });
+                          }}
+                        />
+                      </Show>
+                    </div>
+                  </Show>
+                  <HexTile
+                    zIndex={10}
+                    x={tile.getX()}
+                    y={tile.getY()}
+                    radiant={tile.getRadiant()}
+                    title={
+                      tile.getAction() === 'Unset'
+                        ? getCurrentTab() === 'Layout'
+                          ? '+'
+                          : ''
+                        : tile
+                            .getApp()
+                            ?.split('.')[0]
+                            ?.split('/')
+                            [tile.getApp()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3) ??
+                          tile
+                            .getUrl()
+                            ?.split('.')[0]
+                            ?.split('/')
+                            [tile.getUrl()?.split('.')[0]?.split('/')?.length - 1]?.slice(0, 3)
                     }
-                  }}
-                ></HexTile>
-              </span>
-            )}
-          </For>
+                    action={tile.getAction()}
+                    app={tile.getApp()}
+                    url={tile.getUrl()?.trim() ?? ''}
+                    hasAnimation={false}
+                    isSettings={true}
+                    onClick={() => {
+                      if (tile.getAction() === 'Unset' && getCurrentTab() === 'Layout') {
+                        notificationService.show({
+                          status: 'info',
+                          title: 'Drag and drop an app here!',
+                          description: 'Use the left sidebar to add apps to your layout.',
+                          render: (props) => (
+                            <HStack
+                              bg="$loContrast"
+                              rounded="$md"
+                              border="1px solid $neutral7"
+                              shadow="$lg"
+                              p="$4"
+                              w="$full"
+                              class="bg-background border-0 text-text"
+                            >
+                              <VStack alignItems="flex-start">
+                                <span class="text-md">Drag and drop an app here!</span>
+                                <p>
+                                  Use the left sidebar in the Layout Tab to add apps to your layout.
+                                </p>
+                              </VStack>
+                              <Button
+                                variant="ghost"
+                                colorScheme="accent"
+                                size="sm"
+                                ml="auto"
+                                onClick={() => props.close()}
+                                class="bg-background border-0 text-lg text-text"
+                              >
+                                <VsClose />
+                              </Button>
+                            </HStack>
+                          ),
+                        });
+                      }
+                    }}
+                  ></HexTile>
+                </span>
+              )}
+            </For>
+          </Show>
         </div>
         <Show when={getDeleteDialog().visible}>
           <div
@@ -730,12 +748,54 @@ const HexUIGrid = () => {
             </div>
           </div>
         </Show>
-        <Show when={getGridScale() !== 1}>
-          <span
-            class={`absolute right-2 text-text brightness-50 ${
-              getCurrentTab() === 'Appearance' ? 'bottom-[3rem] ' : 'bottom-2'
-            }`}
+        <Show when={getResetLayoutDialog()}>
+          <div
+            ref={tileList}
+            style={{
+              position: 'absolute',
+              top: `50%`,
+              left: `50%`,
+              transform: `translate(-50%, -50%)`,
+            }}
+            class="text-base text-text"
           >
+            <div class="bg-background p-4 rounded-md">
+              <VStack class="justify-end items-end">
+                <div class="flex justify-start flex-col">
+                  Are you sure you want to reset your current Layout?
+                </div>
+                <HStack class="mt-2">
+                  <Button
+                    class="text-accent underline bg-transparent hover:bg-transparent hover:text-accent hover:brightness-125"
+                    onClick={() => setResetLayoutDialog(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    class="bg-accent hover:bg-accent hover:brightness-125 text-text"
+                    onClick={() => {
+                      let tiles = getHexUiData()
+                        ?.getTiles()
+                        .map((x) => {
+                          x.resetData();
+                          UserSettings.setHexTileData(x);
+                          return x;
+                        });
+                      getHexUiData()?.setTiles(tiles);
+                      setSettingsGridTiles(tiles);
+                      setResetLayoutDialog(false);
+                      setIsForcelayoutRefresh(true);
+                    }}
+                  >
+                    Reset
+                  </Button>
+                </HStack>
+              </VStack>
+            </div>
+          </div>
+        </Show>
+        <Show when={getGridScale() !== 1}>
+          <span class={`absolute right-2 text-text brightness-50 bottom-[3rem]`}>
             Scaled to {Math.floor(getGridScale() * 100)}%
           </span>
         </Show>
@@ -1013,6 +1073,19 @@ const SettingsMenu = () => {
               >
                 Full Layout
               </HopeSwitch>
+            </span>
+          </Show>
+          <Show when={getCurrentTab() == 'Layout'}>
+            <span class="absolute right-2 bottom-4">
+              <Button
+                class="text-text p-1 bg-neutral hover:bg-red-500"
+                size={'xs'}
+                onClick={() => {
+                  setResetLayoutDialog(true);
+                }}
+              >
+                Reset Layout
+              </Button>
             </span>
           </Show>
         </GridItem>

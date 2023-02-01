@@ -107,4 +107,10 @@ export default class HexTileData {
   }) {
     return new HexTileData(data.x, data.y, data.radiant, data.action, data.app, data.url);
   }
+
+  public resetData() {
+    this.action = 'Unset';
+    this.app = '';
+    this.url = '';
+  }
 }
