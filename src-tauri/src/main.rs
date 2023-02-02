@@ -133,9 +133,9 @@ fn main() {
             MacosLauncher::LaunchAgent,
             None,
         ))
-        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-            println!("{}, {argv:?}, {cwd}", app.package_info().name);
-        }))
+        // .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+        //     println!("{}, {argv:?}, {cwd}", app.package_info().name);
+        // }))
         .system_tray(system_tray)
         .on_system_tray_event(|app, event| match event {
             SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {

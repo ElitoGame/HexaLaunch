@@ -88,7 +88,7 @@ In the preferences you can set the start hotkey to open the HexUI and switch som
   - [x] Searchbar
   - [x] Empty Paper bin
   - [x] Music/Media Control
-- [ ] Auto Updating
+- [x] Auto Updating
 - [x] Add a possibility to add Apps to the Launcher without pasting the Apps install location. This can be one or multiple of these:
   - [x] Uninstall Registy
   - [x] Apps linked in the startMenu
