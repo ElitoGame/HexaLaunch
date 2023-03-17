@@ -1,5 +1,5 @@
 ![systemTray](img/header2.svg)
-
+![Github All Releases](https://img.shields.io/github/downloads/ElitoGame/hexalaunch/total.svg)
 # HexaLaunch
 
 A radial hexagon menu to boost productivity
